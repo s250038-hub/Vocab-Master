@@ -10,7 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;700&display=swap');
 
         body {
-            background-color: #2c3e50; /* Dark background to highlight the book */
+            background-color: #2c3e50;
             background-image: radial-gradient(circle, #34495e, #1a252f);
             font-family: 'Inter', 'Noto Serif TC', sans-serif;
             display: flex;
@@ -28,12 +28,11 @@
             perspective: 1500px;
         }
 
-        /* Realistic book body */
         .book {
             display: flex;
             width: 100%;
             height: 100%;
-            background-color: #fcf9f2; /* Parchment/old paper tone */
+            background-color: #fcf9f2;
             background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
             border-radius: 12px;
             box-shadow: 
@@ -43,7 +42,6 @@
             overflow: hidden;
         }
 
-        /* Spine shadow effect */
         .spine {
             position: absolute;
             left: 50%;
@@ -74,13 +72,11 @@
             border-right: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
 
-        /* Page view transition */
         .view-section {
             display: none;
             animation: fadeIn 0.4s ease-out forwards;
@@ -93,7 +89,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Flashcard 3D flip effect */
         .flashcard-container {
             perspective: 1000px;
             width: 100%;
@@ -130,7 +125,6 @@
             background: #f8fafc;
         }
 
-        /* Matching game styles */
         .match-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -163,7 +157,6 @@
             75% { transform: translateX(5px); }
         }
 
-        /* Toast notifications */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -179,7 +172,6 @@
             pointer-events: none;
         }
 
-        /* RWD Mobile Adaptations */
         @media (max-width: 768px) {
             .book { flex-direction: column; overflow-y: auto; }
             .spine { display: none; }
@@ -244,13 +236,13 @@
                     <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Add New Word</label>
                         <div class="flex gap-2">
-                            <input type="text" id="new-word-input" placeholder="Enter an English word..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" onkeypress="if(event.key === 'Enter') fetchDefinitions()">
+                            <input type="text" id="new-word-input" placeholder="Enter an English word..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="handleWordInputChange()" onkeypress="if(event.key === 'Enter') fetchDefinitions()">
                             <button id="fetch-btn" onclick="fetchDefinitions()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions
                             </button>
                         </div>
                         
-                        <!-- Definition Suggestions Box (Populated via API) -->
+                        <!-- Definition Suggestions & Custom Definition Area -->
                         <div id="definitions-suggestions" class="mt-4 hidden bg-gray-50 p-3 rounded-lg border border-gray-200">
                             <!-- Injected by JS -->
                         </div>
@@ -370,7 +362,7 @@
                             <!-- Cards injected here -->
                         </div>
                         
-                        <!-- Success Overlay (Hidden by default) -->
+                        <!-- Success Overlay -->
                         <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
                             <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
                             <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
@@ -392,10 +384,8 @@
                         </div>
                         <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
                             <option value="">-- Select or pick random --</option>
-                            <!-- Options injected here -->
                         </select>
                         <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden">
-                            <!-- Definition hint -->
                         </div>
                     </div>
 
@@ -411,7 +401,6 @@
                     <div id="grammar-result" class="mt-6 hidden">
                         <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
                         <div id="grammar-feedback" class="space-y-3">
-                            <!-- Injected feedback -->
                         </div>
                     </div>
                 </div>
@@ -423,11 +412,8 @@
     <div id="toast" class="toast">Message</div>
 
     <script>
-        // Core data structure
-        // vocabList = [ { id: '...', word: 'apple', definitions: [{pos: 'noun', def: 'A fruit'}], addedAt: timestamp } ]
         let vocabList = [];
         
-        // Initial load
         window.onload = () => {
             loadData();
             updateStats();
@@ -435,12 +421,10 @@
             updateSentenceSelect();
         };
 
-        // Switch navigation view
         function switchView(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewId}`).classList.add('active');
             
-            // View-specific initialization
             if (viewId === 'flashcard') initFlashcards();
             if (viewId === 'test') {
                 document.getElementById('test-available-words').innerText = vocabList.length;
@@ -449,7 +433,6 @@
             if (viewId === 'sentence') updateSentenceSelect();
         }
 
-        // Data persistence
         function saveData() {
             localStorage.setItem('vocabMasterData', JSON.stringify(vocabList));
             updateStats();
@@ -478,7 +461,22 @@
         let tempDefinitions = [];
         let currentFetchingWord = "";
 
-        // API Dual Engine Quick Search
+        function handleWordInputChange() {
+            const word = document.getElementById('new-word-input').value.trim();
+            const suggestContainer = document.getElementById('definitions-suggestions');
+            
+            if (word.length > 0) {
+                if (currentFetchingWord !== word) {
+                    currentFetchingWord = word;
+                    tempDefinitions = [];
+                }
+                suggestContainer.classList.remove('hidden');
+                renderDefinitionSuggestions('Manual Entry');
+            } else {
+                suggestContainer.classList.add('hidden');
+            }
+        }
+
         async function fetchDefinitions() {
             const input = document.getElementById('new-word-input');
             const word = input.value.trim().toLowerCase();
@@ -503,9 +501,7 @@
             const wikiUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
 
             try {
-                // Race mode: Promise.any returns whichever responds first
                 const result = await Promise.any([
-                    // Option 1: Free Dictionary API
                     fetch(dictUrl).then(async res => {
                         if (!res.ok) throw new Error('FreeDict API failed');
                         const data = await res.json();
@@ -519,7 +515,6 @@
                         if (defs.length === 0) throw new Error('FreeDict has no definitions');
                         return { word: data[0].word, defs: defs, source: 'Free Dictionary' };
                     }),
-                    // Option 2: Wiktionary API
                     fetch(wikiUrl).then(async res => {
                         if (!res.ok) throw new Error('Wiki API failed');
                         const data = await res.json();
@@ -528,7 +523,7 @@
                         data.en.forEach(meaning => {
                             const pos = meaning.partOfSpeech;
                             meaning.definitions.slice(0, 3).forEach(defObj => {
-                                let cleanDef = defObj.definition.replace(/<[^>]*>?/gm, ''); // Clean HTML tags
+                                let cleanDef = defObj.definition.replace(/<[^>]*>?/gm, '');
                                 defs.push({ pos: pos, def: cleanDef, selected: false });
                             });
                         });
@@ -543,7 +538,9 @@
 
             } catch (error) {
                 console.error("All dictionary APIs failed to respond:", error);
-                suggestContainer.innerHTML = '<p class="text-sm text-red-500 text-center py-4">Word not found or network connection issue. Please check spelling or try again later.</p>';
+                tempDefinitions = [];
+                currentFetchingWord = word;
+                renderDefinitionSuggestions('Manual Entry (API failed)');
             } finally {
                 fetchBtn.disabled = false;
                 fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
@@ -552,47 +549,102 @@
 
         function renderDefinitionSuggestions(sourceName) {
             const container = document.getElementById('definitions-suggestions');
-            let html = `<div class="flex justify-between items-center mb-2"><h4 class="font-bold text-gray-700">Select definitions for "${currentFetchingWord}":</h4><span class="text-xs text-gray-400">Source: ${sourceName}</span></div><div class="space-y-2 max-h-48 overflow-y-auto pr-2">`;
-            
-            tempDefinitions.forEach((def, index) => {
-                html += `
-                    <label class="flex items-start space-x-3 p-2 hover:bg-gray-100 rounded cursor-pointer border border-transparent hover:border-gray-200">
-                        <input type="checkbox" class="mt-1 form-checkbox text-blue-600 rounded" onchange="toggleDefSelection(${index})" ${def.selected ? 'checked' : ''}>
-                        <div>
-                            <span class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-1 rounded mr-1">${def.pos}</span>
-                            <span class="text-sm text-gray-700">${def.def}</span>
-                        </div>
-                    </label>
-                `;
-            });
-            html += `</div>
-                <button id="add-word-btn" onclick="saveNewWord()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-bold disabled:opacity-50" disabled>
+            let html = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold text-gray-700">Definitions for "${currentFetchingWord}":</h4>
+                    <span class="text-xs text-gray-400">Source: ${sourceName}</span>
+                </div>
+            `;
+
+            if (tempDefinitions.length > 0) {
+                html += `<div class="space-y-2 max-h-48 overflow-y-auto pr-2 mb-3">`;
+                tempDefinitions.forEach((def, index) => {
+                    html += `
+                        <label class="flex items-start space-x-3 p-2 hover:bg-gray-100 rounded cursor-pointer border border-transparent hover:border-gray-200">
+                            <input type="checkbox" class="mt-1 form-checkbox text-blue-600 rounded" onchange="toggleDefSelection(${index})" ${def.selected ? 'checked' : ''}>
+                            <div>
+                                <span class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-1 rounded mr-1">${def.pos}</span>
+                                <span class="text-sm text-gray-700">${def.def}</span>
+                            </div>
+                        </label>
+                    `;
+                });
+                html += `</div>`;
+            } else {
+                html += `<p class="text-xs text-gray-500 mb-2 italic">No online suggestions loaded. You can type your custom definition below.</p>`;
+            }
+
+            // Custom Definition Input Box
+            html += `
+                <div class="pt-2 border-t border-gray-200 mt-2">
+                    <label class="block text-xs font-bold text-gray-600 mb-1"><i class="fa-solid fa-pen"></i> Add Custom Meaning / Note:</label>
+                    <div class="flex gap-2">
+                        <select id="custom-pos" class="text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500 bg-white">
+                            <option value="noun">noun</option>
+                            <option value="verb">verb</option>
+                            <option value="adj">adj</option>
+                            <option value="adv">adv</option>
+                            <option value="phrase">phrase</option>
+                            <option value="other">other</option>
+                        </select>
+                        <input type="text" id="custom-def-input" placeholder="Type custom meaning or translation..." class="flex-1 text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="checkSaveButtonState()">
+                    </div>
+                </div>
+
+                <button id="add-word-btn" onclick="saveNewWord()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-bold disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     Save Word to Vault
                 </button>
             `;
             container.innerHTML = html;
+            checkSaveButtonState();
         }
 
         function toggleDefSelection(index) {
             tempDefinitions[index].selected = !tempDefinitions[index].selected;
+            checkSaveButtonState();
+        }
+
+        function checkSaveButtonState() {
+            const btn = document.getElementById('add-word-btn');
+            if (!btn) return;
             const hasSelected = tempDefinitions.some(d => d.selected);
-            document.getElementById('add-word-btn').disabled = !hasSelected;
+            const customInput = document.getElementById('custom-def-input');
+            const hasCustomText = customInput && customInput.value.trim().length > 0;
+            
+            btn.disabled = !(hasSelected || hasCustomText);
         }
 
         function saveNewWord() {
-            const selectedDefs = tempDefinitions.filter(d => d.selected).map(d => ({ pos: d.pos, def: d.def }));
+            let selectedDefs = tempDefinitions.filter(d => d.selected).map(d => ({ pos: d.pos, def: d.def }));
+            
+            const customDefInput = document.getElementById('custom-def-input');
+            const customPosInput = document.getElementById('custom-pos');
+            
+            if (customDefInput && customDefInput.value.trim().length > 0) {
+                selectedDefs.push({
+                    pos: customPosInput.value,
+                    def: customDefInput.value.trim()
+                });
+            }
+
             if (selectedDefs.length === 0) return;
+
+            const finalWord = currentFetchingWord || document.getElementById('new-word-input').value.trim();
+
+            if (vocabList.some(v => v.word.toLowerCase() === finalWord.toLowerCase())) {
+                showToast("This word is already in your vault!", true);
+                return;
+            }
 
             vocabList.unshift({
                 id: Date.now().toString(),
-                word: currentFetchingWord,
+                word: finalWord,
                 definitions: selectedDefs,
                 addedAt: Date.now()
             });
 
             saveData();
             
-            // Reset UI
             document.getElementById('new-word-input').value = '';
             document.getElementById('definitions-suggestions').classList.add('hidden');
             tempDefinitions = [];
@@ -618,8 +670,8 @@
                     <div>
                         <h4 class="font-bold text-lg text-gray-800">${item.word}</h4>
                         <ul class="text-sm text-gray-600 mt-1 space-y-1">
-                            ${item.definitions.slice(0, 2).map(d => `<li><span class="text-xs text-blue-500 italic mr-1">${d.pos}.</span>${d.def}</li>`).join('')}
-                            ${item.definitions.length > 2 ? `<li class="text-xs text-gray-400">+ ${item.definitions.length - 2} more...</li>` : ''}
+                            ${item.definitions.slice(0, 3).map(d => `<li><span class="text-xs text-blue-500 italic mr-1">${d.pos}.</span>${d.def}</li>`).join('')}
+                            ${item.definitions.length > 3 ? `<li class="text-xs text-gray-400">+ ${item.definitions.length - 3} more...</li>` : ''}
                         </ul>
                     </div>
                     <button onclick="deleteWord('${item.id}')" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-2">
@@ -637,7 +689,6 @@
             }
         }
 
-        // Use File System Access API for modern export options (with Save As dialog)
         async function exportWords() {
             if (vocabList.length === 0) {
                 showToast("Vault is empty, cannot export", true);
@@ -646,7 +697,6 @@
             const dataStr = JSON.stringify(vocabList, null, 2);
             
             try {
-                // Modern browser API (opens Save As picker window)
                 if (window.showSaveFilePicker) {
                     const handle = await window.showSaveFilePicker({
                         suggestedName: `VocabMaster_${new Date().toISOString().slice(0,10)}.words`,
@@ -657,11 +707,10 @@
                     await writable.close();
                     showToast("Export successful!");
                 } else {
-                    // Fallback for older browsers / mobile devices (direct download)
                     fallbackDownload(dataStr);
                 }
             } catch (err) {
-                if (err.name !== 'AbortError') { // Ignore user cancellation
+                if (err.name !== 'AbortError') {
                     console.error(err);
                     fallbackDownload(dataStr);
                 }
@@ -687,11 +736,9 @@
                 try {
                     const importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
-                        // Merge and deduplicate by word
                         let addedCount = 0;
                         importedData.forEach(newItem => {
                             if (!vocabList.some(v => v.word.toLowerCase() === newItem.word.toLowerCase())) {
-                                // Assign new ID to avoid collisions
                                 newItem.id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
                                 vocabList.push(newItem);
                                 addedCount++;
@@ -706,7 +753,7 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reset input
+            event.target.value = '';
         }
 
         let flashcardList = [];
@@ -740,7 +787,6 @@
             `).join('');
             document.getElementById('flashcard-defs').innerHTML = defsHtml;
             
-            // Reset flipped state
             document.getElementById('flashcard-element').classList.remove('is-flipped');
         }
 
@@ -787,7 +833,6 @@
             document.getElementById('test-result').classList.add('hidden');
             document.getElementById('test-active').classList.remove('hidden');
 
-            // Prepare questions: shuffle vocabulary list
             testQuestions = [...vocabList].sort(() => Math.random() - 0.5);
             currentTestIndex = 0;
             testScore = 0;
@@ -806,10 +851,8 @@
             document.getElementById('test-score-display').innerText = `Score: ${testScore}`;
             document.getElementById('test-question-word').innerText = currentTarget.word;
 
-            // Get correct definition (randomly selected)
             const correctDef = currentTarget.definitions[Math.floor(Math.random() * currentTarget.definitions.length)].def;
             
-            // Get incorrect definitions
             let wrongDefs = [];
             let otherWords = vocabList.filter(v => v.id !== currentTarget.id).sort(() => Math.random() - 0.5);
             for (let i = 0; i < optionCount - 1; i++) {
@@ -818,7 +861,6 @@
                 }
             }
 
-            // Combine and shuffle options
             let options = [{ text: correctDef, isCorrect: true }, ...wrongDefs.map(d => ({ text: d, isCorrect: false }))];
             options.sort(() => Math.random() - 0.5);
 
@@ -835,7 +877,6 @@
         }
 
         function handleTestAnswer(btnElement, isCorrect, optionCount) {
-            // Disable all buttons to prevent duplicate clicks
             const buttons = document.getElementById('test-options').querySelectorAll('button');
             buttons.forEach(b => b.disabled = true);
 
@@ -849,9 +890,8 @@
                 btnElement.classList.replace('bg-white', 'bg-red-100');
                 btnElement.classList.remove('hover:bg-blue-50');
                 
-                // Highlight the correct answer
                 buttons.forEach(b => {
-                    if (b.onclick.toString().includes('true')) { // Simple check to locate the correct button
+                    if (b.onclick.toString().includes('true')) {
                          b.classList.replace('border-gray-200', 'border-green-500');
                          b.classList.add('bg-green-50');
                     }
@@ -887,18 +927,15 @@
             document.getElementById('match-setup').classList.add('hidden');
             document.getElementById('match-active').classList.remove('hidden');
             
-            // Hide victory overlay
             document.getElementById('match-success-overlay').classList.add('hidden');
             document.getElementById('match-success-overlay').style.display = '';
 
-            // Pick up to 6 words for a session
             const playWords = [...vocabList].sort(() => Math.random() - 0.5).slice(0, 6);
             matchCards = [];
             
             playWords.forEach(w => {
                 const pairId = w.id;
                 matchCards.push({ id: `w_${pairId}`, text: w.word, type: 'word', pairId: pairId });
-                // Truncate long definitions
                 let def = w.definitions[0].def;
                 if(def.length > 60) def = def.substring(0, 57) + '...';
                 matchCards.push({ id: `d_${pairId}`, text: def, type: 'def', pairId: pairId });
@@ -940,9 +977,7 @@
             } else {
                 matchMoves++;
                 
-                // Check match (same pairId, one is word and one is definition)
                 if (firstSelected.data.pairId === cardData.pairId && firstSelected.data.type !== cardData.type) {
-                    // Match!
                     setTimeout(() => {
                         cardEl.classList.remove('selected');
                         cardEl.classList.add('matched');
@@ -956,12 +991,11 @@
                             setTimeout(() => {
                                 const overlay = document.getElementById('match-success-overlay');
                                 overlay.classList.remove('hidden');
-                                overlay.style.display = 'flex'; // Use flex for centering
+                                overlay.style.display = 'flex';
                             }, 500);
                         }
                     }, 300);
                 } else {
-                    // Wrong!
                     cardEl.classList.add('wrong');
                     firstSelected.el.classList.add('wrong');
                     const tempFirst = firstSelected.el;
@@ -1023,7 +1057,6 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI Checking...';
             
             try {
-                // Use free LanguageTool API for grammar checking
                 const response = await fetch('https://api.languagetool.org/v2/check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1050,9 +1083,7 @@
                 } else {
                     let errHtml = `<p class="text-sm text-red-600 mb-2">Found ${data.matches.length} potential issues:</p>`;
                     data.matches.forEach(match => {
-                        // Highlight problematic text
                         const errorWord = text.substring(match.offset, match.offset + match.length);
-                        // Get suggestion replacements
                         const suggestions = match.replacements.slice(0, 3).map(r => `<span class="bg-blue-100 text-blue-700 px-1 rounded text-xs font-mono mr-1">${r.value}</span>`).join('');
                         
                         errHtml += `
