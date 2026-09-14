@@ -298,8 +298,13 @@
                         <div class="flashcard-container mb-6" onclick="flipCard()">
                             <div id="flashcard-element" class="flashcard">
                                 <div class="flashcard-face">
-                                    <h2 id="flashcard-word" class="text-4xl font-bold text-gray-800 mb-2">Word</h2>
-                                    <p class="text-gray-400 text-sm"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
+                                    <div class="flex items-center gap-3">
+                                        <h2 id="flashcard-word" class="text-4xl font-bold text-gray-800">Word</h2>
+                                        <button onclick="event.stopPropagation(); speakWord(document.getElementById('flashcard-word').innerText)" class="text-blue-500 hover:text-blue-700 text-2xl p-1 transition" title="Speak Word">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-gray-400 text-sm mt-4"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
                                 </div>
                                 <div class="flashcard-face flashcard-back">
                                     <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4">
@@ -351,7 +356,12 @@
                         
                         <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
                             <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
-                            <h2 id="test-question-word" class="text-4xl font-bold text-gray-800 mb-4">Word</h2>
+                            <div class="flex items-center justify-center gap-3 mb-4">
+                                <h2 id="test-question-word" class="text-4xl font-bold text-gray-800">Word</h2>
+                                <button onclick="speakWord(document.getElementById('test-question-word').innerText)" class="text-blue-500 hover:text-blue-700 text-2xl p-1 transition" title="Speak Word">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div id="test-options" class="grid grid-cols-1 gap-3">
@@ -444,6 +454,21 @@
         let activeVaultId = "default";
         let vocabList = [];
         
+        // --- Web Speech API TTS Feature ---
+        function speakWord(text, lang = 'en-US') {
+            if (!('speechSynthesis' in window)) {
+                showToast("Your browser does not support text-to-speech.", true);
+                return;
+            }
+            if (!text || text.trim() === '') return;
+
+            window.speechSynthesis.cancel(); // Cancel ongoing speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
         window.onload = () => {
             loadData();
             renderVaultSelect();
@@ -794,7 +819,12 @@
             container.innerHTML = filtered.map(item => `
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start group">
                     <div>
-                        <h4 class="font-bold text-lg text-gray-800">${item.word}</h4>
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-lg text-gray-800">${item.word}</h4>
+                            <button onclick="speakWord('${item.word.replace(/'/g, "\\'")}')" class="text-blue-500 hover:text-blue-700 text-sm p-1 transition" title="Speak Word">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                        </div>
                         <ul class="text-sm text-gray-600 mt-1 space-y-1">
                             ${item.definitions.slice(0, 3).map(d => `<li><span class="text-xs text-blue-500 italic mr-1">${d.pos}.</span>${d.def}</li>`).join('')}
                             ${item.definitions.length > 3 ? `<li class="text-xs text-gray-400">+ ${item.definitions.length - 3} more...</li>` : ''}
@@ -907,9 +937,14 @@
             document.getElementById('flashcard-word').innerText = card.word;
             
             const defsHtml = card.definitions.map(d => `
-                <div class="mb-2 pb-2 border-b border-gray-100 last:border-0">
-                    <span class="text-xs font-bold text-blue-500 uppercase">${d.pos}</span>
-                    <p class="text-sm text-gray-700">${d.def}</p>
+                <div class="mb-2 pb-2 border-b border-gray-100 last:border-0 flex items-start justify-between">
+                    <div>
+                        <span class="text-xs font-bold text-blue-500 uppercase">${d.pos}</span>
+                        <p class="text-sm text-gray-700">${d.def}</p>
+                    </div>
+                    <button onclick="event.stopPropagation(); speakWord('${d.def.replace(/'/g, "\\'")}')" class="text-blue-500 hover:text-blue-700 text-xs p-1 ml-2 transition" title="Read definition">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
                 </div>
             `).join('');
             document.getElementById('flashcard-defs').innerHTML = defsHtml;
