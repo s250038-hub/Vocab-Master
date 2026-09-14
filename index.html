@@ -187,34 +187,59 @@
             
             <!-- Left Page: Menu & Stats -->
             <div class="page page-left">
-                <div class="text-center mb-8">
+                <div class="text-center mb-6">
                     <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
                     <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
                 </div>
 
-                <div class="space-y-3 mb-8">
-                    <button onclick="switchView('home')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                <!-- Vault Switcher Section -->
+                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
+                    <div class="flex gap-2 mb-2">
+                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
+                            <!-- Vault options injected dynamically -->
+                        </select>
+                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center px-1">
+                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i> Rename
+                        </button>
+                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-6">
+                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-house w-6"></i> Vault Overview
                     </button>
-                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-layer-group w-6"></i> Flashcards
                     </button>
-                    <button onclick="switchView('test')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-spell-check w-6"></i> Quiz Test
                     </button>
-                    <button onclick="switchView('match')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
                     </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-3 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
                     </button>
                 </div>
 
                 <div class="bg-white/50 p-4 rounded-xl mb-6">
                     <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 text-sm">Total Words Saved:</span>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-500 text-sm">Words in Vault:</span>
                         <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm">Total Vaults:</span>
+                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
                     </div>
                 </div>
 
@@ -230,7 +255,10 @@
                 
                 <!-- View 1: Word Vault Overview & Add (Home) -->
                 <div id="view-home" class="view-section active">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">Manage Vault</h2>
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">Manage Vault</h2>
+                        <span id="current-vault-badge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">Default Vault</span>
+                    </div>
                     
                     <!-- Add Word Section -->
                     <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
@@ -292,7 +320,7 @@
                     
                     <div id="flashcard-empty" class="text-center py-20 text-gray-500">
                         <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
-                        <p>Your vocabulary vault is empty! Go add some words first.</p>
+                        <p>Your current vault is empty! Go add some words first.</p>
                     </div>
                 </div>
 
@@ -306,7 +334,7 @@
                         <div class="mb-6 max-w-xs mx-auto text-left">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
                             <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in your vault</p>
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
                         </div>
 
                         <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
@@ -412,10 +440,13 @@
     <div id="toast" class="toast">Message</div>
 
     <script>
+        let vaults = {};
+        let activeVaultId = "default";
         let vocabList = [];
         
         window.onload = () => {
             loadData();
+            renderVaultSelect();
             updateStats();
             renderWordList();
             updateSentenceSelect();
@@ -434,20 +465,115 @@
         }
 
         function saveData() {
-            localStorage.setItem('vocabMasterData', JSON.stringify(vocabList));
+            if (vaults[activeVaultId]) {
+                vaults[activeVaultId].words = vocabList;
+            }
+            localStorage.setItem('vocabMasterVaults', JSON.stringify(vaults));
+            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
             updateStats();
             updateSentenceSelect();
         }
 
         function loadData() {
-            const data = localStorage.getItem('vocabMasterData');
-            if (data) {
-                vocabList = JSON.parse(data);
+            const savedVaults = localStorage.getItem('vocabMasterVaults');
+            const savedActiveVault = localStorage.getItem('vocabMasterActiveVault');
+
+            if (savedVaults) {
+                vaults = JSON.parse(savedVaults);
+            } else {
+                // Migration check from old single-vault format
+                const oldData = localStorage.getItem('vocabMasterData');
+                let initialWords = [];
+                if (oldData) {
+                    try { initialWords = JSON.parse(oldData); } catch(e) {}
+                }
+                vaults = {
+                    "default": {
+                        name: "Main Vault",
+                        words: initialWords
+                    }
+                };
+            }
+
+            if (savedActiveVault && vaults[savedActiveVault]) {
+                activeVaultId = savedActiveVault;
+            } else {
+                activeVaultId = Object.keys(vaults)[0] || "default";
+            }
+
+            vocabList = vaults[activeVaultId] ? vaults[activeVaultId].words : [];
+        }
+
+        function renderVaultSelect() {
+            const select = document.getElementById('vault-select');
+            select.innerHTML = Object.keys(vaults).map(id => `
+                <option value="${id}" ${id === activeVaultId ? 'selected' : ''}>${vaults[id].name}</option>
+            `).join('');
+
+            const badge = document.getElementById('current-vault-badge');
+            if (badge && vaults[activeVaultId]) {
+                badge.innerText = vaults[activeVaultId].name;
+            }
+        }
+
+        function switchVault(vaultId) {
+            if (!vaults[vaultId]) return;
+            activeVaultId = vaultId;
+            vocabList = vaults[activeVaultId].words || [];
+            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
+            
+            renderVaultSelect();
+            updateStats();
+            renderWordList();
+            updateSentenceSelect();
+            showToast(`Switched to "${vaults[activeVaultId].name}"`);
+        }
+
+        function createNewVault() {
+            const name = prompt("Enter a name for the new Vocabulary Vault:", "My New Vault");
+            if (!name || !name.trim()) return;
+
+            const newId = 'vault_' + Date.now();
+            vaults[newId] = {
+                name: name.trim(),
+                words: []
+            };
+
+            saveData();
+            switchVault(newId);
+        }
+
+        function renameCurrentVault() {
+            const currentName = vaults[activeVaultId].name;
+            const newName = prompt("Enter a new name for this vault:", currentName);
+            if (!newName || !newName.trim() || newName.trim() === currentName) return;
+
+            vaults[activeVaultId].name = newName.trim();
+            saveData();
+            renderVaultSelect();
+            showToast("Vault renamed successfully!");
+        }
+
+        function deleteCurrentVault() {
+            const vaultKeys = Object.keys(vaults);
+            if (vaultKeys.length <= 1) {
+                showToast("You must keep at least one vault!", true);
+                return;
+            }
+
+            const currentName = vaults[activeVaultId].name;
+            if (confirm(`Are you sure you want to delete the vault "${currentName}" and all its words?`)) {
+                delete vaults[activeVaultId];
+                const nextVaultId = Object.keys(vaults)[0];
+                switchVault(nextVaultId);
+                saveData();
+                showToast(`Vault "${currentName}" deleted.`);
             }
         }
 
         function updateStats() {
             document.getElementById('stat-total-words').innerText = vocabList.length;
+            document.getElementById('stat-total-vaults').innerText = Object.keys(vaults).length;
         }
 
         function showToast(msg, isError = false) {
@@ -695,11 +821,12 @@
                 return;
             }
             const dataStr = JSON.stringify(vocabList, null, 2);
+            const vaultName = vaults[activeVaultId].name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
             
             try {
                 if (window.showSaveFilePicker) {
                     const handle = await window.showSaveFilePicker({
-                        suggestedName: `VocabMaster_${new Date().toISOString().slice(0,10)}.words`,
+                        suggestedName: `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`,
                         types: [{ description: 'Words File', accept: {'text/plain': ['.words', '.txt']} }],
                     });
                     const writable = await handle.createWritable();
@@ -707,22 +834,22 @@
                     await writable.close();
                     showToast("Export successful!");
                 } else {
-                    fallbackDownload(dataStr);
+                    fallbackDownload(dataStr, vaultName);
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error(err);
-                    fallbackDownload(dataStr);
+                    fallbackDownload(dataStr, vaultName);
                 }
             }
         }
 
-        function fallbackDownload(dataStr) {
+        function fallbackDownload(dataStr, vaultName = "vault") {
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `VocabMaster_${new Date().toISOString().slice(0,10)}.words`;
+            a.download = `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`;
             a.click();
             URL.revokeObjectURL(url);
             showToast("Download triggered! Please check your downloads folder.");
