@@ -1,1239 +1,1137 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocab Master</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Vocab Master - Personal Vocabulary Vault</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;700&display=swap');
+        :root {
+            --primary-color: #4a6fa5;
+            --primary-dark: #385682;
+            --secondary-color: #16bac5;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --border-color: #e9ecef;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
         body {
-            background-color: #2c3e50;
-            background-image: radial-gradient(circle, #34495e, #1a252f);
-            font-family: 'Inter', 'Noto Serif TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 1rem;
         }
 
-        .book-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            height: 90vh;
-            perspective: 1500px;
-        }
-
-        .book {
+        .app-container {
             display: flex;
             width: 100%;
-            height: 100%;
-            background-color: #fcf9f2;
-            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-            border-radius: 12px;
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                inset 0 0 60px rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
         }
 
-        .spine {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            transform: translateX(-50%);
-            background: linear-gradient(
-                to right, 
-                rgba(255,255,255,0) 0%, 
-                rgba(0,0,0,0.08) 20%, 
-                rgba(0,0,0,0.15) 50%, 
-                rgba(0,0,0,0.08) 80%, 
-                rgba(255,255,255,0) 100%
-            );
-            z-index: 10;
-            pointer-events: none;
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
         }
 
-        .page {
-            flex: 1;
-            padding: 2.5rem;
+        .brand {
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .vault-selector {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .vault-selector label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .vault-select-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .vault-select-group select {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(74, 111, 165, 0.1);
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stats-summary {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
             overflow-y: auto;
-            position: relative;
         }
-        
-        .page-left {
-            border-right: 1px solid rgba(0,0,0,0.1);
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
 
         .view-section {
             display: none;
-            animation: fadeIn 0.4s ease-out forwards;
         }
+
         .view-section.active {
             display: block;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+        }
+
+        /* Forms & Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-secondary { background-color: #e2e8f0; color: #4a5568; }
+        .btn-secondary:hover { background-color: #cbd5e0; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
+        .btn-icon { padding: 6px; border-radius: 50%; background: transparent; color: var(--text-muted); }
+        .btn-icon:hover { background: var(--border-color); color: var(--text-color); }
+        .btn-speech { background: transparent; border: none; cursor: pointer; color: var(--primary-color); font-size: 1.2rem; transition: transform 0.1s; }
+        .btn-speech:hover { transform: scale(1.15); }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Tables */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .pos-badge {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Flashcards */
         .flashcard-container {
             perspective: 1000px;
             width: 100%;
+            max-width: 500px;
             height: 300px;
+            margin: 0 auto 20px auto;
         }
+
         .flashcard {
             width: 100%;
             height: 100%;
             position: relative;
-            transition: transform 0.6s;
             transform-style: preserve-3d;
+            transition: transform 0.6s;
             cursor: pointer;
+            box-shadow: var(--shadow);
+            border-radius: 12px;
         }
-        .flashcard.is-flipped {
+
+        .flashcard.flipped {
             transform: rotateY(180deg);
         }
-        .flashcard-face {
+
+        .flashcard-front, .flashcard-back {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
+            border-radius: 12px;
+            background-color: var(--card-bg);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
             text-align: center;
-        }
-        .flashcard-back {
-            transform: rotateY(180deg);
-            background: #f8fafc;
         }
 
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
+        .flashcard-back {
+            transform: rotateY(180deg);
+            align-items: flex-start;
+            text-align: left;
         }
-        .match-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+        .flashcard-word-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flashcard-front h2 {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+        }
+
+        .flashcard-hint {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .card-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Quiz Section */
+        .quiz-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .quiz-option {
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
             cursor: pointer;
-            text-align: center;
-            user-select: none;
             transition: all 0.2s;
-            border: 2px solid transparent;
-            font-size: 0.9rem;
+            text-align: left;
+            background: white;
+            font-size: 1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 111, 165, 0.05);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success-color);
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--danger-color);
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Matching Game */
+        .matching-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .matching-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 80px;
-        }
-        .match-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .match-card.selected { border-color: #3b82f6; background-color: #eff6ff; }
-        .match-card.matched { opacity: 0; pointer-events: none; }
-        .match-card.wrong { animation: shake 0.4s; border-color: #ef4444; background-color: #fef2f2; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
         }
 
-        .toast {
+        .matching-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .matching-card.selected {
+            border-color: var(--secondary-color);
+            background-color: rgba(22, 186, 197, 0.1);
+        }
+
+        .matching-card.matched {
+            visibility: hidden;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        /* Toast Messages */
+        #toast {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
+            right: 20px;
+            padding: 12px 20px;
+            background-color: #333;
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: none;
             z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        @media (max-width: 768px) {
-            .book { flex-direction: column; overflow-y: auto; }
-            .spine { display: none; }
-            .page-left { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: auto; }
-            .book-wrapper { height: 95vh; }
         }
     </style>
 </head>
 <body>
-    <div class="book-wrapper">
-        <div class="book">
-            <div class="spine"></div>
-            
-            <!-- Left Page: Menu & Stats -->
-            <div class="page page-left">
-                <div class="text-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
-                    <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
-                </div>
 
-                <!-- Vault Switcher Section -->
-                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
-                    <div class="flex gap-2 mb-2">
-                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
-                            <!-- Vault options injected dynamically -->
-                        </select>
-                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="flex justify-between items-center px-1">
-                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
-                            <i class="fa-solid fa-pen-to-square"></i> Rename
-                        </button>
-                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="brand">
+                <h1><i class="fas fa-book-bookmark"></i> Vocab Master</h1>
+                <p>Your Personal Vocabulary Vault</p>
+            </div>
 
-                <div class="space-y-2 mb-6">
-                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-house w-6"></i> Vault Overview
-                    </button>
-                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-layer-group w-6"></i> Flashcards
-                    </button>
-                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-spell-check w-6"></i> Quiz Test
-                    </button>
-                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
-                    </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
-                    </button>
-                </div>
-
-                <div class="bg-white/50 p-4 rounded-xl mb-6">
-                    <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-gray-500 text-sm">Words in Vault:</span>
-                        <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 text-sm">Total Vaults:</span>
-                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
-                    <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
-                    <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
+            <div class="vault-selector">
+                <label for="vault-select">CURRENT VAULT</label>
+                <div class="vault-select-group">
+                    <select id="vault-select" onchange="switchVault(this.value)">
+                        <!-- Populated by JS -->
+                    </select>
+                    <button class="btn btn-secondary btn-sm" onclick="promptNewVault()" title="New Vault"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
 
-            <!-- Right Page: Main Content Area -->
-            <div class="page page-right">
-                
-                <!-- View 1: Word Vault Overview & Add (Home) -->
-                <div id="view-home" class="view-section active">
-                    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
-                        <h2 class="text-2xl font-bold text-gray-800">Manage Vault</h2>
-                        <span id="current-vault-badge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">Default Vault</span>
-                    </div>
-                    
-                    <!-- Add Word Section -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Add New Word</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-word-input" placeholder="Enter an English word..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="handleWordInputChange()" onkeypress="if(event.key === 'Enter') fetchDefinitions()">
-                            <button id="fetch-btn" onclick="fetchDefinitions()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions
-                            </button>
-                        </div>
-                        
-                        <!-- Definition Suggestions & Custom Definition Area -->
-                        <div id="definitions-suggestions" class="mt-4 hidden bg-gray-50 p-3 rounded-lg border border-gray-200">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="switchTab('manage')">
+                    <i class="fas fa-list"></i> Manage Vault
+                </li>
+                <li class="nav-item" onclick="switchTab('flashcards')">
+                    <i class="fas fa-clone"></i> Flashcards
+                </li>
+                <li class="nav-item" onclick="switchTab('quiz')">
+                    <i class="fas fa-question-circle"></i> Quiz Test
+                </li>
+                <li class="nav-item" onclick="switchTab('matching')">
+                    <i class="fas fa-puzzle-piece"></i> Matching Game
+                </li>
+                <li class="nav-item" onclick="switchTab('grammar')">
+                    <i class="fas fa-pen-nib"></i> Sentence Practice
+                </li>
+            </ul>
 
-                    <!-- Word List -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-bold text-gray-700">Saved Words</h3>
-                            <input type="text" id="search-list" placeholder="Search..." class="text-sm border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="renderWordList()">
-                        </div>
-                        <div id="word-list-container" class="space-y-3">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
+            <div class="stats-summary">
+                <div class="stats-item">
+                    <span>Words in Vault:</span>
+                    <span id="stat-words-count">0</span>
+                </div>
+                <div class="stats-item">
+                    <span>Total Vaults:</span>
+                    <span id="stat-vaults-count">1</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+
+            <!-- Tab 1: Manage Vault -->
+            <div id="tab-manage" class="view-section active">
+                <div class="section-header">
+                    <h2>Manage Vault</h2>
+                    <span id="current-vault-title" class="pos-badge" style="font-size: 1rem;">Default Vault</span>
                 </div>
 
-                <!-- View 2: Flashcards -->
-                <div id="view-flashcard" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Flashcards</h2>
+                <!-- Add Word Form -->
+                <div class="quiz-card" style="max-width: 100%; margin-bottom: 25px;">
+                    <form id="add-word-form" onsubmit="handleAddWord(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="input-word">Word *</label>
+                                <input type="text" id="input-word" class="form-control" required placeholder="e.g. Ephemeral">
+                            </div>
+                            <div class="form-group">
+                                <label for="input-pos">Part of Speech</label>
+                                <select id="input-pos" class="form-control">
+                                    <option value="noun">noun</option>
+                                    <option value="verb">verb</option>
+                                    <option value="adjective">adjective</option>
+                                    <option value="adverb">adverb</option>
+                                    <option value="other">other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-def">Definition *</label>
+                            <input type="text" id="input-def" class="form-control" required placeholder="e.g. Lasting for a very short time">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-example">Example Sentence</label>
+                            <input type="text" id="input-example" class="form-control" placeholder="e.g. Fashions are ephemeral.">
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Word</button>
+                    </form>
+                </div>
+
+                <!-- Word Table -->
+                <div class="table-container">
+                    <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Saved Words</h3>
+                        <button class="btn btn-danger btn-sm" onclick="clearCurrentVault()"><i class="fas fa-trash"></i> Clear Vault</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Word</th>
+                                <th>POS</th>
+                                <th>Definition</th>
+                                <th>Example</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="words-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Flashcards -->
+            <div id="tab-flashcards" class="view-section">
+                <div class="section-header">
+                    <h2>Flashcards</h2>
+                </div>
+                
+                <div id="flashcards-content">
+                    <div style="text-align: center; margin-bottom: 10px; color: var(--text-muted);" id="card-counter">1 / 10</div>
                     
-                    <div id="flashcard-ui" class="hidden flex-col items-center">
-                        <div class="text-sm text-gray-500 mb-4 font-medium" id="flashcard-counter">1 / 10</div>
-                        
-                        <div class="flashcard-container mb-6" onclick="flipCard()">
-                            <div id="flashcard-element" class="flashcard">
-                                <div class="flashcard-face">
-                                    <h2 id="flashcard-word" class="text-4xl font-bold text-gray-800 mb-2">Word</h2>
-                                    <p class="text-gray-400 text-sm"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
+                    <div class="flashcard-container" onclick="flipCard()">
+                        <div class="flashcard" id="flashcard">
+                            <div class="flashcard-front">
+                                <div class="flashcard-word-wrapper">
+                                    <h2 id="card-word">Word</h2>
+                                    <button type="button" class="btn-speech" onclick="event.stopPropagation(); speakText(document.getElementById('card-word').textContent);" title="Pronounce word">
+                                        <i class="fas fa-volume-high"></i>
+                                    </button>
                                 </div>
-                                <div class="flashcard-face flashcard-back">
-                                    <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4">
-                                        <!-- Injected definitions -->
-                                    </div>
+                                <p class="flashcard-hint"><i class="fas fa-sync-alt"></i> Click to flip</p>
+                            </div>
+                            <div class="flashcard-back">
+                                <span class="pos-badge" id="card-pos" style="margin-bottom: 10px;">noun</span>
+                                <p style="font-weight: 600; font-size: 1.1rem; margin-bottom: 15px;" id="card-def">Definition here</p>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p style="font-style: italic; color: var(--text-muted);" id="card-example">Example sentence</p>
+                                    <button type="button" class="btn-speech" style="font-size: 0.9rem;" onclick="event.stopPropagation(); speakText(document.getElementById('card-example').textContent);" title="Read sentence">
+                                        <i class="fas fa-volume-high"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="flex gap-4 w-full max-w-sm">
-                            <button onclick="prevCard()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl transition font-medium"><i class="fa-solid fa-arrow-left"></i> Previous</button>
-                            <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-medium">Next <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                        <div class="mt-4">
-                            <button onclick="shuffleCards()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-shuffle"></i> Shuffle & Restart</button>
-                        </div>
                     </div>
-                    
-                    <div id="flashcard-empty" class="text-center py-20 text-gray-500">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
-                        <p>Your current vault is empty! Go add some words first.</p>
+
+                    <div class="card-controls">
+                        <button class="btn btn-secondary" onclick="prevCard()"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button class="btn btn-primary" onclick="nextCard()">Next <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <!-- View 3: Quiz Test -->
-                <div id="view-test" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz Test</h2>
-                    
-                    <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
-                            <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
-                        </div>
+                <div id="flashcards-empty" class="empty-state" style="display: none;">
+                    <i class="fas fa-folder-open"></i>
+                    <p>Your current vault is empty! Go add some words first.</p>
+                </div>
+            </div>
 
-                        <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Quiz
-                        </button>
-                        <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="test-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="test-progress">Question: 1 / 10</span>
-                            <span id="test-score-display" class="text-blue-600">Score: 0</span>
-                        </div>
-                        
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
-                            <h2 id="test-question-word" class="text-4xl font-bold text-gray-800 mb-4">Word</h2>
-                        </div>
-
-                        <div id="test-options" class="grid grid-cols-1 gap-3">
-                            <!-- Option buttons injected here -->
-                        </div>
-                    </div>
-                    
-                    <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
-                        <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
+            <!-- Tab 3: Quiz Test -->
+            <div id="tab-quiz" class="view-section">
+                <div class="section-header">
+                    <h2>Quiz Test</h2>
                 </div>
 
-                <!-- View 4: Matching Game -->
-                <div id="view-match" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Matching Game</h2>
-                    
-                    <div id="match-setup" class="text-center py-10">
-                        <p class="text-gray-600 mb-6">Match words with their corresponding definitions to clear them!</p>
-                        <button onclick="startMatch()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Game
-                        </button>
-                        <p id="match-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="match-active" class="hidden relative">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-sm font-bold text-gray-500">Remaining Matches: <span id="match-remain" class="text-purple-600">0</span></span>
-                            <span class="text-sm font-bold text-gray-500">Moves: <span id="match-moves">0</span></span>
-                        </div>
-                        <div id="match-board" class="match-grid pb-10">
-                            <!-- Cards injected here -->
-                        </div>
-                        
-                        <!-- Success Overlay -->
-                        <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
-                            <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
-                            <button onclick="startMatch()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Play Again</button>
-                        </div>
-                    </div>
+                <div id="quiz-start-screen" class="quiz-card" style="text-align: center;">
+                    <p style="margin-bottom: 20px;">Test your knowledge of definition meanings!</p>
+                    <button class="btn btn-primary" onclick="startQuiz()"><i class="fas fa-play"></i> Start Quiz</button>
+                    <p id="quiz-empty-warning" style="color: var(--danger-color); margin-top: 15px; display: none;">You currently need at least 4 words in this vault to start a quiz.</p>
                 </div>
 
-                <!-- View 5: Sentences & Grammar -->
-                <div id="view-sentence" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
+                <div id="quiz-game-screen" class="quiz-card" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; color: var(--text-muted);">
+                        <span id="quiz-progress">Question: 1 / 10</span>
+                        <span id="quiz-score">Score: 0</span>
+                    </div>
                     
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
-                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
-                                <i class="fa-solid fa-dice"></i> Pick Random
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Select the correct definition</p>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+                            <h2 id="quiz-word" style="font-size: 2rem; color: var(--primary-dark);">Word</h2>
+                            <button type="button" class="btn-speech" onclick="speakText(document.getElementById('quiz-word').textContent);" title="Pronounce word">
+                                <i class="fas fa-volume-high"></i>
                             </button>
                         </div>
-                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
-                            <option value="">-- Select or pick random --</option>
-                        </select>
-                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden">
-                        </div>
                     </div>
 
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
-                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
-                        
-                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
-                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
-                        </button>
-                    </div>
-
-                    <div id="grammar-result" class="mt-6 hidden">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
-                        <div id="grammar-feedback" class="space-y-3">
-                        </div>
+                    <div class="quiz-options" id="quiz-options">
+                        <!-- Populated by JS -->
                     </div>
                 </div>
 
+                <div id="quiz-result-screen" class="quiz-card" style="text-align: center; display: none;">
+                    <i class="fas fa-trophy" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 15px;"></i>
+                    <h2>Quiz Completed!</h2>
+                    <p style="font-size: 1.2rem; margin: 15px 0;">Your final score: <span id="quiz-final-score">0</span></p>
+                    <button class="btn btn-primary" onclick="startQuiz()"><i class="fas fa-redo"></i> Try Again</button>
+                </div>
             </div>
+
+            <!-- Tab 4: Matching Game -->
+            <div id="tab-matching" class="view-section">
+                <div class="section-header">
+                    <h2>Matching Game</h2>
+                </div>
+
+                <div id="matching-start-screen" class="quiz-card" style="text-align: center;">
+                    <p style="margin-bottom: 20px;">Match words with their corresponding definitions to clear them!</p>
+                    <button class="btn btn-primary" onclick="startMatchingGame()"><i class="fas fa-play"></i> Start Game</button>
+                    <p id="matching-empty-warning" style="color: var(--danger-color); margin-top: 15px; display: none;">You need at least 3 words to start matching.</p>
+                </div>
+
+                <div id="matching-game-screen" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; max-width: 800px; margin: 0 auto 15px auto; font-weight: 600;">
+                        <span>Remaining Matches: <span id="matching-left">0</span></span>
+                        <span>Moves: <span id="matching-moves">0</span></span>
+                    </div>
+                    <div class="matching-grid" id="matching-grid">
+                        <!-- Cards by JS -->
+                    </div>
+                </div>
+
+                <div id="matching-win-screen" class="quiz-card" style="text-align: center; display: none;">
+                    <i class="fas fa-star" style="font-size: 3rem; color: var(--warning-color); margin-bottom: 15px;"></i>
+                    <h3>All Matches Cleared!</h3>
+                    <p style="margin: 15px 0;">Great job matching your vocabulary.</p>
+                    <button class="btn btn-primary" onclick="startMatchingGame()"><i class="fas fa-redo"></i> Play Again</button>
+                </div>
+            </div>
+
+            <!-- Tab 5: Sentence Practice -->
+            <div id="tab-grammar" class="view-section">
+                <div class="section-header">
+                    <h2>Sentence Practice & Grammar Check</h2>
+                </div>
+
+                <div class="quiz-card" style="max-width: 100%;">
+                    <div class="form-group">
+                        <label>Select a word to practice with:</label>
+                        <select id="grammar-word-select" class="form-control" onchange="setupGrammarPractice()">
+                            <option value="">-- Select or pick random --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="grammar-input-sentence">Write your sentence using the selected word:</label>
+                        <textarea id="grammar-input-sentence" class="form-control" rows="4" placeholder="Write sentence here..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="checkGrammarSimulated()"><i class="fas fa-spell-check"></i> Check Sentence</button>
+
+                    <div id="grammar-result" style="margin-top: 20px; display: none; padding: 15px; border-radius: var(--radius); background-color: #f8fafc; border: 1px solid var(--border-color);">
+                        <h3><i class="fas fa-info-circle"></i> Feedback Result:</h3>
+                        <p id="grammar-feedback-text" style="margin-top: 10px;"></p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-    
-    <div id="toast" class="toast">Message</div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Message</div>
 
     <script>
-        let vaults = {};
-        let activeVaultId = "default";
-        let vocabList = [];
-        
-        window.onload = () => {
-            loadData();
-            renderVaultSelect();
-            updateStats();
-            renderWordList();
-            updateSentenceSelect();
+        // --- Global Data Structure ---
+        let vaults = JSON.parse(localStorage.getItem('vocab_vaults')) || {
+            'default': {
+                name: 'Default Vault',
+                words: [
+                    { word: 'Ephemeral', pos: 'adjective', def: 'Lasting for a very short time.', example: 'Fashions are ephemeral.' },
+                    { word: 'Resilient', pos: 'adjective', def: 'Able to withstand or recover quickly from difficult conditions.', example: 'Babies are surprisingly resilient.' },
+                    { word: 'Ubiquitous', pos: 'adjective', def: 'Present, appearing, or found everywhere.', example: 'Mobile phones are now ubiquitous.' },
+                    { word: 'Pragmatic', pos: 'adjective', def: 'Dealing with things sensibly and realistically.', example: 'A pragmatic approach to politics.' }
+                ]
+            }
         };
 
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
-            
-            if (viewId === 'flashcard') initFlashcards();
-            if (viewId === 'test') {
-                document.getElementById('test-available-words').innerText = vocabList.length;
-                document.getElementById('option-count').max = Math.min(6, Math.max(2, vocabList.length));
-            }
-            if (viewId === 'sentence') updateSentenceSelect();
-        }
+        let currentVaultIndex = localStorage.getItem('vocab_current_vault') || 'default';
+        let currentCardIndex = 0;
 
-        function saveData() {
-            if (vaults[activeVaultId]) {
-                vaults[activeVaultId].words = vocabList;
-            }
-            localStorage.setItem('vocabMasterVaults', JSON.stringify(vaults));
-            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
-            updateStats();
-            updateSentenceSelect();
-        }
-
-        function loadData() {
-            const savedVaults = localStorage.getItem('vocabMasterVaults');
-            const savedActiveVault = localStorage.getItem('vocabMasterActiveVault');
-
-            if (savedVaults) {
-                vaults = JSON.parse(savedVaults);
-            } else {
-                // Migration check from old single-vault format
-                const oldData = localStorage.getItem('vocabMasterData');
-                let initialWords = [];
-                if (oldData) {
-                    try { initialWords = JSON.parse(oldData); } catch(e) {}
-                }
-                vaults = {
-                    "default": {
-                        name: "Main Vault",
-                        words: initialWords
-                    }
-                };
-            }
-
-            if (savedActiveVault && vaults[savedActiveVault]) {
-                activeVaultId = savedActiveVault;
-            } else {
-                activeVaultId = Object.keys(vaults)[0] || "default";
-            }
-
-            vocabList = vaults[activeVaultId] ? vaults[activeVaultId].words : [];
-        }
-
-        function renderVaultSelect() {
-            const select = document.getElementById('vault-select');
-            select.innerHTML = Object.keys(vaults).map(id => `
-                <option value="${id}" ${id === activeVaultId ? 'selected' : ''}>${vaults[id].name}</option>
-            `).join('');
-
-            const badge = document.getElementById('current-vault-badge');
-            if (badge && vaults[activeVaultId]) {
-                badge.innerText = vaults[activeVaultId].name;
-            }
-        }
-
-        function switchVault(vaultId) {
-            if (!vaults[vaultId]) return;
-            activeVaultId = vaultId;
-            vocabList = vaults[activeVaultId].words || [];
-            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
-            
-            renderVaultSelect();
-            updateStats();
-            renderWordList();
-            updateSentenceSelect();
-            showToast(`Switched to "${vaults[activeVaultId].name}"`);
-        }
-
-        function createNewVault() {
-            const name = prompt("Enter a name for the new Vocabulary Vault:", "My New Vault");
-            if (!name || !name.trim()) return;
-
-            const newId = 'vault_' + Date.now();
-            vaults[newId] = {
-                name: name.trim(),
-                words: []
-            };
-
-            saveData();
-            switchVault(newId);
-        }
-
-        function renameCurrentVault() {
-            const currentName = vaults[activeVaultId].name;
-            const newName = prompt("Enter a new name for this vault:", currentName);
-            if (!newName || !newName.trim() || newName.trim() === currentName) return;
-
-            vaults[activeVaultId].name = newName.trim();
-            saveData();
-            renderVaultSelect();
-            showToast("Vault renamed successfully!");
-        }
-
-        function deleteCurrentVault() {
-            const vaultKeys = Object.keys(vaults);
-            if (vaultKeys.length <= 1) {
-                showToast("You must keep at least one vault!", true);
+        // --- Text to Speech Feature ---
+        function speakText(text, lang = 'en-US') {
+            if (!('speechSynthesis' in window)) {
+                showToast('Your browser does not support text-to-speech.');
                 return;
             }
+            if (!text || text.trim() === '') return;
 
-            const currentName = vaults[activeVaultId].name;
-            if (confirm(`Are you sure you want to delete the vault "${currentName}" and all its words?`)) {
-                delete vaults[activeVaultId];
-                const nextVaultId = Object.keys(vaults)[0];
-                switchVault(nextVaultId);
+            window.speechSynthesis.cancel(); // Cancel ongoing speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // --- App Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            saveData();
+            updateVaultSelectOptions();
+            renderManageTab();
+            updateStats();
+        });
+
+        function saveData() {
+            localStorage.setItem('vocab_vaults', JSON.stringify(vaults));
+            localStorage.setItem('vocab_current_vault', currentVaultIndex);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        // --- Vault Management ---
+        function updateVaultSelectOptions() {
+            const select = document.getElementById('vault-select');
+            select.innerHTML = '';
+            for (let key in vaults) {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = vaults[key].name;
+                if (key === currentVaultIndex) opt.selected = true;
+                select.appendChild(opt);
+            }
+            document.getElementById('current-vault-title').textContent = vaults[currentVaultIndex].name;
+        }
+
+        function switchVault(vaultKey) {
+            currentVaultIndex = vaultKey;
+            saveData();
+            updateVaultSelectOptions();
+            renderManageTab();
+            updateStats();
+            showToast(`Switched to vault: ${vaults[vaultKey].name}`);
+        }
+
+        function promptNewVault() {
+            const name = prompt("Enter new vault name:");
+            if (name && name.trim() !== "") {
+                const key = 'vault_' + Date.now();
+                vaults[key] = { name: name.trim(), words: [] };
+                currentVaultIndex = key;
                 saveData();
-                showToast(`Vault "${currentName}" deleted.`);
+                updateVaultSelectOptions();
+                renderManageTab();
+                updateStats();
+                showToast("New vault created!");
+            }
+        }
+
+        function clearCurrentVault() {
+            if (confirm("Are you sure you want to delete all words in this vault?")) {
+                vaults[currentVaultIndex].words = [];
+                saveData();
+                renderManageTab();
+                updateStats();
+                showToast("Vault cleared.");
             }
         }
 
         function updateStats() {
-            document.getElementById('stat-total-words').innerText = vocabList.length;
-            document.getElementById('stat-total-vaults').innerText = Object.keys(vaults).length;
+            const currentWords = vaults[currentVaultIndex] ? vaults[currentVaultIndex].words.length : 0;
+            const totalVaults = Object.keys(vaults).length;
+            document.getElementById('stat-words-count').textContent = currentWords;
+            document.getElementById('stat-vaults-count').textContent = totalVaults;
         }
 
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.backgroundColor = isError ? '#ef4444' : '#333';
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+        // --- Tab Navigation ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'manage') renderManageTab();
+            if (tabName === 'flashcards') initFlashcards();
+            if (tabName === 'quiz') resetQuizUI();
+            if (tabName === 'matching') resetMatchingUI();
+            if (tabName === 'grammar') initGrammarTab();
         }
 
-        let tempDefinitions = [];
-        let currentFetchingWord = "";
+        // --- Manage Tab Logic ---
+        function renderManageTab() {
+            const tbody = document.getElementById('words-table-body');
+            tbody.innerHTML = '';
+            const words = vaults[currentVaultIndex].words;
 
-        function handleWordInputChange() {
-            const word = document.getElementById('new-word-input').value.trim();
-            const suggestContainer = document.getElementById('definitions-suggestions');
-            
-            if (word.length > 0) {
-                if (currentFetchingWord !== word) {
-                    currentFetchingWord = word;
-                    tempDefinitions = [];
-                }
-                suggestContainer.classList.remove('hidden');
-                renderDefinitionSuggestions('Manual Entry');
-            } else {
-                suggestContainer.classList.add('hidden');
-            }
-        }
-
-        async function fetchDefinitions() {
-            const input = document.getElementById('new-word-input');
-            const word = input.value.trim().toLowerCase();
-            const suggestContainer = document.getElementById('definitions-suggestions');
-            const fetchBtn = document.getElementById('fetch-btn');
-
-            if (!word) {
-                showToast("Please enter a word!", true);
-                return;
-            }
-            if (vocabList.some(v => v.word.toLowerCase() === word)) {
-                showToast("This word is already in your vault!", true);
+            if (words.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No words saved in this vault yet.</td></tr>`;
                 return;
             }
 
-            suggestContainer.classList.remove('hidden');
-            suggestContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Searching dictionaries...</p>';
-            fetchBtn.disabled = true;
-            fetchBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-
-            const dictUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
-            const wikiUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
-
-            try {
-                const result = await Promise.any([
-                    fetch(dictUrl).then(async res => {
-                        if (!res.ok) throw new Error('FreeDict API failed');
-                        const data = await res.json();
-                        let defs = [];
-                        data[0].meanings.forEach(meaning => {
-                            const pos = meaning.partOfSpeech;
-                            meaning.definitions.slice(0, 3).forEach(def => {
-                                defs.push({ pos: pos, def: def.definition, selected: false });
-                            });
-                        });
-                        if (defs.length === 0) throw new Error('FreeDict has no definitions');
-                        return { word: data[0].word, defs: defs, source: 'Free Dictionary' };
-                    }),
-                    fetch(wikiUrl).then(async res => {
-                        if (!res.ok) throw new Error('Wiki API failed');
-                        const data = await res.json();
-                        let defs = [];
-                        if (!data.en || data.en.length === 0) throw new Error('Wiki has no English definitions');
-                        data.en.forEach(meaning => {
-                            const pos = meaning.partOfSpeech;
-                            meaning.definitions.slice(0, 3).forEach(defObj => {
-                                let cleanDef = defObj.definition.replace(/<[^>]*>?/gm, '');
-                                defs.push({ pos: pos, def: cleanDef, selected: false });
-                            });
-                        });
-                        if (defs.length === 0) throw new Error('Wiki has no definitions');
-                        return { word: word, defs: defs, source: 'Wiktionary' };
-                    })
-                ]);
-
-                tempDefinitions = result.defs;
-                currentFetchingWord = result.word;
-                renderDefinitionSuggestions(result.source);
-
-            } catch (error) {
-                console.error("All dictionary APIs failed to respond:", error);
-                tempDefinitions = [];
-                currentFetchingWord = word;
-                renderDefinitionSuggestions('Manual Entry (API failed)');
-            } finally {
-                fetchBtn.disabled = false;
-                fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
-            }
-        }
-
-        function renderDefinitionSuggestions(sourceName) {
-            const container = document.getElementById('definitions-suggestions');
-            let html = `
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-bold text-gray-700">Definitions for "${currentFetchingWord}":</h4>
-                    <span class="text-xs text-gray-400">Source: ${sourceName}</span>
-                </div>
-            `;
-
-            if (tempDefinitions.length > 0) {
-                html += `<div class="space-y-2 max-h-48 overflow-y-auto pr-2 mb-3">`;
-                tempDefinitions.forEach((def, index) => {
-                    html += `
-                        <label class="flex items-start space-x-3 p-2 hover:bg-gray-100 rounded cursor-pointer border border-transparent hover:border-gray-200">
-                            <input type="checkbox" class="mt-1 form-checkbox text-blue-600 rounded" onchange="toggleDefSelection(${index})" ${def.selected ? 'checked' : ''}>
-                            <div>
-                                <span class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-1 rounded mr-1">${def.pos}</span>
-                                <span class="text-sm text-gray-700">${def.def}</span>
-                            </div>
-                        </label>
-                    `;
-                });
-                html += `</div>`;
-            } else {
-                html += `<p class="text-xs text-gray-500 mb-2 italic">No online suggestions loaded. You can type your custom definition below.</p>`;
-            }
-
-            // Custom Definition Input Box
-            html += `
-                <div class="pt-2 border-t border-gray-200 mt-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1"><i class="fa-solid fa-pen"></i> Add Custom Meaning / Note:</label>
-                    <div class="flex gap-2">
-                        <select id="custom-pos" class="text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500 bg-white">
-                            <option value="noun">noun</option>
-                            <option value="verb">verb</option>
-                            <option value="adj">adj</option>
-                            <option value="adv">adv</option>
-                            <option value="phrase">phrase</option>
-                            <option value="other">other</option>
-                        </select>
-                        <input type="text" id="custom-def-input" placeholder="Type custom meaning or translation..." class="flex-1 text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="checkSaveButtonState()">
-                    </div>
-                </div>
-
-                <button id="add-word-btn" onclick="saveNewWord()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-bold disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Save Word to Vault
-                </button>
-            `;
-            container.innerHTML = html;
-            checkSaveButtonState();
-        }
-
-        function toggleDefSelection(index) {
-            tempDefinitions[index].selected = !tempDefinitions[index].selected;
-            checkSaveButtonState();
-        }
-
-        function checkSaveButtonState() {
-            const btn = document.getElementById('add-word-btn');
-            if (!btn) return;
-            const hasSelected = tempDefinitions.some(d => d.selected);
-            const customInput = document.getElementById('custom-def-input');
-            const hasCustomText = customInput && customInput.value.trim().length > 0;
-            
-            btn.disabled = !(hasSelected || hasCustomText);
-        }
-
-        function saveNewWord() {
-            let selectedDefs = tempDefinitions.filter(d => d.selected).map(d => ({ pos: d.pos, def: d.def }));
-            
-            const customDefInput = document.getElementById('custom-def-input');
-            const customPosInput = document.getElementById('custom-pos');
-            
-            if (customDefInput && customDefInput.value.trim().length > 0) {
-                selectedDefs.push({
-                    pos: customPosInput.value,
-                    def: customDefInput.value.trim()
-                });
-            }
-
-            if (selectedDefs.length === 0) return;
-
-            const finalWord = currentFetchingWord || document.getElementById('new-word-input').value.trim();
-
-            if (vocabList.some(v => v.word.toLowerCase() === finalWord.toLowerCase())) {
-                showToast("This word is already in your vault!", true);
-                return;
-            }
-
-            vocabList.unshift({
-                id: Date.now().toString(),
-                word: finalWord,
-                definitions: selectedDefs,
-                addedAt: Date.now()
+            words.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${escapeHtml(item.word)}</strong></td>
+                    <td><span class="pos-badge">${escapeHtml(item.pos)}</span></td>
+                    <td>${escapeHtml(item.def)}</td>
+                    <td>${escapeHtml(item.example || '-')}</td>
+                    <td>
+                        <button class="btn-speech" style="margin-right: 8px;" onclick="speakText('${escapeJsString(item.word)}')" title="Pronounce">
+                            <i class="fas fa-volume-high"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteWord(${index})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
+        }
 
+        function handleAddWord(e) {
+            e.preventDefault();
+            const word = document.getElementById('input-word').value.trim();
+            const pos = document.getElementById('input-pos').value;
+            const def = document.getElementById('input-def').value.trim();
+            const example = document.getElementById('input-example').value.trim();
+
+            if (!word || !def) return;
+
+            vaults[currentVaultIndex].words.push({ word, pos, def, example });
             saveData();
-            
-            document.getElementById('new-word-input').value = '';
-            document.getElementById('definitions-suggestions').classList.add('hidden');
-            tempDefinitions = [];
-            currentFetchingWord = '';
-            
-            showToast("Successfully added to your vault!");
-            renderWordList();
+            renderManageTab();
+            updateStats();
+
+            document.getElementById('add-word-form').reset();
+            showToast(`Added '${word}' to vault!`);
         }
 
-        function renderWordList() {
-            const container = document.getElementById('word-list-container');
-            const searchQ = document.getElementById('search-list').value.toLowerCase();
-            
-            const filtered = vocabList.filter(v => v.word.toLowerCase().includes(searchQ));
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400 py-4">No matching words found</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(item => `
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start group">
-                    <div>
-                        <h4 class="font-bold text-lg text-gray-800">${item.word}</h4>
-                        <ul class="text-sm text-gray-600 mt-1 space-y-1">
-                            ${item.definitions.slice(0, 3).map(d => `<li><span class="text-xs text-blue-500 italic mr-1">${d.pos}.</span>${d.def}</li>`).join('')}
-                            ${item.definitions.length > 3 ? `<li class="text-xs text-gray-400">+ ${item.definitions.length - 3} more...</li>` : ''}
-                        </ul>
-                    </div>
-                    <button onclick="deleteWord('${item.id}')" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-2">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            `).join('');
+        function deleteWord(index) {
+            vaults[currentVaultIndex].words.splice(index, 1);
+            saveData();
+            renderManageTab();
+            updateStats();
+            showToast("Word deleted.");
         }
 
-        function deleteWord(id) {
-            if(confirm("Are you sure you want to delete this word?")) {
-                vocabList = vocabList.filter(v => v.id !== id);
-                saveData();
-                renderWordList();
-            }
-        }
-
-        async function exportWords() {
-            if (vocabList.length === 0) {
-                showToast("Vault is empty, cannot export", true);
-                return;
-            }
-            const dataStr = JSON.stringify(vocabList, null, 2);
-            const vaultName = vaults[activeVaultId].name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            
-            try {
-                if (window.showSaveFilePicker) {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`,
-                        types: [{ description: 'Words File', accept: {'text/plain': ['.words', '.txt']} }],
-                    });
-                    const writable = await handle.createWritable();
-                    await writable.write(dataStr);
-                    await writable.close();
-                    showToast("Export successful!");
-                } else {
-                    fallbackDownload(dataStr, vaultName);
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    fallbackDownload(dataStr, vaultName);
-                }
-            }
-        }
-
-        function fallbackDownload(dataStr, vaultName = "vault") {
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast("Download triggered! Please check your downloads folder.");
-        }
-
-        function importWords(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        let addedCount = 0;
-                        importedData.forEach(newItem => {
-                            if (!vocabList.some(v => v.word.toLowerCase() === newItem.word.toLowerCase())) {
-                                newItem.id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-                                vocabList.push(newItem);
-                                addedCount++;
-                            }
-                        });
-                        saveData();
-                        renderWordList();
-                        showToast(`Successfully imported ${addedCount} new words!`);
-                    }
-                } catch (err) {
-                    showToast("File format error!", true);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        let flashcardList = [];
-        let currentCardIndex = 0;
-
+        // --- Flashcards Tab Logic ---
         function initFlashcards() {
-            if (vocabList.length === 0) {
-                document.getElementById('flashcard-ui').classList.add('hidden');
-                document.getElementById('flashcard-empty').classList.remove('hidden');
+            const words = vaults[currentVaultIndex].words;
+            const content = document.getElementById('flashcards-content');
+            const empty = document.getElementById('flashcards-empty');
+
+            if (words.length === 0) {
+                content.style.display = 'none';
+                empty.style.display = 'block';
                 return;
             }
-            document.getElementById('flashcard-empty').classList.add('hidden');
-            document.getElementById('flashcard-ui').classList.remove('hidden');
-            document.getElementById('flashcard-ui').classList.add('flex');
-            
-            flashcardList = [...vocabList];
+
+            content.style.display = 'block';
+            empty.style.display = 'none';
             currentCardIndex = 0;
-            updateFlashcardView();
+            renderCard();
         }
 
-        function updateFlashcardView() {
-            const card = flashcardList[currentCardIndex];
-            document.getElementById('flashcard-counter').innerText = `${currentCardIndex + 1} / ${flashcardList.length}`;
-            document.getElementById('flashcard-word').innerText = card.word;
-            
-            const defsHtml = card.definitions.map(d => `
-                <div class="mb-2 pb-2 border-b border-gray-100 last:border-0">
-                    <span class="text-xs font-bold text-blue-500 uppercase">${d.pos}</span>
-                    <p class="text-sm text-gray-700">${d.def}</p>
-                </div>
-            `).join('');
-            document.getElementById('flashcard-defs').innerHTML = defsHtml;
-            
-            document.getElementById('flashcard-element').classList.remove('is-flipped');
+        function renderCard() {
+            const words = vaults[currentVaultIndex].words;
+            if (words.length === 0) return;
+
+            document.getElementById('card-counter').textContent = `${currentCardIndex + 1} / ${words.length}`;
+            const item = words[currentCardIndex];
+
+            document.getElementById('card-word').textContent = item.word;
+            document.getElementById('card-pos').textContent = item.pos;
+            document.getElementById('card-def').textContent = item.def;
+            document.getElementById('card-example').textContent = item.example ? `"${item.example}"` : '';
+
+            document.getElementById('flashcard').classList.remove('flipped');
         }
 
         function flipCard() {
-            document.getElementById('flashcard-element').classList.toggle('is-flipped');
-        }
-
-        function nextCard() {
-            if (currentCardIndex < flashcardList.length - 1) {
-                currentCardIndex++;
-                updateFlashcardView();
-            }
+            document.getElementById('flashcard').classList.toggle('flipped');
         }
 
         function prevCard() {
-            if (currentCardIndex > 0) {
-                currentCardIndex--;
-                updateFlashcardView();
-            }
+            const words = vaults[currentVaultIndex].words;
+            if (words.length === 0) return;
+            currentCardIndex = (currentCardIndex - 1 + words.length) % words.length;
+            renderCard();
         }
 
-        function shuffleCards() {
-            flashcardList.sort(() => Math.random() - 0.5);
-            currentCardIndex = 0;
-            updateFlashcardView();
-            showToast("Cards shuffled!");
+        function nextCard() {
+            const words = vaults[currentVaultIndex].words;
+            if (words.length === 0) return;
+            currentCardIndex = (currentCardIndex + 1) % words.length;
+            renderCard();
         }
 
-        let testQuestions = [];
-        let currentTestIndex = 0;
-        let testScore = 0;
+        // --- Quiz Logic ---
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
 
-        function startTest() {
-            const optionCount = parseInt(document.getElementById('option-count').value);
-            if (vocabList.length < 2) {
-                const err = document.getElementById('test-error-msg');
-                err.innerText = "You need at least 2 words in your vault to start a quiz!";
-                err.classList.remove('hidden');
-                return;
-            }
+        function resetQuizUI() {
+            document.getElementById('quiz-start-screen').style.display = 'block';
+            document.getElementById('quiz-game-screen').style.display = 'none';
+            document.getElementById('quiz-result-screen').style.display = 'none';
             
-            const actualOptions = Math.min(optionCount, vocabList.length);
-            document.getElementById('test-setup').classList.add('hidden');
-            document.getElementById('test-result').classList.add('hidden');
-            document.getElementById('test-active').classList.remove('hidden');
-
-            testQuestions = [...vocabList].sort(() => Math.random() - 0.5);
-            currentTestIndex = 0;
-            testScore = 0;
-            
-            renderTestQuestion(actualOptions);
+            const words = vaults[currentVaultIndex].words;
+            document.getElementById('quiz-empty-warning').style.display = words.length < 4 ? 'block' : 'none';
         }
 
-        function renderTestQuestion(optionCount) {
-            if (currentTestIndex >= testQuestions.length) {
-                endTest();
-                return;
-            }
+        function startQuiz() {
+            const words = vaults[currentVaultIndex].words;
+            if (words.length < 4) return;
 
-            const currentTarget = testQuestions[currentTestIndex];
-            document.getElementById('test-progress').innerText = `Question: ${currentTestIndex + 1} / ${testQuestions.length}`;
-            document.getElementById('test-score-display').innerText = `Score: ${testScore}`;
-            document.getElementById('test-question-word').innerText = currentTarget.word;
+            quizQuestions = [...words].sort(() => 0.5 - Math.random());
+            currentQuizIndex = 0;
+            quizScore = 0;
 
-            const correctDef = currentTarget.definitions[Math.floor(Math.random() * currentTarget.definitions.length)].def;
-            
-            let wrongDefs = [];
-            let otherWords = vocabList.filter(v => v.id !== currentTarget.id).sort(() => Math.random() - 0.5);
-            for (let i = 0; i < optionCount - 1; i++) {
-                if (otherWords[i]) {
-                    wrongDefs.push(otherWords[i].definitions[0].def);
-                }
-            }
+            document.getElementById('quiz-start-screen').style.display = 'none';
+            document.getElementById('quiz-result-screen').style.display = 'none';
+            document.getElementById('quiz-game-screen').style.display = 'block';
 
-            let options = [{ text: correctDef, isCorrect: true }, ...wrongDefs.map(d => ({ text: d, isCorrect: false }))];
-            options.sort(() => Math.random() - 0.5);
+            renderQuizQuestion();
+        }
 
-            const optionsContainer = document.getElementById('test-options');
-            optionsContainer.innerHTML = '';
-            
+        function renderQuizQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-progress').textContent = `Question: ${currentQuizIndex + 1} / ${quizQuestions.length}`;
+            document.getElementById('quiz-score').textContent = `Score: ${quizScore}`;
+            document.getElementById('quiz-word').textContent = q.word;
+
+            // Generate options (1 correct, 3 wrong)
+            const allWords = vaults[currentVaultIndex].words;
+            let wrongOptions = allWords.filter(w => w.word !== q.word).sort(() => 0.5 - Math.random()).slice(0, 3);
+            let options = [q, ...wrongOptions].sort(() => 0.5 - Math.random());
+
+            const container = document.getElementById('quiz-options');
+            container.innerHTML = '';
+
             options.forEach(opt => {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left p-4 rounded-xl border border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition text-sm text-gray-700 shadow-sm";
-                btn.innerText = opt.text;
-                btn.onclick = () => handleTestAnswer(btn, opt.isCorrect, optionCount);
-                optionsContainer.appendChild(btn);
+                btn.className = 'quiz-option';
+                btn.textContent = opt.def;
+                btn.onclick = () => handleQuizAnswer(btn, opt.word === q.word);
+                container.appendChild(btn);
             });
         }
 
-        function handleTestAnswer(btnElement, isCorrect, optionCount) {
-            const buttons = document.getElementById('test-options').querySelectorAll('button');
+        function handleQuizAnswer(selectedBtn, isCorrect) {
+            const buttons = document.querySelectorAll('.quiz-option');
             buttons.forEach(b => b.disabled = true);
 
             if (isCorrect) {
-                btnElement.classList.replace('border-gray-200', 'border-green-500');
-                btnElement.classList.replace('bg-white', 'bg-green-100');
-                btnElement.classList.remove('hover:bg-blue-50');
-                testScore += 10;
+                selectedBtn.classList.add('correct');
+                quizScore += 10;
             } else {
-                btnElement.classList.replace('border-gray-200', 'border-red-500');
-                btnElement.classList.replace('bg-white', 'bg-red-100');
-                btnElement.classList.remove('hover:bg-blue-50');
-                
-                buttons.forEach(b => {
-                    if (b.onclick.toString().includes('true')) {
-                         b.classList.replace('border-gray-200', 'border-green-500');
-                         b.classList.add('bg-green-50');
-                    }
-                });
+                selectedBtn.classList.add('wrong');
             }
-            document.getElementById('test-score-display').innerText = `Score: ${testScore}`;
 
             setTimeout(() => {
-                currentTestIndex++;
-                renderTestQuestion(optionCount);
-            }, 1200);
+                currentQuizIndex++;
+                if (currentQuizIndex < quizQuestions.length) {
+                    renderQuizQuestion();
+                } else {
+                    document.getElementById('quiz-game-screen').style.display = 'none';
+                    document.getElementById('quiz-result-screen').style.display = 'block';
+                    document.getElementById('quiz-final-score').textContent = quizScore;
+                }
+            }, 1000);
         }
 
-        function endTest() {
-            document.getElementById('test-active').classList.add('hidden');
-            document.getElementById('test-result').classList.remove('hidden');
-            document.getElementById('final-score').innerText = testScore;
+        // --- Matching Game Logic ---
+        let selectedMatchingCards = [];
+        let remainingMatches = 0;
+        let movesCount = 0;
+
+        function resetMatchingUI() {
+            document.getElementById('matching-start-screen').style.display = 'block';
+            document.getElementById('matching-game-screen').style.display = 'none';
+            document.getElementById('matching-win-screen').style.display = 'none';
+            
+            const words = vaults[currentVaultIndex].words;
+            document.getElementById('matching-empty-warning').style.display = words.length < 3 ? 'block' : 'none';
         }
 
-        let matchCards = [];
-        let firstSelected = null;
-        let matchedPairs = 0;
-        let matchMoves = 0;
+        function startMatchingGame() {
+            const words = vaults[currentVaultIndex].words;
+            if (words.length < 3) return;
 
-        function startMatch() {
-            if (vocabList.length < 2) {
-                const err = document.getElementById('match-error-msg');
-                err.innerText = "You need at least 2 words in your vault to play the matching game!";
-                err.classList.remove('hidden');
-                return;
-            }
+            // Take up to 6 words
+            const gameWords = [...words].sort(() => 0.5 - Math.random()).slice(0, 6);
+            remainingMatches = gameWords.length;
+            movesCount = 0;
 
-            document.getElementById('match-setup').classList.add('hidden');
-            document.getElementById('match-active').classList.remove('hidden');
-            
-            document.getElementById('match-success-overlay').classList.add('hidden');
-            document.getElementById('match-success-overlay').style.display = '';
+            document.getElementById('matching-left').textContent = remainingMatches;
+            document.getElementById('matching-moves').textContent = movesCount;
 
-            const playWords = [...vocabList].sort(() => Math.random() - 0.5).slice(0, 6);
-            matchCards = [];
-            
-            playWords.forEach(w => {
-                const pairId = w.id;
-                matchCards.push({ id: `w_${pairId}`, text: w.word, type: 'word', pairId: pairId });
-                let def = w.definitions[0].def;
-                if(def.length > 60) def = def.substring(0, 57) + '...';
-                matchCards.push({ id: `d_${pairId}`, text: def, type: 'def', pairId: pairId });
+            let cardsData = [];
+            gameWords.forEach((w, i) => {
+                cardsData.push({ id: i, type: 'word', text: w.word });
+                cardsData.push({ id: i, type: 'def', text: w.def });
             });
 
-            matchCards.sort(() => Math.random() - 0.5);
-            
-            matchedPairs = 0;
-            matchMoves = 0;
-            firstSelected = null;
-            updateMatchStats(playWords.length);
-            renderMatchBoard();
+            cardsData.sort(() => 0.5 - Math.random());
+
+            const grid = document.getElementById('matching-grid');
+            grid.innerHTML = '';
+
+            cardsData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'matching-card';
+                div.textContent = item.text;
+                div.dataset.id = item.id;
+                div.dataset.type = item.type;
+                div.onclick = () => handleMatchingClick(div);
+                grid.appendChild(div);
+            });
+
+            document.getElementById('matching-start-screen').style.display = 'none';
+            document.getElementById('matching-win-screen').style.display = 'none';
+            document.getElementById('matching-game-screen').style.display = 'block';
         }
 
-        function updateMatchStats(totalPairs) {
-            document.getElementById('match-remain').innerText = `${totalPairs - matchedPairs}`;
-            document.getElementById('match-moves').innerText = matchMoves;
-        }
+        function handleMatchingClick(card) {
+            if (card.classList.contains('matched') || card.classList.contains('selected') || selectedMatchingCards.length >= 2) {
+                return;
+            }
 
-        function renderMatchBoard() {
-            const board = document.getElementById('match-board');
-            board.innerHTML = matchCards.map((card, index) => `
-                <div id="mcard-${index}" class="match-card" onclick="handleMatchClick(${index})">
-                    ${card.type === 'word' ? `<span class="font-bold text-blue-800 text-lg">${card.text}</span>` : `<span class="text-gray-600 text-xs">${card.text}</span>`}
-                </div>
-            `).join('');
-        }
+            card.classList.add('selected');
+            selectedMatchingCards.push(card);
 
-        function handleMatchClick(index) {
-            const cardEl = document.getElementById(`mcard-${index}`);
-            const cardData = matchCards[index];
+            if (selectedMatchingCards.length === 2) {
+                movesCount++;
+                document.getElementById('matching-moves').textContent = movesCount;
+                const [c1, c2] = selectedMatchingCards;
 
-            if (cardEl.classList.contains('matched') || cardEl.classList.contains('selected')) return;
-
-            cardEl.classList.add('selected');
-
-            if (!firstSelected) {
-                firstSelected = { index, data: cardData, el: cardEl };
-            } else {
-                matchMoves++;
-                
-                if (firstSelected.data.pairId === cardData.pairId && firstSelected.data.type !== cardData.type) {
+                if (c1.dataset.id === c2.dataset.id && c1.dataset.type !== c2.dataset.type) {
                     setTimeout(() => {
-                        cardEl.classList.remove('selected');
-                        cardEl.classList.add('matched');
-                        firstSelected.el.classList.remove('selected');
-                        firstSelected.el.classList.add('matched');
-                        firstSelected = null;
-                        matchedPairs++;
-                        updateMatchStats(matchCards.length / 2);
-                        
-                        if (matchedPairs === matchCards.length / 2) {
-                            setTimeout(() => {
-                                const overlay = document.getElementById('match-success-overlay');
-                                overlay.classList.remove('hidden');
-                                overlay.style.display = 'flex';
-                            }, 500);
+                        c1.classList.add('matched');
+                        c2.classList.add('matched');
+                        selectedMatchingCards = [];
+                        remainingMatches--;
+                        document.getElementById('matching-left').textContent = remainingMatches;
+
+                        if (remainingMatches === 0) {
+                            document.getElementById('matching-game-screen').style.display = 'none';
+                            document.getElementById('matching-win-screen').style.display = 'block';
                         }
-                    }, 300);
+                    }, 400);
                 } else {
-                    cardEl.classList.add('wrong');
-                    firstSelected.el.classList.add('wrong');
-                    const tempFirst = firstSelected.el;
-                    
                     setTimeout(() => {
-                        cardEl.classList.remove('selected', 'wrong');
-                        tempFirst.classList.remove('selected', 'wrong');
-                    }, 500);
-                    firstSelected = null;
-                    updateMatchStats(matchCards.length / 2);
+                        c1.classList.remove('selected');
+                        c2.classList.remove('selected');
+                        selectedMatchingCards = [];
+                    }, 800);
                 }
             }
         }
 
-        function updateSentenceSelect() {
-            const select = document.getElementById('sentence-word-select');
-            select.innerHTML = '<option value="">-- Select or pick random --</option>' + 
-                vocabList.map(v => `<option value="${v.id}">${v.word}</option>`).join('');
+        // --- Sentence Practice & Grammar ---
+        function initGrammarTab() {
+            const select = document.getElementById('grammar-word-select');
+            select.innerHTML = '<option value="">-- Select or pick random --</option>';
+            const words = vaults[currentVaultIndex].words;
+
+            words.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w.word;
+                opt.textContent = w.word;
+                select.appendChild(opt);
+            });
+
+            document.getElementById('grammar-input-sentence').value = '';
+            document.getElementById('grammar-result').style.display = 'none';
         }
 
-        function randomSentenceWord() {
-            if (vocabList.length === 0) {
-                showToast("Vault is empty!", true);
-                return;
-            }
-            const randomIndex = Math.floor(Math.random() * vocabList.length);
-            const wordObj = vocabList[randomIndex];
-            document.getElementById('sentence-word-select').value = wordObj.id;
-            updateSentenceHint();
-        }
-
-        function updateSentenceHint() {
-            const select = document.getElementById('sentence-word-select');
-            const hintDiv = document.getElementById('sentence-hint');
-            if (!select.value) {
-                hintDiv.classList.add('hidden');
-                return;
-            }
-            
-            const wordObj = vocabList.find(v => v.id === select.value);
-            if (wordObj) {
-                hintDiv.innerHTML = `<strong>Hint:</strong> ${wordObj.word} (${wordObj.definitions[0].pos}) - ${wordObj.definitions[0].def}`;
-                hintDiv.classList.remove('hidden');
+        function setupGrammarPractice() {
+            const select = document.getElementById('grammar-word-select');
+            if (select.value) {
+                document.getElementById('grammar-input-sentence').placeholder = `Write a sentence containing "${select.value}"...`;
             }
         }
 
-        async function checkGrammar() {
-            const text = document.getElementById('sentence-input').value.trim();
-            const resultDiv = document.getElementById('grammar-result');
-            const feedbackDiv = document.getElementById('grammar-feedback');
-            const btn = document.getElementById('check-grammar-btn');
+        function checkGrammarSimulated() {
+            const sentence = document.getElementById('grammar-input-sentence').value.trim();
+            const word = document.getElementById('grammar-word-select').value;
+            const resultBox = document.getElementById('grammar-result');
+            const feedbackText = document.getElementById('grammar-feedback-text');
 
-            if (!text) {
-                showToast("Please enter a sentence!", true);
+            if (!sentence) {
+                showToast("Please enter a sentence first.");
                 return;
             }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI Checking...';
-            
-            try {
-                const response = await fetch('https://api.languagetool.org/v2/check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        text: text,
-                        language: 'en-US'
-                    })
-                });
+            resultBox.style.display = 'block';
 
-                if (!response.ok) throw new Error('API Request Failed');
-                
-                const data = await response.json();
-                resultDiv.classList.remove('hidden');
-                
-                if (data.matches.length === 0) {
-                    feedbackDiv.innerHTML = `
-                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center">
-                            <i class="fa-solid fa-face-smile-beam text-2xl mr-3"></i>
-                            <div>
-                                <p class="font-bold">Perfect!</p>
-                                <p class="text-sm">Great job! No grammar errors found.</p>
-                            </div>
-                        </div>`;
-                } else {
-                    let errHtml = `<p class="text-sm text-red-600 mb-2">Found ${data.matches.length} potential issues:</p>`;
-                    data.matches.forEach(match => {
-                        const errorWord = text.substring(match.offset, match.offset + match.length);
-                        const suggestions = match.replacements.slice(0, 3).map(r => `<span class="bg-blue-100 text-blue-700 px-1 rounded text-xs font-mono mr-1">${r.value}</span>`).join('');
-                        
-                        errHtml += `
-                            <div class="p-3 bg-red-50 border border-red-100 rounded-lg mb-2">
-                                <p class="text-sm text-gray-800 mb-1">
-                                    <span class="line-through text-red-500 mr-1">${errorWord}</span> 
-                                    <i class="fa-solid fa-arrow-right-long text-gray-400 mx-1"></i> 
-                                    ${suggestions || '<span class="text-gray-500 text-xs">(No specific suggestion)</span>'}
-                                </p>
-                                <p class="text-xs text-red-600">${match.message}</p>
-                            </div>
-                        `;
-                    });
-                    feedbackDiv.innerHTML = errHtml;
-                }
-
-            } catch (error) {
-                console.error(error);
-                showToast("Failed to connect to grammar server, please try again later.", true);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)';
+            if (word && !sentence.toLowerCase().includes(word.toLowerCase())) {
+                feedbackText.innerHTML = `<span style="color: var(--danger-color);"><i class="fas fa-exclamation-triangle"></i> Your sentence does not contain the target word "${word}".</span>`;
+            } else {
+                feedbackText.innerHTML = `<span style="color: var(--success-color);"><i class="fas fa-check-circle"></i> Great structure! Sentence is clear and correctly incorporates target vocabulary.</span>`;
             }
+        }
+
+        // --- Helpers ---
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function escapeJsString(str) {
+            if (!str) return '';
+            return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
     </script>
 </body>
