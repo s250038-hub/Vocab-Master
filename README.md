@@ -52,3 +52,4 @@ No installation or build tools (like Node.js or npm) are required!
 1. **Clone or Download the Repository**:
    ```bash
    git clone [https://github.com/s250038-hub/Vocab-Master.git](https://github.com/s250038-hub/Vocab-Master.git)
+## Enjoy it!
