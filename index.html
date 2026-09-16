@@ -182,7 +182,6 @@
             max-width: 100%;
         }
 
-        /* 升級加大版的語音按鈕 */
         .audio-btn-std {
             width: 2.5rem;
             height: 2.5rem;
@@ -699,8 +698,14 @@
                         data.en.forEach(meaning => {
                             const pos = meaning.partOfSpeech;
                             meaning.definitions.slice(0, 3).forEach(defObj => {
-                                let cleanDef = defObj.definition.replace(/<[^>]*>?/gm, '');
-                                defs.push({ pos: pos, def: cleanDef, selected: false });
+                                let cleanDef = defObj.definition
+                                    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                                    .replace(/<[^>]*>?/gm, '')
+                                    .trim();
+
+                                if (cleanDef.length > 0) {
+                                    defs.push({ pos: pos, def: cleanDef, selected: false });
+                                }
                             });
                         });
                         if (defs.length === 0) throw new Error('Wiki has no definitions');
