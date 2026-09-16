@@ -244,10 +244,14 @@
                     <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-layer-group w-6"></i> Flashcards
                     </button>
+                    <!-- RENAMED FROM QUIZ TEST TO PRACTICE -->
                     <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-spell-check w-6"></i> Quiz Test
+                        <i class="fa-solid fa-spell-check w-6"></i> Practice
                     </button>
-                    <!-- NEW NAVIGATION BUTTON -->
+                    <!-- NEW QUIZ MODE BUTTON -->
+                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
+                    </button>
                     <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
                     </button>
@@ -357,9 +361,9 @@
                     </div>
                 </div>
 
-                <!-- View 3: Quiz Test -->
+                <!-- View 3: Practice (Formerly Quiz Test) -->
                 <div id="view-test" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz Test</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Practice</h2>
                     
                     <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
                         <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
@@ -371,7 +375,7 @@
                         </div>
 
                         <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Quiz
+                            <i class="fa-solid fa-play"></i> Start Practice
                         </button>
                         <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
                     </div>
@@ -399,7 +403,7 @@
                     
                     <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                         <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Completed!</h2>
                         <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
                         <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
                             Try Again
@@ -407,7 +411,69 @@
                     </div>
                 </div>
 
-                <!-- View 3.5: NEW SPELLING QUIZ VIEW -->
+                <!-- View 3.25: NEW QUIZ MODE (DEFINITION TO TYPED WORD) -->
+                <div id="view-definition-quiz" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz</h2>
+
+                    <!-- Setup Screen -->
+                    <div id="def-quiz-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <i class="fa-solid fa-circle-question text-4xl text-green-500 mb-3"></i>
+                        <p class="text-gray-600 mb-6">Read the definition and type the matching vocabulary word!</p>
+                        
+                        <div class="mb-6 max-w-xs mx-auto text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="def-quiz-count-display">5</span></label>
+                            <input type="range" id="def-quiz-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('def-quiz-count-display').innerText = this.value">
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="def-quiz-available-words">0</span> words in this vault</p>
+                        </div>
+
+                        <button onclick="startDefQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                            <i class="fa-solid fa-play"></i> Start Quiz
+                        </button>
+                        <p id="def-quiz-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    </div>
+
+                    <!-- Active Quiz Screen -->
+                    <div id="def-quiz-active" class="hidden">
+                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                            <span id="def-quiz-progress">Word: 1 / 5</span>
+                            <span id="def-quiz-score-display" class="text-green-600">Score: 0</span>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Explanation / Definition</p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 max-h-40 overflow-y-auto">
+                                <span id="def-quiz-pos" class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">pos</span>
+                                <p id="def-quiz-explanation" class="text-gray-800 font-medium inline text-lg">Definition text goes here...</p>
+                            </div>
+
+                            <form onsubmit="event.preventDefault(); submitDefQuizAnswer();" class="max-w-md mx-auto">
+                                <input type="text" id="def-quiz-answer-input" placeholder="Type the target word..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-500 transition mb-4">
+                                
+                                <button id="def-quiz-submit-btn" type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                    Submit Answer
+                                </button>
+                            </form>
+
+                            <!-- Instant Feedback Banner -->
+                            <div id="def-quiz-feedback" class="mt-6 hidden p-4 rounded-xl text-left border">
+                                <!-- Injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Score Screen -->
+                    <div id="def-quiz-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+                        <p class="text-lg text-gray-600 mb-6">Final Score: <span id="def-quiz-final-score" class="font-bold text-green-600 text-3xl">0/0</span></p>
+                        <button onclick="document.getElementById('def-quiz-setup').classList.remove('hidden'); document.getElementById('def-quiz-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- View 3.5: SPELLING QUIZ VIEW -->
                 <div id="view-spelling" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
 
@@ -575,6 +641,13 @@
                 document.getElementById('test-available-words').innerText = vocabList.length;
                 document.getElementById('option-count').max = Math.min(6, Math.max(2, vocabList.length));
             }
+            if (viewId === 'definition-quiz') {
+                document.getElementById('def-quiz-available-words').innerText = vocabList.length;
+                const range = document.getElementById('def-quiz-word-count');
+                range.max = Math.max(1, vocabList.length);
+                range.value = Math.min(5, Math.max(1, vocabList.length));
+                document.getElementById('def-quiz-count-display').innerText = range.value;
+            }
             if (viewId === 'spelling') {
                 document.getElementById('spelling-available-words').innerText = vocabList.length;
                 const range = document.getElementById('spelling-word-count');
@@ -723,7 +796,6 @@
             }
         }
 
-        // --- Updated Get Suggestions with Spell Check Integration ---
         async function fetchDefinitions() {
             const input = document.getElementById('new-word-input');
             const word = input.value.trim().toLowerCase();
@@ -744,7 +816,6 @@
             fetchBtn.disabled = true;
             fetchBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
-            // 1. First, check spelling using LanguageTool API
             try {
                 const spellCheckRes = await fetch('https://api.languagetool.org/v2/check', {
                     method: 'POST',
@@ -766,7 +837,6 @@
                 console.warn("Spell check service unavailable, proceeding directly to dictionary lookup...", err);
             }
 
-            // 2. Fetch definitions directly if spelling is fine or check fails
             await lookupDefinitions(word);
 
             fetchBtn.disabled = false;
@@ -1147,7 +1217,7 @@
             const optionCount = parseInt(document.getElementById('option-count').value);
             if (vocabList.length < 2) {
                 const err = document.getElementById('test-error-msg');
-                err.innerText = "You need at least 2 words in your vault to start a quiz!";
+                err.innerText = "You need at least 2 words in your vault to start practice!";
                 err.classList.remove('hidden');
                 return;
             }
@@ -1235,7 +1305,107 @@
             document.getElementById('final-score').innerText = testScore;
         }
 
-        // --- NEW SPELLING QUIZ JAVASCRIPT LOGIC ---
+        // --- NEW QUIZ LOGIC (DEFINITION TO TYPED WORD) ---
+        let defQuizQuestions = [];
+        let currentDefQuizIndex = 0;
+        let defQuizCorrectCount = 0;
+
+        function startDefQuiz() {
+            const count = parseInt(document.getElementById('def-quiz-word-count').value);
+            if (vocabList.length === 0) {
+                const err = document.getElementById('def-quiz-error-msg');
+                err.innerText = "You need at least 1 word in your vault to start the quiz!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('def-quiz-setup').classList.add('hidden');
+            document.getElementById('def-quiz-result').classList.add('hidden');
+            document.getElementById('def-quiz-active').classList.remove('hidden');
+
+            defQuizQuestions = [...vocabList].sort(() => Math.random() - 0.5).slice(0, count);
+            currentDefQuizIndex = 0;
+            defQuizCorrectCount = 0;
+
+            renderDefQuizQuestion();
+        }
+
+        function renderDefQuizQuestion() {
+            if (currentDefQuizIndex >= defQuizQuestions.length) {
+                endDefQuiz();
+                return;
+            }
+
+            const currentTarget = defQuizQuestions[currentDefQuizIndex];
+            document.getElementById('def-quiz-progress').innerText = `Word: ${currentDefQuizIndex + 1} / ${defQuizQuestions.length}`;
+            document.getElementById('def-quiz-score-display').innerText = `Score: ${defQuizCorrectCount}`;
+
+            const randomDefObj = currentTarget.definitions[Math.floor(Math.random() * currentTarget.definitions.length)];
+            document.getElementById('def-quiz-pos').innerText = randomDefObj.pos;
+            document.getElementById('def-quiz-explanation').innerText = randomDefObj.def;
+
+            const input = document.getElementById('def-quiz-answer-input');
+            input.value = '';
+            input.disabled = false;
+            
+            const submitBtn = document.getElementById('def-quiz-submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const feedback = document.getElementById('def-quiz-feedback');
+            feedback.classList.add('hidden');
+
+            input.focus();
+        }
+
+        function submitDefQuizAnswer() {
+            const input = document.getElementById('def-quiz-answer-input');
+            const userAns = input.value.trim().toLowerCase();
+            const targetObj = defQuizQuestions[currentDefQuizIndex];
+            const correctWord = targetObj.word.trim().toLowerCase();
+
+            if (!userAns) return;
+
+            input.disabled = true;
+            const submitBtn = document.getElementById('def-quiz-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const feedback = document.getElementById('def-quiz-feedback');
+            feedback.classList.remove('hidden');
+
+            const isCorrect = userAns === correctWord;
+            if (isCorrect) {
+                defQuizCorrectCount++;
+                feedback.className = "mt-6 p-4 rounded-xl border bg-green-50 border-green-200 text-green-800 text-sm";
+                feedback.innerHTML = `
+                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Correct!</p>
+                    <p>Word: <span class="font-bold font-mono text-green-900">${targetObj.word}</span></p>
+                `;
+            } else {
+                feedback.className = "mt-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-800 text-sm";
+                feedback.innerHTML = `
+                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-xmark text-red-600 mr-2"></i> Incorrect</p>
+                    <p class="mb-1">You typed: <span class="line-through font-mono">${input.value.trim()}</span></p>
+                    <p>Correct Word: <span class="font-bold text-green-700 font-mono">${targetObj.word}</span></p>
+                `;
+            }
+
+            document.getElementById('def-quiz-score-display').innerText = `Score: ${defQuizCorrectCount}`;
+
+            setTimeout(() => {
+                currentDefQuizIndex++;
+                renderDefQuizQuestion();
+            }, 2000);
+        }
+
+        function endDefQuiz() {
+            document.getElementById('def-quiz-active').classList.add('hidden');
+            document.getElementById('def-quiz-result').classList.remove('hidden');
+            document.getElementById('def-quiz-final-score').innerText = `${defQuizCorrectCount} / ${defQuizQuestions.length}`;
+        }
+
+        // --- SPELLING QUIZ JAVASCRIPT LOGIC ---
         let spellingQuestions = [];
         let currentSpellingIndex = 0;
         let spellingCorrectCount = 0;
