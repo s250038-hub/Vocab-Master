@@ -486,7 +486,7 @@
             }
             if (!text || text.trim() === '') return;
 
-            window.speechSynthesis.cancel(); // Cancel ongoing speech
+            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = lang;
             utterance.rate = 0.9;
@@ -530,7 +530,6 @@
             if (savedVaults) {
                 vaults = JSON.parse(savedVaults);
             } else {
-                // Migration check from old single-vault format
                 const oldData = localStorage.getItem('vocabMasterData');
                 let initialWords = [];
                 if (oldData) {
@@ -652,6 +651,7 @@
             }
         }
 
+        // --- Updated Get Suggestions with Spell Check Integration ---
         async function fetchDefinitions() {
             const input = document.getElementById('new-word-input');
             const word = input.value.trim().toLowerCase();
@@ -668,10 +668,41 @@
             }
 
             suggestContainer.classList.remove('hidden');
-            suggestContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Searching dictionaries...</p>';
+            suggestContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Checking spelling & searching dictionaries...</p>';
             fetchBtn.disabled = true;
             fetchBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
 
+            // 1. First, check spelling using LanguageTool API
+            try {
+                const spellCheckRes = await fetch('https://api.languagetool.org/v2/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ text: word, language: 'en-US' })
+                });
+
+                if (spellCheckRes.ok) {
+                    const spellData = await spellCheckRes.json();
+                    if (spellData.matches.length > 0 && spellData.matches[0].replacements.length > 0) {
+                        const suggestions = spellData.matches[0].replacements.slice(0, 4);
+                        renderSpellingSuggestions(word, suggestions);
+                        fetchBtn.disabled = false;
+                        fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
+                        return; // Stop here and prompt user to select a correction
+                    }
+                }
+            } catch (err) {
+                console.warn("Spell check service unavailable, proceeding directly to dictionary lookup...", err);
+            }
+
+            // 2. Fetch definitions directly if spelling is fine or check fails
+            await lookupDefinitions(word);
+
+            fetchBtn.disabled = false;
+            fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
+        }
+
+        // Dictionary fetching execution
+        async function lookupDefinitions(word) {
             const dictUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
             const wikiUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
 
@@ -722,10 +753,43 @@
                 tempDefinitions = [];
                 currentFetchingWord = word;
                 renderDefinitionSuggestions('Manual Entry (API failed)');
-            } finally {
-                fetchBtn.disabled = false;
-                fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
             }
+        }
+
+        // Render UI suggestions when a typo is found
+        function renderSpellingSuggestions(originalWord, suggestions) {
+            const container = document.getElementById('definitions-suggestions');
+            let html = `
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p class="text-xs text-amber-800 font-bold mb-2">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Did you mean one of these?
+                    </p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+            `;
+
+            suggestions.forEach(item => {
+                html += `
+                    <button onclick="applySpellingCorrection('${item.value.replace(/'/g, "\\'")}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-md text-xs font-semibold transition">
+                        ${item.value}
+                    </button>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <p class="text-xs text-gray-500">
+                        Or click <button onclick="lookupDefinitions('${originalWord.replace(/'/g, "\\'")}')" class="text-blue-600 underline font-medium">Continue with "${originalWord}"</button> anyway.
+                    </p>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Applies chosen spelling correction and triggers dictionary lookup
+        function applySpellingCorrection(correctedWord) {
+            document.getElementById('new-word-input').value = correctedWord;
+            lookupDefinitions(correctedWord);
         }
 
         function renderDefinitionSuggestions(sourceName) {
@@ -755,7 +819,6 @@
                 html += `<p class="text-xs text-gray-500 mb-2 italic">No online suggestions loaded. You can type your custom definition below.</p>`;
             }
 
-            // Custom Definition Input Box
             html += `
                 <div class="pt-2 border-t border-gray-200 mt-2">
                     <label class="block text-xs font-bold text-gray-600 mb-1"><i class="fa-solid fa-pen"></i> Add Custom Meaning / Note:</label>
