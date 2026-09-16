@@ -247,6 +247,10 @@
                     <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-spell-check w-6"></i> Quiz Test
                     </button>
+                    <!-- NEW NAVIGATION BUTTON -->
+                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
+                    </button>
                     <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
                     </button>
@@ -403,6 +407,67 @@
                     </div>
                 </div>
 
+                <!-- View 3.5: NEW SPELLING QUIZ VIEW -->
+                <div id="view-spelling" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
+
+                    <!-- Setup Screen -->
+                    <div id="spelling-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <i class="fa-solid fa-headphones-simple text-4xl text-blue-500 mb-3"></i>
+                        <p class="text-gray-600 mb-6">Listen to the word and type the correct spelling!</p>
+                        
+                        <div class="mb-6 max-w-xs mx-auto text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="spelling-count-display">5</span></label>
+                            <input type="range" id="spelling-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('spelling-count-display').innerText = this.value">
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="spelling-available-words">0</span> words in this vault</p>
+                        </div>
+
+                        <button onclick="startSpellingQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                            <i class="fa-solid fa-play"></i> Start Spelling Test
+                        </button>
+                        <p id="spelling-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    </div>
+
+                    <!-- Active Quiz Screen -->
+                    <div id="spelling-active" class="hidden">
+                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                            <span id="spelling-progress">Word: 1 / 5</span>
+                            <span id="spelling-score-display" class="text-blue-600">Correct: 0</span>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Listen & Spell</p>
+                            
+                            <button onclick="speakSpellingTarget()" class="bg-blue-50 hover:bg-blue-100 border-2 border-blue-400 text-blue-600 px-6 py-4 rounded-2xl font-bold text-xl transition flex items-center justify-center gap-3 mx-auto shadow-sm active:scale-95">
+                                <i class="fa-solid fa-volume-high text-2xl"></i> Click to Hear Word
+                            </button>
+
+                            <form onsubmit="event.preventDefault(); submitSpellingAnswer();" class="mt-8 max-w-md mx-auto">
+                                <input type="text" id="spelling-answer-input" placeholder="Type your spelling here..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition mb-4">
+                                
+                                <button id="spelling-submit-btn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                    Submit Answer
+                                </button>
+                            </form>
+
+                            <!-- Instant Feedback Banner -->
+                            <div id="spelling-feedback" class="mt-6 hidden p-4 rounded-xl text-left border">
+                                <!-- Injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Final Score Screen -->
+                    <div id="spelling-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-square-check text-5xl text-blue-500 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Spelling Quiz Completed!</h2>
+                        <p class="text-lg text-gray-600 mb-6">Accuracy: <span id="spelling-final-accuracy" class="font-bold text-blue-600 text-3xl">0/0</span></p>
+                        <button onclick="document.getElementById('spelling-setup').classList.remove('hidden'); document.getElementById('spelling-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+
                 <!-- View 4: Matching Game -->
                 <div id="view-match" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Matching Game</h2>
@@ -509,6 +574,13 @@
             if (viewId === 'test') {
                 document.getElementById('test-available-words').innerText = vocabList.length;
                 document.getElementById('option-count').max = Math.min(6, Math.max(2, vocabList.length));
+            }
+            if (viewId === 'spelling') {
+                document.getElementById('spelling-available-words').innerText = vocabList.length;
+                const range = document.getElementById('spelling-word-count');
+                range.max = Math.max(1, vocabList.length);
+                range.value = Math.min(5, Math.max(1, vocabList.length));
+                document.getElementById('spelling-count-display').innerText = range.value;
             }
             if (viewId === 'sentence') updateSentenceSelect();
         }
@@ -687,7 +759,7 @@
                         renderSpellingSuggestions(word, suggestions);
                         fetchBtn.disabled = false;
                         fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
-                        return; // Stop here and prompt user to select a correction
+                        return;
                     }
                 }
             } catch (err) {
@@ -701,7 +773,6 @@
             fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
         }
 
-        // Dictionary fetching execution
         async function lookupDefinitions(word) {
             const dictUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
             const wikiUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
@@ -756,7 +827,6 @@
             }
         }
 
-        // Render UI suggestions when a typo is found
         function renderSpellingSuggestions(originalWord, suggestions) {
             const container = document.getElementById('definitions-suggestions');
             let html = `
@@ -786,7 +856,6 @@
             container.innerHTML = html;
         }
 
-        // Applies chosen spelling correction and triggers dictionary lookup
         function applySpellingCorrection(correctedWord) {
             document.getElementById('new-word-input').value = correctedWord;
             lookupDefinitions(correctedWord);
@@ -1164,6 +1233,109 @@
             document.getElementById('test-active').classList.add('hidden');
             document.getElementById('test-result').classList.remove('hidden');
             document.getElementById('final-score').innerText = testScore;
+        }
+
+        // --- NEW SPELLING QUIZ JAVASCRIPT LOGIC ---
+        let spellingQuestions = [];
+        let currentSpellingIndex = 0;
+        let spellingCorrectCount = 0;
+
+        function startSpellingQuiz() {
+            const count = parseInt(document.getElementById('spelling-word-count').value);
+            if (vocabList.length === 0) {
+                const err = document.getElementById('spelling-error-msg');
+                err.innerText = "You need at least 1 word in your vault to start the spelling quiz!";
+                err.classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('spelling-setup').classList.add('hidden');
+            document.getElementById('spelling-result').classList.add('hidden');
+            document.getElementById('spelling-active').classList.remove('hidden');
+
+            spellingQuestions = [...vocabList].sort(() => Math.random() - 0.5).slice(0, count);
+            currentSpellingIndex = 0;
+            spellingCorrectCount = 0;
+
+            renderSpellingQuestion();
+        }
+
+        function renderSpellingQuestion() {
+            if (currentSpellingIndex >= spellingQuestions.length) {
+                endSpellingQuiz();
+                return;
+            }
+
+            const currentTarget = spellingQuestions[currentSpellingIndex];
+            document.getElementById('spelling-progress').innerText = `Word: ${currentSpellingIndex + 1} / ${spellingQuestions.length}`;
+            document.getElementById('spelling-score-display').innerText = `Correct: ${spellingCorrectCount}`;
+
+            const input = document.getElementById('spelling-answer-input');
+            input.value = '';
+            input.disabled = false;
+            
+            const submitBtn = document.getElementById('spelling-submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            const feedback = document.getElementById('spelling-feedback');
+            feedback.classList.add('hidden');
+
+            speakSpellingTarget();
+            input.focus();
+        }
+
+        function speakSpellingTarget() {
+            if (spellingQuestions[currentSpellingIndex]) {
+                speakWord(spellingQuestions[currentSpellingIndex].word);
+            }
+        }
+
+        function submitSpellingAnswer() {
+            const input = document.getElementById('spelling-answer-input');
+            const userAns = input.value.trim().toLowerCase();
+            const targetObj = spellingQuestions[currentSpellingIndex];
+            const correctWord = targetObj.word.trim().toLowerCase();
+
+            if (!userAns) return;
+
+            input.disabled = true;
+            const submitBtn = document.getElementById('spelling-submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const feedback = document.getElementById('spelling-feedback');
+            feedback.classList.remove('hidden');
+
+            const isCorrect = userAns === correctWord;
+            if (isCorrect) {
+                spellingCorrectCount++;
+                feedback.className = "mt-6 p-4 rounded-xl border bg-green-50 border-green-200 text-green-800 text-sm";
+                feedback.innerHTML = `
+                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Correct!</p>
+                    <p>Spelling: <span class="font-bold font-mono">${targetObj.word}</span></p>
+                `;
+            } else {
+                feedback.className = "mt-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-800 text-sm";
+                feedback.innerHTML = `
+                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-xmark text-red-600 mr-2"></i> Incorrect</p>
+                    <p class="mb-1">You typed: <span class="line-through font-mono">${input.value.trim()}</span></p>
+                    <p>Correct Spelling: <span class="font-bold text-green-700 font-mono">${targetObj.word}</span></p>
+                `;
+            }
+
+            document.getElementById('spelling-score-display').innerText = `Correct: ${spellingCorrectCount}`;
+
+            setTimeout(() => {
+                currentSpellingIndex++;
+                renderSpellingQuestion();
+            }, 2000);
+        }
+
+        function endSpellingQuiz() {
+            document.getElementById('spelling-active').classList.add('hidden');
+            document.getElementById('spelling-result').classList.remove('hidden');
+            document.getElementById('spelling-final-accuracy').innerText = `${spellingCorrectCount} / ${spellingQuestions.length}`;
         }
 
         let matchCards = [];
