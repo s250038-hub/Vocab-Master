@@ -1,6 +1,6 @@
 # 📖 Vocab Master
 
-[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://s250038-hub.github.io/Vocab-Master/)
+[![Least version](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://s250038-hub.github.io/Vocab-Master/)
 
 **Vocab Master** is an interactive, browser-based vocabulary management and learning web app. It allows users to build custom word vaults, fetch definitions automatically, practice with flashcards, test their knowledge through interactive quizzes, practice audio spelling, play matching games, and write practice sentences with real-time spell checking and AI-powered grammar feedback.
 
