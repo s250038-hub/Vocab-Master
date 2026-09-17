@@ -25,17 +25,35 @@
         .book-wrapper {
             width: 100%;
             max-width: 1100px;
-            height: 90vh;
+            height: 92vh;
             perspective: 1500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-global-bar {
+            background-color: #1a252f;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 20;
         }
 
         .book {
             display: flex;
+            flex: 1;
             width: 100%;
-            height: 100%;
             background-color: #fcf9f2;
             background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-            border-radius: 12px;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
             box-shadow: 
                 0 25px 50px -12px rgba(0, 0, 0, 0.5),
                 inset 0 0 60px rgba(0,0,0,0.05);
@@ -64,7 +82,7 @@
 
         .page {
             flex: 1;
-            padding: 2.5rem;
+            padding: 2rem;
             overflow-y: auto;
             position: relative;
         }
@@ -162,7 +180,7 @@
 
         .toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: #1e293b;
@@ -199,7 +217,7 @@
             z-index: 20;
         }
 
-        /* --- VOCABLOCKY GAME STYLES --- */
+        /* --- GAME STYLES --- */
         #blocky-board, #scrabble-board {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
@@ -243,7 +261,6 @@
             box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
         }
 
-        /* Scrabble Bonus Multipliers */
         .scrabble-cell.cell-dl { background-color: #bae6fd; color: #0284c7; font-size: 10px; font-weight: 700; }
         .scrabble-cell.cell-tl { background-color: #38bdf8; color: #0369a1; font-size: 10px; font-weight: 700; }
         .scrabble-cell.cell-dw { background-color: #fbcfe8; color: #db2777; font-size: 10px; font-weight: 700; }
@@ -324,7 +341,6 @@
             transform: scale(1.06);
         }
 
-        /* Scrabble Rack Tile */
         .scrabble-rack-tile {
             width: 40px;
             height: 44px;
@@ -350,69 +366,159 @@
             box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
         }
 
+        /* Sub-tab scroll container */
+        .subtab-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .subtab-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .subtab-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            color: #4b5563;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .subtab-btn.active {
+            background-color: #2563eb;
+            color: #ffffff;
+        }
+
+        /* Mobile Layout Modifications */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
         @media (max-width: 768px) {
-            .book { flex-direction: column; overflow-y: auto; }
+            body {
+                padding: 0;
+                align-items: flex-start;
+            }
+            .book-wrapper {
+                height: 100vh;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .top-global-bar {
+                border-radius: 0;
+                padding: 0.5rem;
+            }
+            .book {
+                border-radius: 0;
+                flex-direction: column;
+                overflow-y: auto;
+                padding-bottom: 65px;
+            }
             .spine { display: none; }
-            .page-left { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: auto; }
-            .book-wrapper { height: 95vh; }
+            .page-left { 
+                border-right: none; 
+                border-bottom: 1px solid rgba(0,0,0,0.1); 
+            }
+            .desktop-sidebar {
+                display: none !important;
+            }
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60px;
+                background-color: #1e293b;
+                border-top: 1px solid #334155;
+                z-index: 50;
+                justify-content: space-around;
+                align-items: center;
+            }
+            .mobile-nav-btn {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #94a3b8;
+                font-size: 0.7rem;
+                font-weight: 600;
+                height: 100%;
+            }
+            .mobile-nav-btn.active {
+                color: #3b82f6;
+            }
+            .mobile-nav-btn i {
+                font-size: 1.2rem;
+                margin-bottom: 2px;
+            }
+            .toast {
+                bottom: 75px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="book-wrapper">
+        <!-- GLOBAL FIXED TOP BAR -->
+        <div class="top-global-bar">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-blue-400 text-xl"></i>
+                <span class="font-serif font-bold text-lg tracking-wide hidden sm:inline">Vocab Master</span>
+            </div>
+
+            <!-- Vault Switcher & Controls -->
+            <div class="flex items-center gap-3">
+                <div class="flex items-center bg-gray-800 px-2 py-1 rounded-lg border border-gray-700">
+                    <i class="fa-solid fa-vault text-blue-400 text-xs mr-1.5"></i>
+                    <select id="vault-select" onchange="switchVault(this.value)" class="bg-transparent text-white text-xs font-semibold outline-none border-none cursor-pointer">
+                    </select>
+                    <button onclick="createNewVault()" class="ml-1.5 text-blue-400 hover:text-blue-300 text-xs" title="Create Vault">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button onclick="renameCurrentVault()" class="ml-1.5 text-gray-400 hover:text-white text-xs" title="Rename Vault">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button onclick="deleteCurrentVault()" class="ml-1.5 text-red-400 hover:text-red-300 text-xs" title="Delete Vault">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="exportWords()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-2.5 py-1.5 rounded-lg transition" title="Export (.words)">
+                        <i class="fa-solid fa-download"></i> <span class="hidden md:inline">Export</span>
+                    </button>
+                    <button onclick="document.getElementById('import-file').click()" class="bg-gray-700 hover:bg-gray-600 text-white text-xs px-2.5 py-1.5 rounded-lg transition" title="Import">
+                        <i class="fa-solid fa-upload"></i> <span class="hidden md:inline">Import</span>
+                    </button>
+                    <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
+                </div>
+            </div>
+        </div>
+
         <div class="book">
             <div class="spine"></div>
             
-            <div class="page page-left">
+            <!-- DESKTOP LEFT SIDEBAR -->
+            <div class="page page-left desktop-sidebar">
                 <div class="text-center mb-6">
                     <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
                     <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
                 </div>
 
-                <!-- Vault Switcher Section -->
-                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
-                    <div class="flex gap-2 mb-2">
-                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
-                        </select>
-                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="flex justify-between items-center px-1">
-                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
-                            <i class="fa-solid fa-pen-to-square"></i> Rename
-                        </button>
-                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
-
                 <div class="space-y-2 mb-6">
-                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-house w-6"></i> Main Page
+                    <button onclick="switchMainTab('vault')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-box-archive w-6 text-blue-600"></i> Main Vault Manager
                     </button>
-                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-layer-group w-6"></i> Flashcards
+                    <button onclick="switchMainTab('learn')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-graduation-cap w-6 text-green-600"></i> Learn & Practice
                     </button>
-                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-spell-check w-6"></i> Practice
-                    </button>
-                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
-                    </button>
-                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
-                    </button>
-                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
-                    </button>
-                    <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
-                        <i class="fa-solid fa-cubes-stacked w-6 text-blue-600"></i> 🕹️Author-recommend gamemodes
-                    </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
+                    <button onclick="switchMainTab('games')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
+                        <i class="fa-solid fa-gamepad w-6 text-purple-600"></i> Arcade Games
                     </button>
                 </div>
 
@@ -427,20 +533,15 @@
                         <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
                     </div>
                 </div>
-
-                <div class="flex gap-2">
-                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
-                    <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
-                    <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
-                </div>
             </div>
 
-            <div class="page page-right">
-                
-                <!-- View 1: Main Page -->
-                <div id="view-home" class="view-section active">
+            <!-- MAIN RIGHT PAGE CONTAINER -->
+            <div class="page page-right w-full">
+
+                <!-- MAIN TAB 1: VAULT MANAGEMENT -->
+                <div id="maintab-vault" class="main-tab-content">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
-                        <h2 class="text-2xl font-bold text-gray-800">Main Page</h2>
+                        <h2 class="text-2xl font-bold text-gray-800">Main Vault Manager</h2>
                         <span id="current-vault-badge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">Default Vault</span>
                     </div>
                     
@@ -458,384 +559,396 @@
 
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-bold text-gray-700">Saved Words Saved</h3>
+                            <h3 class="text-lg font-bold text-gray-700">Saved Words</h3>
                             <input type="text" id="search-list" placeholder="Search..." class="text-sm border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="renderWordList()">
                         </div>
                         <div id="word-list-container" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- View 2: Flashcards -->
-                <div id="view-flashcard" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Flashcards</h2>
-                    
-                    <div id="flashcard-ui" class="hidden flex-col items-center">
-                        <div class="text-sm text-gray-500 mb-4 font-medium" id="flashcard-counter">1 / 10</div>
+                <!-- MAIN TAB 2: LEARN & PRACTICE (WITH SUBTABS) -->
+                <div id="maintab-learn" class="main-tab-content hidden">
+                    <!-- SUBTAB NAVIGATION HEADER -->
+                    <div class="bg-gray-200/80 p-1.5 rounded-xl mb-6 shadow-inner">
+                        <div class="subtab-scroll-container gap-1">
+                            <button id="subtab-btn-flashcard" onclick="switchSubTab('flashcard')" class="subtab-btn active">
+                                <i class="fa-solid fa-layer-group mr-1"></i> Flashcards
+                            </button>
+                            <button id="subtab-btn-test" onclick="switchSubTab('test')" class="subtab-btn">
+                                <i class="fa-solid fa-spell-check mr-1"></i> Practice
+                            </button>
+                            <button id="subtab-btn-definition-quiz" onclick="switchSubTab('definition-quiz')" class="subtab-btn">
+                                <i class="fa-solid fa-circle-question mr-1"></i> Quiz
+                            </button>
+                            <button id="subtab-btn-spelling" onclick="switchSubTab('spelling')" class="subtab-btn">
+                                <i class="fa-solid fa-keyboard mr-1"></i> Spelling
+                            </button>
+                            <button id="subtab-btn-sentence" onclick="switchSubTab('sentence')" class="subtab-btn">
+                                <i class="fa-solid fa-pen-nib mr-1"></i> Sentences
+                            </button>
+                            <button id="subtab-btn-match" onclick="switchSubTab('match')" class="subtab-btn">
+                                <i class="fa-solid fa-puzzle-piece mr-1"></i> Matching
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 1: FLASHCARDS -->
+                    <div id="view-flashcard" class="view-section active">
+                        <div id="flashcard-ui" class="hidden flex-col items-center">
+                            <div class="text-sm text-gray-500 mb-4 font-medium" id="flashcard-counter">1 / 10</div>
+                            
+                            <div class="flashcard-container mb-6" onclick="flipCard()">
+                                <div id="flashcard-element" class="flashcard">
+                                    <div class="flashcard-face">
+                                        <div class="flex items-center justify-center gap-3 w-full px-2">
+                                            <h2 id="flashcard-word" class="font-bold text-gray-800 responsive-word">Word</h2>
+                                            <button onclick="event.preventDefault(); event.stopPropagation(); speakWord(document.getElementById('flashcard-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-100 text-2xl transition" title="Speak Word">
+                                                <i class="fa-solid fa-volume-high"></i>
+                                            </button>
+                                        </div>
+                                        <p class="text-gray-400 text-sm mt-4"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
+                                    </div>
+                                    <div class="flashcard-face flashcard-back">
+                                        <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4 relative z-10"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4 w-full max-w-sm">
+                                <button onclick="prevCard()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl transition font-medium"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+                                <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-medium">Next <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                            <div class="mt-4">
+                                <button onclick="shuffleCards()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-shuffle"></i> Shuffle & Restart</button>
+                            </div>
+                        </div>
                         
-                        <div class="flashcard-container mb-6" onclick="flipCard()">
-                            <div id="flashcard-element" class="flashcard">
-                                <div class="flashcard-face">
-                                    <div class="flex items-center justify-center gap-3 w-full px-2">
-                                        <h2 id="flashcard-word" class="font-bold text-gray-800 responsive-word">Word</h2>
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); speakWord(document.getElementById('flashcard-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-100 text-2xl transition" title="Speak Word">
-                                            <i class="fa-solid fa-volume-high"></i>
+                        <div id="flashcard-empty" class="text-center py-20 text-gray-500">
+                            <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
+                            <p>Your current vault is empty! Go add some words first.</p>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 2: PRACTICE TEST -->
+                    <div id="view-test" class="view-section">
+                        <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                            <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
+                            
+                            <div class="mb-6 max-w-xs mx-auto text-left">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
+                                <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
+                                <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
+                            </div>
+
+                            <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                                <i class="fa-solid fa-play"></i> Start Practice
+                            </button>
+                            <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                        </div>
+
+                        <div id="test-active" class="hidden">
+                            <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                                <span id="test-progress">Question: 1 / 10</span>
+                                <span id="test-score-display" class="text-blue-600">Score: 0</span>
+                            </div>
+                            
+                            <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                                <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
+                                <div class="flex items-center justify-center gap-3 mb-4 w-full">
+                                    <h2 id="test-question-word" class="font-bold text-gray-800 responsive-word">Word</h2>
+                                    <button onclick="speakWord(document.getElementById('test-question-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-50 text-2xl transition" title="Speak Word">
+                                        <i class="fa-solid fa-volume-high"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="test-options" class="grid grid-cols-1 gap-3"></div>
+                        </div>
+                        
+                        <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                            <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Completed!</h2>
+                            <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
+                            <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 3: DEFINITION QUIZ -->
+                    <div id="view-definition-quiz" class="view-section">
+                        <div id="def-quiz-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                            <i class="fa-solid fa-circle-question text-4xl text-green-500 mb-3"></i>
+                            <p class="text-gray-600 mb-6">Read the definition and type the matching vocabulary word!</p>
+                            
+                            <div class="mb-6 max-w-xs mx-auto text-left">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="def-quiz-count-display">5</span></label>
+                                <input type="range" id="def-quiz-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('def-quiz-count-display').innerText = this.value">
+                                <p class="text-xs text-gray-400 mt-1">You currently have <span id="def-quiz-available-words">0</span> words in this vault</p>
+                            </div>
+
+                            <button onclick="startDefQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                                <i class="fa-solid fa-play"></i> Start Quiz
+                            </button>
+                            <p id="def-quiz-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                        </div>
+
+                        <div id="def-quiz-active" class="hidden">
+                            <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                                <span id="def-quiz-progress">Word: 1 / 5</span>
+                                <span id="def-quiz-score-display" class="text-green-600">Score: 0</span>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Explanation / Definition</p>
+                                
+                                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 max-h-40 overflow-y-auto">
+                                    <span id="def-quiz-pos" class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">pos</span>
+                                    <p id="def-quiz-explanation" class="text-gray-800 font-medium inline text-lg">Definition text goes here...</p>
+                                </div>
+
+                                <form onsubmit="event.preventDefault(); submitDefQuizAnswer();" class="max-w-md mx-auto">
+                                    <input type="text" id="def-quiz-answer-input" placeholder="Type the target word..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-500 transition mb-4">
+                                    
+                                    <button id="def-quiz-submit-btn" type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                        Submit Answer
+                                    </button>
+                                </form>
+
+                                <div id="def-quiz-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
+                            </div>
+                        </div>
+
+                        <div id="def-quiz-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                            <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+                            <p class="text-lg text-gray-600 mb-6">Final Score: <span id="def-quiz-final-score" class="font-bold text-green-600 text-3xl">0/0</span></p>
+                            <button onclick="document.getElementById('def-quiz-setup').classList.remove('hidden'); document.getElementById('def-quiz-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 4: SPELLING QUIZ -->
+                    <div id="view-spelling" class="view-section">
+                        <div id="spelling-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                            <i class="fa-solid fa-headphones-simple text-4xl text-blue-500 mb-3"></i>
+                            <p class="text-gray-600 mb-6">Listen to the word and type the correct spelling!</p>
+                            
+                            <div class="mb-6 max-w-xs mx-auto text-left">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="spelling-count-display">5</span></label>
+                                <input type="range" id="spelling-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('spelling-count-display').innerText = this.value">
+                                <p class="text-xs text-gray-400 mt-1">You currently have <span id="spelling-available-words">0</span> words in this vault</p>
+                            </div>
+
+                            <button onclick="startSpellingQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                                <i class="fa-solid fa-play"></i> Start Spelling Test
+                            </button>
+                            <p id="spelling-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                        </div>
+
+                        <div id="spelling-active" class="hidden">
+                            <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                                <span id="spelling-progress">Word: 1 / 5</span>
+                                <span id="spelling-score-display" class="text-blue-600">Correct: 0</span>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Listen & Spell</p>
+                                
+                                <button onclick="speakSpellingTarget()" class="bg-blue-50 hover:bg-blue-100 border-2 border-blue-400 text-blue-600 px-6 py-4 rounded-2xl font-bold text-xl transition flex items-center justify-center gap-3 mx-auto shadow-sm active:scale-95">
+                                    <i class="fa-solid fa-volume-high text-2xl"></i> Click to Hear Word
+                                </button>
+
+                                <form onsubmit="event.preventDefault(); submitSpellingAnswer();" class="mt-8 max-w-md mx-auto">
+                                    <input type="text" id="spelling-answer-input" placeholder="Type your spelling here..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition mb-4">
+                                    
+                                    <button id="spelling-submit-btn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                        Submit Answer
+                                    </button>
+                                </form>
+
+                                <div id="spelling-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
+                            </div>
+                        </div>
+
+                        <div id="spelling-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                            <i class="fa-solid fa-square-check text-5xl text-blue-500 mb-4"></i>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Spelling Quiz Completed!</h2>
+                            <p class="text-lg text-gray-600 mb-6">Accuracy: <span id="spelling-final-accuracy" class="font-bold text-blue-600 text-3xl">0/0</span></p>
+                            <button onclick="document.getElementById('spelling-setup').classList.remove('hidden'); document.getElementById('spelling-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 5: SENTENCE PRACTICE -->
+                    <div id="view-sentence" class="view-section">
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
+                                <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
+                                    <i class="fa-solid fa-dice"></i> Pick Random
+                                </button>
+                            </div>
+                            <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
+                                <option value="">-- Select or pick random --</option>
+                            </select>
+                            <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
+                            <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
+                            
+                            <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
+                                <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
+                            </button>
+                        </div>
+
+                        <div id="grammar-result" class="mt-6 hidden">
+                            <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
+                            <div id="grammar-feedback" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- SUBVIEW 6: MATCHING GAME -->
+                    <div id="view-match" class="view-section">
+                        <div id="match-setup" class="text-center py-10">
+                            <p class="text-gray-600 mb-6">Match words with their corresponding definitions to clear them!</p>
+                            <button onclick="startMatch()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                                <i class="fa-solid fa-play"></i> Start Game
+                            </button>
+                            <p id="match-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                        </div>
+
+                        <div id="match-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm font-bold text-gray-500">Remaining Matches: <span id="match-remain" class="text-purple-600">0</span></span>
+                                <span class="text-sm font-bold text-gray-500">Moves: <span id="match-moves">0</span></span>
+                            </div>
+                            <div id="match-board" class="match-grid pb-10"></div>
+                            
+                            <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
+                                <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
+                                <button onclick="startMatch()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Play Again</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN TAB 3: ARCADE GAMES -->
+                <div id="maintab-games" class="main-tab-content hidden">
+                    <div id="view-blocky">
+                        <!-- Mode Switcher -->
+                        <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold">
+                            <button id="tab-btn-blocky" onclick="switchWordGameMode('blocky')" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-blue-600 transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-cubes-stacked"></i> Vocablocky Grid
+                            </button>
+                            <button id="tab-btn-scrabble" onclick="switchWordGameMode('scrabble')" class="flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-font"></i> Classic Scrabble (Endless)
+                            </button>
+                        </div>
+
+                        <!-- SUB-GAME 1: VOCABLOCKY GRID MODE -->
+                        <div id="subview-blocky">
+                            <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-cubes-stacked text-blue-600"></i> Vocablocky</span>
+                                <div class="flex items-center gap-2">
+                                    <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...</span>
+                                    <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="words-count-display">0</span></span>
+                                    <span class="text-base font-bold text-blue-600">Score: <span id="blocky-score-display">0</span></span>
+                                </div>
+                            </h2>
+
+                            <div id="blocky-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                                    <i class="fa-solid fa-spell-check"></i>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">Vocablocky Rules</h3>
+                                <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid Scrabble words (left-to-right or top-to-bottom).</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Main word (3+ letters): <strong>+10 pts per block cleared</strong>. Sub-words (2+ letters): <strong>+10 bonus pts each</strong>!</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Only matched word cells clear; remaining letters stay in place.</span></li>
+                                </ul>
+                                <button onclick="startBlockyGame()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
+                                    <i class="fa-solid fa-play"></i> Start Vocablocky Game
+                                </button>
+                            </div>
+
+                            <div id="blocky-active" class="hidden relative">
+                                <div id="blocky-board" class="mb-4"></div>
+
+                                <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                    <div class="flex justify-between items-center mb-2 px-1">
+                                        <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">TAP OR DRAG PIECE TO PLACE</span>
+                                        <span class="text-xs text-blue-600 font-bold" id="placed-counter-text">Placed: 0</span>
+                                    </div>
+                                    <div id="blocky-pieces" class="piece-container"></div>
+                                </div>
+
+                                <div id="blocky-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
+                                    <i class="fa-solid fa-border-none text-6xl text-red-500 mb-3 animate-bounce"></i>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-1">No Fits Available!</h3>
+                                    <p class="text-gray-500 mb-4 text-sm">No space left on the grid for remaining pieces.</p>
+                                    <p class="text-lg font-bold text-blue-600 mb-1">Final Score: <span id="blocky-final-score">0</span></p>
+                                    <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="blocky-final-words">0</span></p>
+                                    <button onclick="startBlockyGame()" class="bg-blue-600 text-white px-8 py-2.5 rounded-full font-bold hover:bg-blue-700 transition shadow">Play Again</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-GAME 2: CLASSIC SCRABBLE ENDLESS MODE -->
+                        <div id="subview-scrabble" class="hidden">
+                            <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                                <span class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-600"></i> Endless Scrabble</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="scrabble-words-count">0</span></span>
+                                    <span class="text-base font-bold text-amber-600">Score: <span id="scrabble-score-display">0</span></span>
+                                </div>
+                            </h2>
+
+                            <div id="scrabble-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                                <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+                                    S₁
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">Classic Scrabble (Unended)</h3>
+                                <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell words.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Utilize multipliers: <strong>DL</strong> (Double Letter), <strong>TL</strong> (Triple Letter), <strong>DW</strong> (Double Word), <strong>TW</strong> (Triple Word).</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong>Endless Rack:</strong> Tiles auto-replenish to 7 after every valid turn!</span></li>
+                                </ul>
+                                <button onclick="startScrabbleGame()" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
+                                    <i class="fa-solid fa-play"></i> Start Endless Scrabble
+                                </button>
+                            </div>
+
+                            <div id="scrabble-active" class="hidden relative">
+                                <div id="scrabble-board" class="mb-4"></div>
+
+                                <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 shadow-sm">
+                                    <div class="text-xs text-amber-800 font-bold uppercase tracking-wider mb-2 text-center">Your Tile Rack (7 Tiles)</div>
+                                    
+                                    <div id="scrabble-rack" class="flex justify-center items-center gap-2 mb-3 min-h-[50px]"></div>
+
+                                    <div class="flex gap-2 justify-center flex-wrap">
+                                        <button onclick="submitScrabbleTurn()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">
+                                            <i class="fa-solid fa-check"></i> Play Word
+                                        </button>
+                                        <button onclick="recallScrabbleTiles()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                            <i class="fa-solid fa-rotate-left"></i> Recall
+                                        </button>
+                                        <button onclick="swapScrabbleRack()" class="bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Get 7 new random tiles">
+                                            <i class="fa-solid fa-arrows-rotate"></i> Swap Rack
                                         </button>
                                     </div>
-                                    <p class="text-gray-400 text-sm mt-4"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
-                                </div>
-                                <div class="flashcard-face flashcard-back">
-                                    <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4 relative z-10"></div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="flex gap-4 w-full max-w-sm">
-                            <button onclick="prevCard()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl transition font-medium"><i class="fa-solid fa-arrow-left"></i> Previous</button>
-                            <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-medium">Next <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                        <div class="mt-4">
-                            <button onclick="shuffleCards()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-shuffle"></i> Shuffle & Restart</button>
-                        </div>
-                    </div>
-                    
-                    <div id="flashcard-empty" class="text-center py-20 text-gray-500">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
-                        <p>Your current vault is empty! Go add some words first.</p>
-                    </div>
-                </div>
-
-                <!-- View 3: Practice -->
-                <div id="view-test" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Practice</h2>
-                    
-                    <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
-                            <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Practice
-                        </button>
-                        <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="test-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="test-progress">Question: 1 / 10</span>
-                            <span id="test-score-display" class="text-blue-600">Score: 0</span>
-                        </div>
-                        
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
-                            <div class="flex items-center justify-center gap-3 mb-4 w-full">
-                                <h2 id="test-question-word" class="font-bold text-gray-800 responsive-word">Word</h2>
-                                <button onclick="speakWord(document.getElementById('test-question-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-50 text-2xl transition" title="Speak Word">
-                                    <i class="fa-solid fa-volume-high"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="test-options" class="grid grid-cols-1 gap-3"></div>
-                    </div>
-                    
-                    <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
-                        <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 3.25: QUIZ MODE -->
-                <div id="view-definition-quiz" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz</h2>
-
-                    <div id="def-quiz-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <i class="fa-solid fa-circle-question text-4xl text-green-500 mb-3"></i>
-                        <p class="text-gray-600 mb-6">Read the definition and type the matching vocabulary word!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="def-quiz-count-display">5</span></label>
-                            <input type="range" id="def-quiz-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('def-quiz-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="def-quiz-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startDefQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Quiz
-                        </button>
-                        <p id="def-quiz-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="def-quiz-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="def-quiz-progress">Word: 1 / 5</span>
-                            <span id="def-quiz-score-display" class="text-green-600">Score: 0</span>
-                        </div>
-
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Explanation / Definition</p>
-                            
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 max-h-40 overflow-y-auto">
-                                <span id="def-quiz-pos" class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">pos</span>
-                                <p id="def-quiz-explanation" class="text-gray-800 font-medium inline text-lg">Definition text goes here...</p>
-                            </div>
-
-                            <form onsubmit="event.preventDefault(); submitDefQuizAnswer();" class="max-w-md mx-auto">
-                                <input type="text" id="def-quiz-answer-input" placeholder="Type the target word..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-500 transition mb-4">
-                                
-                                <button id="def-quiz-submit-btn" type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow">
-                                    Submit Answer
-                                </button>
-                            </form>
-
-                            <div id="def-quiz-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
-                        </div>
-                    </div>
-
-                    <div id="def-quiz-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Final Score: <span id="def-quiz-final-score" class="font-bold text-green-600 text-3xl">0/0</span></p>
-                        <button onclick="document.getElementById('def-quiz-setup').classList.remove('hidden'); document.getElementById('def-quiz-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 3.5: SPELLING QUIZ VIEW -->
-                <div id="view-spelling" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
-
-                    <div id="spelling-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <i class="fa-solid fa-headphones-simple text-4xl text-blue-500 mb-3"></i>
-                        <p class="text-gray-600 mb-6">Listen to the word and type the correct spelling!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="spelling-count-display">5</span></label>
-                            <input type="range" id="spelling-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('spelling-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="spelling-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startSpellingQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Spelling Test
-                        </button>
-                        <p id="spelling-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="spelling-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="spelling-progress">Word: 1 / 5</span>
-                            <span id="spelling-score-display" class="text-blue-600">Correct: 0</span>
-                        </div>
-
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Listen & Spell</p>
-                            
-                            <button onclick="speakSpellingTarget()" class="bg-blue-50 hover:bg-blue-100 border-2 border-blue-400 text-blue-600 px-6 py-4 rounded-2xl font-bold text-xl transition flex items-center justify-center gap-3 mx-auto shadow-sm active:scale-95">
-                                <i class="fa-solid fa-volume-high text-2xl"></i> Click to Hear Word
-                            </button>
-
-                            <form onsubmit="event.preventDefault(); submitSpellingAnswer();" class="mt-8 max-w-md mx-auto">
-                                <input type="text" id="spelling-answer-input" placeholder="Type your spelling here..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition mb-4">
-                                
-                                <button id="spelling-submit-btn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow">
-                                    Submit Answer
-                                </button>
-                            </form>
-
-                            <div id="spelling-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
-                        </div>
-                    </div>
-
-                    <div id="spelling-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-square-check text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Spelling Quiz Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Accuracy: <span id="spelling-final-accuracy" class="font-bold text-blue-600 text-3xl">0/0</span></p>
-                        <button onclick="document.getElementById('spelling-setup').classList.remove('hidden'); document.getElementById('spelling-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 4: Matching Game -->
-                <div id="view-match" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Matching Game</h2>
-                    
-                    <div id="match-setup" class="text-center py-10">
-                        <p class="text-gray-600 mb-6">Match words with their corresponding definitions to clear them!</p>
-                        <button onclick="startMatch()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Game
-                        </button>
-                        <p id="match-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="match-active" class="hidden relative">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-sm font-bold text-gray-500">Remaining Matches: <span id="match-remain" class="text-purple-600">0</span></span>
-                            <span class="text-sm font-bold text-gray-500">Moves: <span id="match-moves">0</span></span>
-                        </div>
-                        <div id="match-board" class="match-grid pb-10"></div>
-                        
-                        <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
-                            <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
-                            <button onclick="startMatch()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Play Again</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- View 4.5: VOCABLOCKY & SCRABBLE MODE -->
-                <div id="view-blocky" class="view-section">
-                    <!-- Tab Switcher -->
-                    <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold">
-                        <button id="tab-btn-blocky" onclick="switchWordGameMode('blocky')" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-blue-600 transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-cubes-stacked"></i> Vocablocky Grid
-                        </button>
-                        <button id="tab-btn-scrabble" onclick="switchWordGameMode('scrabble')" class="flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-font"></i> Classic Scrabble (Endless)
-                        </button>
-                    </div>
-
-                    <!-- SUB-VIEW 1: VOCABLOCKY GRID MODE -->
-                    <div id="subview-blocky">
-                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-cubes-stacked text-blue-600"></i> Vocablocky</span>
-                            <div class="flex items-center gap-2">
-                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...</span>
-                                <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="words-count-display">0</span></span>
-                                <span class="text-base font-bold text-blue-600">Score: <span id="blocky-score-display">0</span></span>
-                            </div>
-                        </h2>
-
-                        <div id="blocky-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
-                                <i class="fa-solid fa-spell-check"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Vocablocky Rules</h3>
-                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid Scrabble words (left-to-right or top-to-bottom).</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Main word (3+ letters): <strong>+10 pts per block cleared</strong>. Sub-words (2+ letters): <strong>+10 bonus pts each</strong>!</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Only matched word cells clear; remaining letters stay in place.</span></li>
-                            </ul>
-                            <button onclick="startBlockyGame()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
-                                <i class="fa-solid fa-play"></i> Start Vocablocky Game
-                            </button>
-                        </div>
-
-                        <div id="blocky-active" class="hidden relative">
-                            <!-- 9x9 Board -->
-                            <div id="blocky-board" class="mb-4"></div>
-
-                            <!-- 3 Available Pieces -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                                <div class="flex justify-between items-center mb-2 px-1">
-                                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">TAP OR DRAG PIECE TO PLACE</span>
-                                    <span class="text-xs text-blue-600 font-bold" id="placed-counter-text">Placed: 0</span>
-                                </div>
-                                <div id="blocky-pieces" class="piece-container"></div>
-                            </div>
-
-                            <!-- Game Over Overlay -->
-                            <div id="blocky-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
-                                <i class="fa-solid fa-border-none text-6xl text-red-500 mb-3 animate-bounce"></i>
-                                <h3 class="text-2xl font-bold text-gray-800 mb-1">No Fits Available!</h3>
-                                <p class="text-gray-500 mb-4 text-sm">No space left on the grid for remaining pieces.</p>
-                                <p class="text-lg font-bold text-blue-600 mb-1">Final Score: <span id="blocky-final-score">0</span></p>
-                                <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="blocky-final-words">0</span></p>
-                                <button onclick="startBlockyGame()" class="bg-blue-600 text-white px-8 py-2.5 rounded-full font-bold hover:bg-blue-700 transition shadow">Play Again</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SUB-VIEW 2: CLASSIC SCRABBLE ENDLESS MODE -->
-                    <div id="subview-scrabble" class="hidden">
-                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-600"></i> Endless Scrabble</span>
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="scrabble-words-count">0</span></span>
-                                <span class="text-base font-bold text-amber-600">Score: <span id="scrabble-score-display">0</span></span>
-                            </div>
-                        </h2>
-
-                        <div id="scrabble-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
-                                S₁
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Classic Scrabble (Unended)</h3>
-                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell words.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Utilize multipliers: <strong>DL</strong> (Double Letter), <strong>TL</strong> (Triple Letter), <strong>DW</strong> (Double Word), <strong>TW</strong> (Triple Word).</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong>Endless Rack:</strong> Tiles auto-replenish to 7 after every valid turn!</span></li>
-                            </ul>
-                            <button onclick="startScrabbleGame()" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
-                                <i class="fa-solid fa-play"></i> Start Endless Scrabble
-                            </button>
-                        </div>
-
-                        <div id="scrabble-active" class="hidden relative">
-                            <!-- 9x9 Scrabble Grid -->
-                            <div id="scrabble-board" class="mb-4"></div>
-
-                            <!-- Player Tile Rack & Controls -->
-                            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 shadow-sm">
-                                <div class="text-xs text-amber-800 font-bold uppercase tracking-wider mb-2 text-center">Your Tile Rack (7 Tiles)</div>
-                                
-                                <div id="scrabble-rack" class="flex justify-center items-center gap-2 mb-3 min-h-[50px]"></div>
-
-                                <div class="flex gap-2 justify-center flex-wrap">
-                                    <button onclick="submitScrabbleTurn()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">
-                                        <i class="fa-solid fa-check"></i> Play Word
-                                    </button>
-                                    <button onclick="recallScrabbleTiles()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                        <i class="fa-solid fa-rotate-left"></i> Recall
-                                    </button>
-                                    <button onclick="swapScrabbleRack()" class="bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Get 7 new random tiles">
-                                        <i class="fa-solid fa-arrows-rotate"></i> Swap Rack
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- View 5: Sentences & Grammar -->
-                <div id="view-sentence" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
-                    
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
-                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
-                                <i class="fa-solid fa-dice"></i> Pick Random
-                            </button>
-                        </div>
-                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
-                            <option value="">-- Select or pick random --</option>
-                        </select>
-                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
-                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
-                        
-                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
-                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
-                        </button>
-                    </div>
-
-                    <div id="grammar-result" class="mt-6 hidden">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
-                        <div id="grammar-feedback" class="space-y-3"></div>
                     </div>
                 </div>
 
@@ -843,6 +956,22 @@
         </div>
     </div>
     
+    <!-- MOBILE BOTTOM NAVIGATION TAB BAR -->
+    <div class="mobile-bottom-nav">
+        <button id="mnav-vault" onclick="switchMainTab('vault')" class="mobile-nav-btn active">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Vault</span>
+        </button>
+        <button id="mnav-learn" onclick="switchMainTab('learn')" class="mobile-nav-btn">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Learn</span>
+        </button>
+        <button id="mnav-games" onclick="switchMainTab('games')" class="mobile-nav-btn">
+            <i class="fa-solid fa-gamepad"></i>
+            <span>Games</span>
+        </button>
+    </div>
+
     <div id="toast" class="toast">Message</div>
 
     <script>
@@ -851,19 +980,15 @@
         let vocabList = [];
         let editingWordId = null;
 
-        // Official Scrabble Tile Point Values
         const SCRABBLE_POINTS = {
             'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1,
             'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1,
             'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
         };
 
-        // Comprehensive English Word Set for instant offline matching + dynamically populated with Scrabble list
         const BUILTIN_ENGLISH_WORDS = new Set([
             "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA",
-            "ADD","AGE","AGO","AID","AIM","AIR","ALL","ALT","AND","ANT","ANY","APE","APT","ARC","ARE","ARK","ARM","ART","ASH","ASK","ATE","BAD","BAG","BAR","BAT","BAY","BED","BEE","BEG","BET","BID","BIG","BIN","BIT","BOY","BUS","BUT","BUY","CAN","CAP","CAR","CAT","COW","CRY","CUP","CUT","DAY","DIE","DIG","DIP","DOG","DRY","DUE","EAR","EAT","EGG","END","ERA","EVE","EYE","FAN","FAR","FAT","FED","FEE","FEW","FIT","FLY","FOG","FOR","FOX","FUN","GAP","GAS","GEL","GET","GIG","GIN","GOD","GOT","GUM","GUN","GUY","HAD","HAT","HAY","HEN","HER","HIM","HIS","HIT","HOT","HOW","HUB","HUG","ICE","ILL","INK","INN","ION","ITS","JAM","JAR","JAW","JET","JOB","JOG","JOY","KEY","KID","KIT","LAB","LAD","LAP","LAW","LAY","LEG","LET","LIP","LOG","LOT","LOW","MAD","MAN","MAP","MAT","MAY","MED","MEN","MET","MIX","MUD","MUG","NET","NEW","NOT","NOW","NUN","NUT","OAK","OAR","ODD","OFF","OFT","OIL","OLD","ONE","OPT","ORB","ORE","OUR","OUT","OWL","OWN","PAD","PAL","PAN","PAR","PAT","PAY","PEG","PEN","PET","PIG","PIN","PIT","POD","POP","POT","PRO","PUB","PUP","PUT","RAG","RAM","RAN","RAT","RAW","RAY","RED","RIB","RID","RIG","RIM","ROD","ROW","RUB","RUG","RUN","SAD","SAT","SAW","SAY","SEA","SEE","SET","SEW","SHE","SIP","SIT","SKY","SLY","SON","SOY","SPY","SUN","TAB","TAG","TAN","TAP","TAR","TAX","TEA","TEN","TET","THE","TIE","TIN","TIP","TOE","TON","TOO","TOP","TOY","TRY","TUB","TWO","URG","USE","VAN","VET","VIA","VIEW","WAR","WAS","WAY","WEB","WED","WET","WHO","WHY","WIN","WIT","YES","YET","YOU","ZOO",
-            "ABLE","ACRE","AGED","ALSO","ARCH","AREA","ARMY","ARTS","AUTO","AUNT","BABY","BACK","BAKE","BALL","BAND","BANK","BARE","BARK","BARN","BASE","BEAR","BEAT","BEER","BELL","BELT","BEST","BIRD","BITE","BLUE","BOAT","BODY","BOLD","BOMB","BONE","BOOK","BORN","BOSS","BOTH","BOWL","BOYS","BULK","BUSH","BUSY","CAKE","CALL","CALM","CAMP","CARD","CARE","CASH","CAST","CELL","CHAT","CHEF","CHIP","CITY","CLAN","CLAY","CLUB","COAL","COAT","CODE","COIN","COLD","COOK","COOL","COPY","CORE","CORN","COST","CREW","CROP","DARK","DATA","DATE","DAWN","DAYS","DEAD","DEAL","DEAN","DEAR","DEBT","DEEP","DEER","DESK","DIET","DISK","DOOR","DOSE","DOWN","DRAW","DROP","DRUG","DUST","DUTY","EACH","EARN","EAST","EASY","EDGE","EGGS","ELSE","EVEN","EVER","FACE","FACT","FAIR","FALL","FARM","FAST","FEAR","FEED","FEEL","FEES","FILE","FILL","FILM","FIND","FINE","FIRE","FIRM","FISH","FLAT","FLOW","FLY","FOOD","FOOT","FORD","FORM","FORT","FREE","FUEL","FULL","FUND","GAME","GIFT","GIRL","GIVE","GLAD","GOAL","GOLD","GOLF","GOOD","GROW","GUEST","GOLF","GUY","HAIR","HALF","HALL","HAND","HARD","HARM","HATE","HAVE","HEAD","HEAR","HEAT","HELL","HELP","HERO","HIGH","HILL","HIRE","HOLD","HOLE","HOME","HOPE","HOST","HOUR","HUGE","ICON","IDEA","INCH","INFO","IRON","ITEM","JACK","JAZZ","JOIN","JUMP","JURY","KEEP","KICK","KIND","KING","KISS","KNEE","KNOW","LACK","LADY","LAKE","LAMP","LAND","LANE","LAST","LATE","LEAD","LEAF","LEAN","LEFT","LESS","LIFE","LIFT","LIKE","LINE","LINK","LION","LIST","LIVE","LOAD","LOAN","LOCK","LONG","LOOK","LORD","LOSS","LOVE","LUCK","LUCK","LUNG","MAIN","MAKE","MALL","MANY","MAPS","MARK","MASS","MATH","MEAL","MEAT","MEET","MIND","MINE","MODE","MOON","MOST","MOVE","MUCH","NAME","NAVY","NEAR","NECK","NEED","NEWS","NEXT","NICE","NIGHT","NODE","NOSE","NOTE","OKAY","OPEN","PACE","PACK","PAGE","PAIN","PAIR","PARK","PART","PASS","PATH","PEAK","PEER","PENS","PICK","PIPE","PLAN","PLAY","PLUS","POEM","POET","POLL","POOL","POOR","POST","PULL","PURE","PUSH","RACE","RAIL","RAIN","RANK","RARE","RATE","READ","REAL","RELY","REST","RICE","RICH","RIDE","RING","RISE","RISK","ROAD","ROCK","ROLE","ROOF","ROOM","ROOT","ROSE","RULE","RUSH","SAFE","SAID","SAIL","SALE","SALT","SAME","SAND","SAVE","SEAT","SEED","SEEK","SEEM","SELL","SEND","SIDE","SIGN","SILK","SITE","SIZE","SKIN","SLOW","SNOW","SOAP","SOFT","SOIL","SOLE","SOME","SONG","SOON","SOUL","SOUP","SOUTH","SPOT","STAR","STEP","STOP","SUCH","SUIT","SURE","SWIM","TAIL","TAKE","TALK","TALL","TASK","TEAM","TEAR","TELL","TERM","TEST","TEXT","THAT","THEM","THEN","THEY","THIS","TIDE","TIED","TIME","TINY","TIPS","TOLL","TONE","TONG","TOOL","TOUR","TOWN","TREE","TRIP","TRUE","TUBE","TUNE","TURN","TYPE","UNIT","UPON","USER","VAST","VIEW","WAGE","WAIT","WALK","WALL","WANT","WARD","WARM","WAVE","WAYS","WEAK","WEAR","WEEK","WELL","WEST","WHAT","WIFE","WILD","WILL","WIND","WINE","WING","WIRE","WISH","WITH","WOOD","WORD","WORK","YARD","YEAR","ZERO","ZONE",
-            "ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWARD","AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEACH","BEGIN","BEING","BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD","BOARD","BOAST","BOOST","BOUND","BRAIN","BRAND","BREAD","BREAK","BRICK","BRIEF","BRING","BROAD","BROWN","BUILD","BUYER","CABLE","CARRY","CATCH","CAUSE","CHAIN","CHAIR","CHARM","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK","CLOSE","CLOUD","COACH","COAST","COLOR","COUNT","COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CURVE","CYCLE","DAILY","DANCE","DATED","DEATH","DEBUG","DELAY","DEPTH","DIRTY","DRAFT","DRAMA","DREAM","DRESS","DRINK","DRIVE","EAGER","EARLY","EARTH","EIGHT","EMPTY","ENEMY","ENJOY","ENTER","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FINAL","FIRST","FIXED","FLAME","FLASH","FLEET","FLOAT","FLOOR","FLUID","FOCUS","FORCE","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT","FRUIT","GIANT","GIVEN","GLASS","GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GREAT","GREEN","GROSS","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEART","HEAVY","HELLO","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN","JUDGE","JUICE","KNIFE","KNOCK","KNOWN","LABEL","LABOR","LARGE","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAXIM","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MODEL","MONEY","MONTH","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC","NEEDS","NEVER","NIGHT","NOISE","NORTH","NOVEL","NURSE","OFFER","ORDER","OTHER","OUTER","OWNER","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","RIVER","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORT","SHOWN","SIGHT","SINCE","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPLIT","SPORT","STAFF","STAGE","STAND","START","STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STORE","STORM","STORY","STRIP","STUDY","STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TASTE","TEACH","THANK","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGHT","TITLE","TODAY","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNION","UNiT","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHITE","WHOLE","WHOSE","WOMAN","WORLD","WORRY","WORTH","WOULD","WRITE","WRONG","YOUTH"
+            "ADD","AGE","AGO","AID","AIM","AIR","ALL","ALT","AND","ANT","ANY","APE","APT","ARC","ARE","ARK","ARM","ART","ASH","ASK","ATE","BAD","BAG","BAR","BAT","BAY","BED","BEE","BEG","BET","BID","BIG","BIN","BIT","BOY","BUS","BUT","BUY","CAN","CAP","CAR","CAT","COW","CRY","CUP","CUT","DAY","DIE","DIG","DIP","DOG","DRY","DUE","EAR","EAT","EGG","END","ERA","EVE","EYE","FAN","FAR","FAT","FED","FEE","FEW","FIT","FLY","FOG","FOR","FOX","FUN","GAP","GAS","GEL","GET","GIG","GIN","GOD","GOT","GUM","GUN","GUY","HAD","HAT","HAY","HEN","HER","HIM","HIS","HIT","HOT","HOW","HUB","HUG","ICE","ILL","INK","INN","ION","ITS","JAM","JAR","JAW","JET","JOB","JOG","JOY","KEY","KID","KIT","LAB","LAD","LAP","LAW","LAY","LEG","LET","LIP","LOG","LOT","LOW","MAD","MAN","MAP","MAT","MAY","MED","MEN","MET","MIX","MUD","MUG","NET","NEW","NOT","NOW","NUN","NUT","OAK","OAR","ODD","OFF","OFT","OIL","OLD","ONE","OPT","ORB","ORE","OUR","OUT","OWL","OWN","PAD","PAL","PAN","PAR","PAT","PAY","PEG","PEN","PET","PIG","PIN","PIT","POD","POP","POT","PRO","PUB","PUP","PUT","RAG","RAM","RAN","RAT","RAW","RAY","RED","RIB","RID","RIG","RIM","ROD","ROW","RUB","RUG","RUN","SAD","SAT","SAW","SAY","SEA","SEE","SET","SEW","SHE","SIP","SIT","SKY","SLY","SON","SOY","SPY","SUN","TAB","TAG","TAN","TAP","TAR","TAX","TEA","TEN","TET","THE","TIE","TIN","TIP","TOE","TON","TOO","TOP","TOY","TRY","TUB","TWO","URG","USE","VAN","VET","VIA","VIEW","WAR","WAS","WAY","WEB","WED","WET","WHO","WHY","WIN","WIT","YES","YET","YOU","ZOO"
         ]);
 
         function speakWord(text, lang = 'en-US') {
@@ -916,9 +1041,6 @@
                             badge.innerHTML = `<i class="fa-solid fa-check text-green-600 mr-1"></i> Dict: ${BUILTIN_ENGLISH_WORDS.size.toLocaleString()} words`;
                             badge.className = "text-xs bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded font-mono";
                         }
-                        if (document.getElementById('blocky-active') && !document.getElementById('blocky-active').classList.contains('hidden')) {
-                            checkAndClearWords();
-                        }
                         return;
                     }
                 } catch (err) {
@@ -932,10 +1054,36 @@
             }
         }
 
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        // --- MAIN TAB CONTROL ---
+        function switchMainTab(tabId) {
+            document.querySelectorAll('.main-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`maintab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => btn.classList.remove('active'));
+            const mobileBtn = document.getElementById(`mnav-${tabId}`);
+            if (mobileBtn) mobileBtn.classList.add('active');
+
+            if (tabId === 'learn') {
+                const activeSub = document.querySelector('.subtab-btn.active');
+                if (activeSub) {
+                    const viewId = activeSub.id.replace('subtab-btn-', '');
+                    initSubTabView(viewId);
+                }
+            }
+        }
+
+        // --- SUB TAB CONTROL FOR LEARN & PRACTICE ---
+        function switchSubTab(viewId) {
+            document.querySelectorAll('.subtab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`subtab-btn-${viewId}`).classList.add('active');
+
+            document.querySelectorAll('#maintab-learn .view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewId}`).classList.add('active');
-            
+
+            initSubTabView(viewId);
+        }
+
+        function initSubTabView(viewId) {
             if (viewId === 'flashcard') initFlashcards();
             if (viewId === 'test') {
                 document.getElementById('test-available-words').innerText = vocabList.length;
@@ -1744,7 +1892,6 @@
             document.getElementById('final-score').innerText = testScore;
         }
 
-        // --- DEFINITION QUIZ LOGIC ---
         let defQuizQuestions = [];
         let currentDefQuizIndex = 0;
         let defQuizCorrectCount = 0;
@@ -1844,7 +1991,6 @@
             document.getElementById('def-quiz-final-score').innerText = `${defQuizCorrectCount} / ${defQuizQuestions.length}`;
         }
 
-        // --- SPELLING QUIZ LOGIC ---
         let spellingQuestions = [];
         let currentSpellingIndex = 0;
         let spellingCorrectCount = 0;
@@ -2046,7 +2192,7 @@
             }
         }
 
-        // --- VOCABLOCKY GRID MODE LOGIC ---
+        // --- VOCABLOCKY GAME LOGIC ---
         let blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let blockyScore = 0;
         let blocksPlacedCount = 0;
@@ -2055,15 +2201,8 @@
         let selectedPieceIndex = null;
 
         const VOCAB_SHAPES = [
-            [[1]],
-            [[1, 1]],
-            [[1], [1]],
-            [[1, 1, 1]],
-            [[1], [1], [1]],
-            [[1, 1, 1, 1]],
-            [[1], [1], [1], [1]],
-            [[1, 1], [1, 1]],
-            [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+            [[1]], [[1, 1]], [[1], [1]], [[1, 1, 1]], [[1], [1], [1]],
+            [[1, 1, 1, 1]], [[1], [1], [1], [1]], [[1, 1], [1, 1]], [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
         ];
 
         const ALPHABET_WEIGHTED = "AAAAAEEEEIIIIOOOOOUUUUBBCDDFGHJKLMNNPQRRSSTTTTVWXYZ";
@@ -2396,15 +2535,14 @@
             }
         }
 
-        // --- CLASSIC SCRABBLE ENDLESS MODE LOGIC ---
-        let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null)); // { letter, locked }
+        // --- SCRABBLE GAME LOGIC ---
+        let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
         let playerRack = [];
         let selectedRackIndex = null;
-        let tempPlacedTiles = []; // { r, c, letter, rackIndex }
+        let tempPlacedTiles = [];
 
-        // Special Board Multipliers for 9x9 Scrabble layout
         const SCRABBLE_BONUSES = {
             "0,0": "TW", "0,8": "TW", "8,0": "TW", "8,8": "TW",
             "1,1": "DW", "1,7": "DW", "7,1": "DW", "7,7": "DW",
@@ -2427,7 +2565,6 @@
             document.getElementById('scrabble-setup').classList.add('hidden');
             document.getElementById('scrabble-active').classList.remove('hidden');
 
-            // Initial fill to 7 tiles
             refillScrabbleRack();
             renderScrabbleBoard();
             renderScrabbleRack();
@@ -2506,7 +2643,6 @@
         function handleScrabbleCellClick(r, c) {
             const existingTempIndex = tempPlacedTiles.findIndex(t => t.r === r && t.c === c);
 
-            // If clicking existing temp tile, recall it
             if (existingTempIndex !== -1) {
                 const tile = tempPlacedTiles.splice(existingTempIndex, 1)[0];
                 playerRack.push(tile.letter);
@@ -2516,7 +2652,6 @@
                 return;
             }
 
-            // Place selected tile from rack
             if (selectedRackIndex !== null && playerRack[selectedRackIndex]) {
                 if (scrabbleBoardGrid[r][c] !== null) {
                     showToast("Cell already occupied!", true);
@@ -2554,7 +2689,6 @@
                 return;
             }
 
-            // Check tile alignment (horizontal or vertical)
             const sameRow = tempPlacedTiles.every(t => t.r === tempPlacedTiles[0].r);
             const sameCol = tempPlacedTiles.every(t => t.c === tempPlacedTiles[0].c);
 
@@ -2563,7 +2697,6 @@
                 return;
             }
 
-            // Board state verification (must touch star if board empty, or touch existing tile)
             let isBoardEmpty = scrabbleBoardGrid.every(row => row.every(cell => cell === null));
             if (isBoardEmpty) {
                 const touchesCenter = tempPlacedTiles.some(t => t.r === 4 && t.c === 4);
@@ -2590,7 +2723,6 @@
                 }
             }
 
-            // Create temporary full board to scan formed words
             let fullBoard = scrabbleBoardGrid.map(row => row ? row.map(cell => cell ? cell.letter : null) : Array(9).fill(null));
             tempPlacedTiles.forEach(t => fullBoard[t.r][t.c] = t.letter);
 
@@ -2598,7 +2730,6 @@
             let formedWords = [];
             let totalTurnScore = 0;
 
-            // Scan horizontal words formed through new tiles
             let checkedH = new Set();
             tempPlacedTiles.forEach(t => {
                 let cStart = t.c;
@@ -2619,7 +2750,6 @@
                             word += letter;
                             let basePoints = SCRABBLE_POINTS[letter] || 1;
                             
-                            // Apply multipliers only if newly placed
                             let isNew = tempPlacedTiles.some(pt => pt.r === t.r && pt.c === c);
                             if (isNew) {
                                 let bonus = SCRABBLE_BONUSES[`${t.r},${c}`];
@@ -2637,7 +2767,6 @@
                 }
             });
 
-            // Scan vertical words formed through new tiles
             let checkedV = new Set();
             tempPlacedTiles.forEach(t => {
                 let rStart = t.r;
@@ -2680,14 +2809,12 @@
                 return;
             }
 
-            // Verify all formed words in dictionary
             let invalidWord = formedWords.find(w => !dictionary.has(w.word));
             if (invalidWord) {
                 showToast(`"${invalidWord.word}" is not a valid Scrabble word!`, true);
                 return;
             }
 
-            // Lock tiles onto board
             tempPlacedTiles.forEach(t => {
                 scrabbleBoardGrid[t.r][t.c] = { letter: t.letter, locked: true };
             });
@@ -2702,7 +2829,6 @@
             const wordsPlayedStr = formedWords.map(w => `${w.word} (+${w.score}pts)`).join(', ');
             showToast(`Played: ${wordsPlayedStr}`);
 
-            // Clear temporary tiles & endless refill rack
             tempPlacedTiles = [];
             refillScrabbleRack();
 
