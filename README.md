@@ -22,7 +22,7 @@
 - 🎧 **Spelling Quiz**: Listen to the native audio pronunciation of a target word and practice typing out the correct spelling with instant feedback and score reporting.
 - 🧩 **Matching Game**: Match target vocabulary words with their corresponding definitions in a fun, memory-style game.
 - 🧩 **Vocablocky Game**: very recommand,it took me an hour to finish it...
-- 🧩 **Scabble Game**: (coming soon)
+- 🧩 **Scabble Game**: recommand,not that hard as Vocablocky lol
 - ✍️ **Sentence & Grammar Practice**: Practice writing sentences using target words and receive instant grammar feedback via LanguageTool.
 - 💾 **Import & Export**: Easily back up or share your word vaults with `.words` JSON/text files.
 
