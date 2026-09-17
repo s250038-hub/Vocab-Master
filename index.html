@@ -1,1832 +1,265 @@
-<!DOCTYPE html> 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocab Master</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Vocablocky</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;700&display=swap');
+        :root {
+            --bg-color: #f4f1ea;
+            --panel-bg: #ffffff;
+            --primary: #4a6fa5;
+            --accent: #ff6b6b;
+            --text: #2c3e50;
+            --grid-bg: #e0dacf;
+            --cell-empty: #f8f6f0;
+            --cell-filled: #4a6fa5;
+        }
 
         body {
-            background-color: #2c3e50;
-            background-image: radial-gradient(circle, #34495e, #1a252f);
-            font-family: 'Inter', 'Noto Serif TC', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
             margin: 0;
-            padding: 1rem;
-        }
-
-        .book-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            height: 90vh;
-            perspective: 1500px;
-        }
-
-        .book {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            background-color: #fcf9f2;
-            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
-            border-radius: 12px;
-            box-shadow: 
-                0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                inset 0 0 60px rgba(0,0,0,0.05);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .spine {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 50px;
-            transform: translateX(-50%);
-            background: linear-gradient(
-                to right, 
-                rgba(255,255,255,0) 0%, 
-                rgba(0,0,0,0.08) 20%, 
-                rgba(0,0,0,0.15) 50%, 
-                rgba(0,0,0,0.08) 80%, 
-                rgba(255,255,255,0) 100%
-            );
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .page {
-            flex: 1;
-            padding: 2.5rem;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        .page-left {
-            border-right: 1px solid rgba(0,0,0,0.1);
-        }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
-
-        .view-section {
-            display: none;
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-        .view-section.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .flashcard-container {
-            perspective: 1000px;
-            width: 100%;
-            height: 300px;
-        }
-        .flashcard {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-            cursor: pointer;
-        }
-        .flashcard.is-flipped {
-            transform: rotateY(180deg);
-        }
-        .flashcard-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            padding: 2rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .flashcard-back {
-            transform: rotateY(180deg);
-            background: #f8fafc;
         }
 
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-        }
-        .match-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: pointer;
+        header {
             text-align: center;
-            user-select: none;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            color: var(--primary);
+        }
+
+        nav {
             display: flex;
-            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
             justify-content: center;
-            min-height: 80px;
-            word-break: break-word;
-            overflow: hidden;
-        }
-        .match-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .match-card.selected { border-color: #3b82f6; background-color: #eff6ff; }
-        .match-card.matched { opacity: 0; pointer-events: none; }
-        .match-card.wrong { animation: shake 0.4s; border-color: #ef4444; background-color: #fef2f2; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
 
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 10px 20px;
+        button.nav-btn {
+            padding: 10px 16px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            font-weight: bold;
             border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .responsive-word {
-            font-size: clamp(1.25rem, 4vw, 2.25rem);
-            word-break: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-            max-width: 100%;
+        button.nav-btn.active, button.nav-btn:hover {
+            background: var(--primary);
+            color: white;
         }
 
-        .audio-btn-std {
-            width: 2.5rem;
-            height: 2.5rem;
-            min-width: 2.5rem;
-            min-height: 2.5rem;
-            display: inline-flex;
+        .view-panel {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        .view-panel.active {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            border-radius: 9999px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 20;
         }
 
-        /* --- BLOCKY GAME STYLES --- */
-        #blocky-board {
+        /* Blocky Game Styles */
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        #grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
             gap: 4px;
-            background-color: #cbd5e1;
-            padding: 6px;
+            width: 360px;
+            height: 360px;
+            background-color: var(--grid-bg);
+            padding: 8px;
             border-radius: 8px;
-            max-width: 360px;
-            margin: 0 auto;
+            box-sizing: border-box;
         }
-        .blocky-cell {
-            aspect-ratio: 1;
-            background-color: #f8fafc;
+
+        .cell {
+            background-color: var(--cell-empty);
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.2em;
             font-weight: bold;
-            font-size: 1.1rem;
             text-transform: uppercase;
             user-select: none;
-            transition: background-color 0.15s;
         }
-        .blocky-cell.filled {
-            background-color: #3b82f6;
+
+        .cell.filled {
+            background-color: var(--cell-filled);
             color: white;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.2);
         }
-        .blocky-cell.hover-valid {
-            background-color: #93c5fd !important;
-        }
-        .blocky-cell.hover-invalid {
-            background-color: #fca5a5 !important;
-        }
-        .piece-container {
+
+        .dock {
             display: flex;
             justify-content: space-around;
-            align-items: center;
-            gap: 10px;
-            min-height: 100px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 25px;
+            min-height: 120px;
         }
-        .piece-preview {
+
+        .piece {
             display: grid;
             gap: 2px;
-            padding: 6px;
             cursor: grab;
-            user-select: none;
-            touch-action: none;
-            background: rgba(0,0,0,0.03);
+            padding: 5px;
+            background: rgba(0,0,0,0.02);
             border-radius: 6px;
         }
-        .piece-preview:active {
-            cursor: grabbing;
-        }
+
         .piece-cell {
-            width: 26px;
-            height: 26px;
-            border-radius: 3px;
-            background-color: #3b82f6;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.85rem;
-        }
-        .piece-preview.selected-piece {
-            outline: 2px dashed #2563eb;
-            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 3px;
+            font-size: 0.9em;
         }
 
-        @media (max-width: 768px) {
-            .book { flex-direction: column; overflow-y: auto; }
-            .spine { display: none; }
-            .page-left { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: auto; }
-            .book-wrapper { height: 95vh; }
+        .piece-cell.empty {
+            background-color: transparent;
+        }
+
+        /* Generic UI Elements for Other Modes */
+        .card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--accent);
         }
     </style>
 </head>
 <body>
-    <div class="book-wrapper">
-        <div class="book">
-            <div class="spine"></div>
-            
-            <!-- Left Page: Menu & Stats -->
-            <div class="page page-left">
-                <div class="text-center mb-6">
-                    <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
-                    <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
-                </div>
 
-                <!-- Vault Switcher Section -->
-                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
-                    <div class="flex gap-2 mb-2">
-                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
-                        </select>
-                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <div class="flex justify-between items-center px-1">
-                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
-                            <i class="fa-solid fa-pen-to-square"></i> Rename
-                        </button>
-                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
-                            <i class="fa-solid fa-trash"></i> Delete
-                        </button>
-                    </div>
-                </div>
+    <header>
+        <h1>Vocablocky</h1>
+        <nav>
+            <button class="nav-btn active" onclick="switchView('blocky')">Blocky Game</button>
+            <button class="nav-btn" onclick="switchView('flashcards')">Flashcards</button>
+            <button class="nav-btn" onclick="switchView('practice')">Practice</button>
+            <button class="nav-btn" onclick="switchView('quiz')">Quiz</button>
+            <button class="nav-btn" onclick="switchView('spelling')">Spelling</button>
+            <button class="nav-btn" onclick="switchView('matching')">Matching</button>
+            <button class="nav-btn" onclick="switchView('grammar')">Grammar</button>
+        </nav>
+    </header>
 
-                <div class="space-y-2 mb-6">
-                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-house w-6"></i> Main Page
-                    </button>
-                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-layer-group w-6"></i> Flashcards
-                    </button>
-                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-spell-check w-6"></i> Practice
-                    </button>
-                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
-                    </button>
-                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
-                    </button>
-                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
-                    </button>
-                    <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-cubes w-6 text-blue-600"></i> Blocky Mode
-                    </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
-                    </button>
-                </div>
-
-                <div class="bg-white/50 p-4 rounded-xl mb-6">
-                    <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-gray-500 text-sm">Words in Vault:</span>
-                        <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 text-sm">Total Vaults:</span>
-                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
-                    <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
-                    <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
-                </div>
-            </div>
-
-            <!-- Right Page: Main Content Area -->
-            <div class="page page-right">
-                
-                <!-- View 1: Main Page -->
-                <div id="view-home" class="view-section active">
-                    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
-                        <h2 class="text-2xl font-bold text-gray-800">Main Page</h2>
-                        <span id="current-vault-badge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">Default Vault</span>
-                    </div>
-                    
-                    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Add New Word</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-word-input" placeholder="Enter an English word..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="handleWordInputChange()" onkeypress="if(event.key === 'Enter') fetchDefinitions()">
-                            <button id="fetch-btn" onclick="fetchDefinitions()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions
-                            </button>
-                        </div>
-                        
-                        <div id="definitions-suggestions" class="mt-4 hidden bg-gray-50 p-3 rounded-lg border border-gray-200"></div>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-bold text-gray-700">Saved Words</h3>
-                            <input type="text" id="search-list" placeholder="Search..." class="text-sm border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="renderWordList()">
-                        </div>
-                        <div id="word-list-container" class="space-y-3"></div>
-                    </div>
-                </div>
-
-                <!-- View 2: Flashcards -->
-                <div id="view-flashcard" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Flashcards</h2>
-                    
-                    <div id="flashcard-ui" class="hidden flex-col items-center">
-                        <div class="text-sm text-gray-500 mb-4 font-medium" id="flashcard-counter">1 / 10</div>
-                        
-                        <div class="flashcard-container mb-6" onclick="flipCard()">
-                            <div id="flashcard-element" class="flashcard">
-                                <div class="flashcard-face">
-                                    <div class="flex items-center justify-center gap-3 w-full px-2">
-                                        <h2 id="flashcard-word" class="font-bold text-gray-800 responsive-word">Word</h2>
-                                        <button onclick="event.preventDefault(); event.stopPropagation(); speakWord(document.getElementById('flashcard-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-100 text-2xl transition" title="Speak Word">
-                                            <i class="fa-solid fa-volume-high"></i>
-                                        </button>
-                                    </div>
-                                    <p class="text-gray-400 text-sm mt-4"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
-                                </div>
-                                <div class="flashcard-face flashcard-back">
-                                    <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4 relative z-10"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4 w-full max-w-sm">
-                            <button onclick="prevCard()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl transition font-medium"><i class="fa-solid fa-arrow-left"></i> Previous</button>
-                            <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-medium">Next <i class="fa-solid fa-arrow-right"></i></button>
-                        </div>
-                        <div class="mt-4">
-                            <button onclick="shuffleCards()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-shuffle"></i> Shuffle & Restart</button>
-                        </div>
-                    </div>
-                    
-                    <div id="flashcard-empty" class="text-center py-20 text-gray-500">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
-                        <p>Your current vault is empty! Go add some words first.</p>
-                    </div>
-                </div>
-
-                <!-- View 3: Practice -->
-                <div id="view-test" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Practice</h2>
-                    
-                    <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
-                            <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Practice
-                        </button>
-                        <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="test-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="test-progress">Question: 1 / 10</span>
-                            <span id="test-score-display" class="text-blue-600">Score: 0</span>
-                        </div>
-                        
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
-                            <div class="flex items-center justify-center gap-3 mb-4 w-full">
-                                <h2 id="test-question-word" class="font-bold text-gray-800 responsive-word">Word</h2>
-                                <button onclick="speakWord(document.getElementById('test-question-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-50 text-2xl transition" title="Speak Word">
-                                    <i class="fa-solid fa-volume-high"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div id="test-options" class="grid grid-cols-1 gap-3"></div>
-                    </div>
-                    
-                    <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
-                        <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 3.25: QUIZ MODE -->
-                <div id="view-definition-quiz" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz</h2>
-
-                    <div id="def-quiz-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <i class="fa-solid fa-circle-question text-4xl text-green-500 mb-3"></i>
-                        <p class="text-gray-600 mb-6">Read the definition and type the matching vocabulary word!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="def-quiz-count-display">5</span></label>
-                            <input type="range" id="def-quiz-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('def-quiz-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="def-quiz-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startDefQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Quiz
-                        </button>
-                        <p id="def-quiz-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="def-quiz-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="def-quiz-progress">Word: 1 / 5</span>
-                            <span id="def-quiz-score-display" class="text-green-600">Score: 0</span>
-                        </div>
-
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Explanation / Definition</p>
-                            
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 max-h-40 overflow-y-auto">
-                                <span id="def-quiz-pos" class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">pos</span>
-                                <p id="def-quiz-explanation" class="text-gray-800 font-medium inline text-lg">Definition text goes here...</p>
-                            </div>
-
-                            <form onsubmit="event.preventDefault(); submitDefQuizAnswer();" class="max-w-md mx-auto">
-                                <input type="text" id="def-quiz-answer-input" placeholder="Type the target word..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-500 transition mb-4">
-                                
-                                <button id="def-quiz-submit-btn" type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow">
-                                    Submit Answer
-                                </button>
-                            </form>
-
-                            <div id="def-quiz-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
-                        </div>
-                    </div>
-
-                    <div id="def-quiz-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Final Score: <span id="def-quiz-final-score" class="font-bold text-green-600 text-3xl">0/0</span></p>
-                        <button onclick="document.getElementById('def-quiz-setup').classList.remove('hidden'); document.getElementById('def-quiz-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 3.5: SPELLING QUIZ VIEW -->
-                <div id="view-spelling" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
-
-                    <div id="spelling-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
-                        <i class="fa-solid fa-headphones-simple text-4xl text-blue-500 mb-3"></i>
-                        <p class="text-gray-600 mb-6">Listen to the word and type the correct spelling!</p>
-                        
-                        <div class="mb-6 max-w-xs mx-auto text-left">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="spelling-count-display">5</span></label>
-                            <input type="range" id="spelling-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('spelling-count-display').innerText = this.value">
-                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="spelling-available-words">0</span> words in this vault</p>
-                        </div>
-
-                        <button onclick="startSpellingQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Spelling Test
-                        </button>
-                        <p id="spelling-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="spelling-active" class="hidden">
-                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
-                            <span id="spelling-progress">Word: 1 / 5</span>
-                            <span id="spelling-score-display" class="text-blue-600">Correct: 0</span>
-                        </div>
-
-                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Listen & Spell</p>
-                            
-                            <button onclick="speakSpellingTarget()" class="bg-blue-50 hover:bg-blue-100 border-2 border-blue-400 text-blue-600 px-6 py-4 rounded-2xl font-bold text-xl transition flex items-center justify-center gap-3 mx-auto shadow-sm active:scale-95">
-                                <i class="fa-solid fa-volume-high text-2xl"></i> Click to Hear Word
-                            </button>
-
-                            <form onsubmit="event.preventDefault(); submitSpellingAnswer();" class="mt-8 max-w-md mx-auto">
-                                <input type="text" id="spelling-answer-input" placeholder="Type your spelling here..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition mb-4">
-                                
-                                <button id="spelling-submit-btn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow">
-                                    Submit Answer
-                                </button>
-                            </form>
-
-                            <div id="spelling-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
-                        </div>
-                    </div>
-
-                    <div id="spelling-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-square-check text-5xl text-blue-500 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Spelling Quiz Completed!</h2>
-                        <p class="text-lg text-gray-600 mb-6">Accuracy: <span id="spelling-final-accuracy" class="font-bold text-blue-600 text-3xl">0/0</span></p>
-                        <button onclick="document.getElementById('spelling-setup').classList.remove('hidden'); document.getElementById('spelling-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
-                            Try Again
-                        </button>
-                    </div>
-                </div>
-
-                <!-- View 4: Matching Game -->
-                <div id="view-match" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Matching Game</h2>
-                    
-                    <div id="match-setup" class="text-center py-10">
-                        <p class="text-gray-600 mb-6">Match words with their corresponding definitions to clear them!</p>
-                        <button onclick="startMatch()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Game
-                        </button>
-                        <p id="match-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
-                    </div>
-
-                    <div id="match-active" class="hidden relative">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-sm font-bold text-gray-500">Remaining Matches: <span id="match-remain" class="text-purple-600">0</span></span>
-                            <span class="text-sm font-bold text-gray-500">Moves: <span id="match-moves">0</span></span>
-                        </div>
-                        <div id="match-board" class="match-grid pb-10"></div>
-                        
-                        <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
-                            <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
-                            <button onclick="startMatch()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Play Again</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NEW View 4.5: BLOCKY GAME MODE -->
-                <div id="view-blocky" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2 flex justify-between items-center">
-                        <span><i class="fa-solid fa-cubes text-blue-600"></i> Blocky Mode</span>
-                        <span class="text-sm font-semibold text-blue-600">Score: <span id="blocky-score" class="font-bold">0</span></span>
-                    </h2>
-
-                    <div id="blocky-setup" class="text-center py-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <i class="fa-solid fa-border-all text-5xl text-blue-500 mb-4"></i>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">How to Play</h3>
-                        <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2 mb-6">
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Place letter block shapes onto the 8x8 grid.</li>
-                            <li><i class="fa-solid fa-check text-green-500 mr-2"></i> Form valid 3+ letter words horizontally or vertically to clear them!</li>
-                        </ul>
-                        <button onclick="startBlockyGame()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Blocky Game
-                        </button>
-                    </div>
-
-                    <div id="blocky-active" class="hidden relative">
-                        <!-- 8x8 Board -->
-                        <div id="blocky-board" class="mb-4"></div>
-
-                        <!-- 3 Available Pieces -->
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                            <p class="text-xs text-center text-gray-400 font-semibold mb-2">DRAG OR CLICK PIECE TO PLACE</p>
-                            <div id="blocky-pieces" class="piece-container"></div>
-                        </div>
-
-                        <!-- Game Over Overlay -->
-                        <div id="blocky-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30">
-                            <i class="fa-solid fa-heart-crack text-6xl text-red-500 mb-3 animate-bounce"></i>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-1">Game Over!</h3>
-                            <p class="text-gray-500 mb-4">No remaining space on the board for your pieces.</p>
-                            <p class="text-lg font-bold text-blue-600 mb-6">Final Score: <span id="blocky-final-score">0</span></p>
-                            <button onclick="startBlockyGame()" class="bg-blue-600 text-white px-8 py-2.5 rounded-full font-bold hover:bg-blue-700 transition">Play Again</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- View 5: Sentences & Grammar -->
-                <div id="view-sentence" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
-                    
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
-                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
-                                <i class="fa-solid fa-dice"></i> Pick Random
-                            </button>
-                        </div>
-                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
-                            <option value="">-- Select or pick random --</option>
-                        </select>
-                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
-                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
-                        
-                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
-                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
-                        </button>
-                    </div>
-
-                    <div id="grammar-result" class="mt-6 hidden">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
-                        <div id="grammar-feedback" class="space-y-3"></div>
-                    </div>
-                </div>
-
-            </div>
+    <!-- Blocky Game Mode -->
+    <div id="blocky" class="view-panel active">
+        <div class="game-stats">
+            <div>Score: <span id="score-val">0</span></div>
+            <div>Placed: <span id="placed-val">0</span></div>
         </div>
+        
+        <div id="grid"></div>
+        
+        <div class="dock" id="dock"></div>
+        <div id="game-status" class="status-msg"></div>
     </div>
-    
-    <div id="toast" class="toast">Message</div>
+
+    <!-- Flashcards Mode -->
+    <div id="flashcards" class="view-panel">
+        <h2>Flashcards</h2>
+        <div class="card" id="flashcard-content">
+            <h3 id="card-word">Loading...</h3>
+            <p id="card-def" style="display:none;"></p>
+        </div>
+        <button class="action-btn" onclick="toggleCardDef()">Flip Card</button>
+    </div>
+
+    <!-- Practice Mode -->
+    <div id="practice" class="view-panel">
+        <h2>Practice</h2>
+        <p>Review your saved vocabulary words and check meanings.</p>
+    </div>
+
+    <!-- Quiz Mode -->
+    <div id="quiz" class="view-panel">
+        <h2>Quiz Mode</h2>
+        <p>Test your knowledge with multiple choice options.</p>
+    </div>
+
+    <!-- Spelling Mode -->
+    <div id="spelling" class="view-panel">
+        <h2>Spelling Practice</h2>
+        <p>Type out the target word based on definitions.</p>
+    </div>
+
+    <!-- Matching Mode -->
+    <div id="matching" class="view-panel">
+        <h2>Word Matching</h2>
+        <p>Match words with their correct definition pairs.</p>
+    </div>
+
+    <!-- Grammar Mode -->
+    <div id="grammar" class="view-panel">
+        <h2>Grammar Rules</h2>
+        <p>Explore sentence structures and syntax tips.</p>
+    </div>
 
     <script>
-        let vaults = {};
-        let activeVaultId = "default";
-        let vocabList = [];
-        let editingWordId = null;
-        
-        // --- Web Speech API TTS Feature ---
-        function speakWord(text, lang = 'en-US') {
-            if (!('speechSynthesis' in window)) {
-                showToast("Your browser does not support text-to-speech.", true);
-                return;
-            }
-            if (!text || text.trim() === '') return;
-
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = lang;
-            utterance.rate = 0.9;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        window.onload = () => {
-            loadData();
-            renderVaultSelect();
-            updateStats();
-            renderWordList();
-            updateSentenceSelect();
-            loadBlockyDictionary();
-        };
-
-        function switchView(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
-            
-            if (viewId === 'flashcard') initFlashcards();
-            if (viewId === 'test') {
-                document.getElementById('test-available-words').innerText = vocabList.length;
-                document.getElementById('option-count').max = Math.min(6, Math.max(2, vocabList.length));
-            }
-            if (viewId === 'definition-quiz') {
-                document.getElementById('def-quiz-available-words').innerText = vocabList.length;
-                const range = document.getElementById('def-quiz-word-count');
-                range.max = Math.max(1, vocabList.length);
-                range.value = Math.min(5, Math.max(1, vocabList.length));
-                document.getElementById('def-quiz-count-display').innerText = range.value;
-            }
-            if (viewId === 'spelling') {
-                document.getElementById('spelling-available-words').innerText = vocabList.length;
-                const range = document.getElementById('spelling-word-count');
-                range.max = Math.max(1, vocabList.length);
-                range.value = Math.min(5, Math.max(1, vocabList.length));
-                document.getElementById('spelling-count-display').innerText = range.value;
-            }
-            if (viewId === 'sentence') updateSentenceSelect();
-        }
-
-        function saveData() {
-            if (vaults[activeVaultId]) {
-                vaults[activeVaultId].words = vocabList;
-            }
-            localStorage.setItem('vocabMasterVaults', JSON.stringify(vaults));
-            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
-            updateStats();
-            updateSentenceSelect();
-        }
-
-        function loadData() {
-            const savedVaults = localStorage.getItem('vocabMasterVaults');
-            const savedActiveVault = localStorage.getItem('vocabMasterActiveVault');
-
-            if (savedVaults) {
-                vaults = JSON.parse(savedVaults);
-            } else {
-                const oldData = localStorage.getItem('vocabMasterData');
-                let initialWords = [];
-                if (oldData) {
-                    try { initialWords = JSON.parse(oldData); } catch(e) {}
-                }
-                vaults = {
-                    "default": {
-                        name: "Main Vault",
-                        words: initialWords
-                    }
-                };
-            }
-
-            if (savedActiveVault && vaults[savedActiveVault]) {
-                activeVaultId = savedActiveVault;
-            } else {
-                activeVaultId = Object.keys(vaults)[0] || "default";
-            }
-
-            vocabList = vaults[activeVaultId] ? vaults[activeVaultId].words : [];
-        }
-
-        function renderVaultSelect() {
-            const select = document.getElementById('vault-select');
-            select.innerHTML = Object.keys(vaults).map(id => `
-                <option value="${id}" ${id === activeVaultId ? 'selected' : ''}>${vaults[id].name}</option>
-            `).join('');
-
-            const badge = document.getElementById('current-vault-badge');
-            if (badge && vaults[activeVaultId]) {
-                badge.innerText = vaults[activeVaultId].name;
-            }
-        }
-
-        function switchVault(vaultId) {
-            if (!vaults[vaultId]) return;
-            activeVaultId = vaultId;
-            vocabList = vaults[activeVaultId].words || [];
-            localStorage.setItem('vocabMasterActiveVault', activeVaultId);
-            
-            editingWordId = null;
-            renderVaultSelect();
-            updateStats();
-            renderWordList();
-            updateSentenceSelect();
-            showToast(`Switched to "${vaults[activeVaultId].name}"`);
-        }
-
-        function createNewVault() {
-            const name = prompt("Enter a name for the new Vocabulary Vault:", "My New Vault");
-            if (!name || !name.trim()) return;
-
-            const newId = 'vault_' + Date.now();
-            vaults[newId] = {
-                name: name.trim(),
-                words: []
-            };
-
-            saveData();
-            switchVault(newId);
-        }
-
-        function renameCurrentVault() {
-            const currentName = vaults[activeVaultId].name;
-            const newName = prompt("Enter a new name for this vault:", currentName);
-            if (!newName || !newName.trim() || newName.trim() === currentName) return;
-
-            vaults[activeVaultId].name = newName.trim();
-            saveData();
-            renderVaultSelect();
-            showToast("Vault renamed successfully!");
-        }
-
-        function deleteCurrentVault() {
-            const vaultKeys = Object.keys(vaults);
-            if (vaultKeys.length <= 1) {
-                showToast("You must keep at least one vault!", true);
-                return;
-            }
-
-            const currentName = vaults[activeVaultId].name;
-            if (confirm(`Are you sure you want to delete the vault "${currentName}" and all its words?`)) {
-                delete vaults[activeVaultId];
-                const nextVaultId = Object.keys(vaults)[0];
-                switchVault(nextVaultId);
-                saveData();
-                showToast(`Vault "${currentName}" deleted.`);
-            }
-        }
-
-        function updateStats() {
-            document.getElementById('stat-total-words').innerText = vocabList.length;
-            document.getElementById('stat-total-vaults').innerText = Object.keys(vaults).length;
-        }
-
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.backgroundColor = isError ? '#ef4444' : '#333';
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 3000);
-        }
-
-        let tempDefinitions = [];
-        let currentFetchingWord = "";
-
-        function handleWordInputChange() {
-            const word = document.getElementById('new-word-input').value.trim();
-            const suggestContainer = document.getElementById('definitions-suggestions');
-            
-            if (word.length > 0) {
-                if (currentFetchingWord !== word) {
-                    currentFetchingWord = word;
-                    tempDefinitions = [];
-                }
-                suggestContainer.classList.remove('hidden');
-                renderDefinitionSuggestions('Manual Entry');
-            } else {
-                suggestContainer.classList.add('hidden');
-            }
-        }
-
-        async function fetchDefinitions() {
-            const input = document.getElementById('new-word-input');
-            const word = input.value.trim().toLowerCase();
-            const suggestContainer = document.getElementById('definitions-suggestions');
-            const fetchBtn = document.getElementById('fetch-btn');
-
-            if (!word) {
-                showToast("Please enter a word!", true);
-                return;
-            }
-            if (vocabList.some(v => v.word.toLowerCase() === word)) {
-                showToast("This word is already in your vault!", true);
-                return;
-            }
-
-            suggestContainer.classList.remove('hidden');
-            suggestContainer.innerHTML = '<p class="text-sm text-gray-500 text-center py-4"><i class="fa-solid fa-spinner fa-spin"></i> Checking spelling & searching dictionaries...</p>';
-            fetchBtn.disabled = true;
-            fetchBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
-
-            try {
-                const spellCheckRes = await fetch('https://api.languagetool.org/v2/check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ text: word, language: 'en-US' })
-                });
-
-                if (spellCheckRes.ok) {
-                    const spellData = await spellCheckRes.json();
-                    if (spellData.matches.length > 0 && spellData.matches[0].replacements.length > 0) {
-                        const suggestions = spellData.matches[0].replacements.slice(0, 4);
-                        renderSpellingSuggestions(word, suggestions);
-                        fetchBtn.disabled = false;
-                        fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
-                        return;
-                    }
-                }
-            } catch (err) {
-                console.warn("Spell check service unavailable, proceeding directly to dictionary lookup...", err);
-            }
-
-            await lookupDefinitions(word);
-
-            fetchBtn.disabled = false;
-            fetchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions';
-        }
-
-        async function lookupDefinitions(word) {
-            const dictUrl = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
-            const wikiUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
-
-            try {
-                const result = await Promise.any([
-                    fetch(dictUrl).then(async res => {
-                        if (!res.ok) throw new Error('FreeDict API failed');
-                        const data = await res.json();
-                        let defs = [];
-                        data[0].meanings.forEach(meaning => {
-                            const pos = meaning.partOfSpeech;
-                            meaning.definitions.slice(0, 3).forEach(def => {
-                                defs.push({ pos: pos, def: def.definition, selected: false });
-                            });
-                        });
-                        if (defs.length === 0) throw new Error('FreeDict has no definitions');
-                        return { word: data[0].word, defs: defs, source: 'Free Dictionary' };
-                    }),
-                    fetch(wikiUrl).then(async res => {
-                        if (!res.ok) throw new Error('Wiki API failed');
-                        const data = await res.json();
-                        let defs = [];
-                        if (!data.en || data.en.length === 0) throw new Error('Wiki has no English definitions');
-                        data.en.forEach(meaning => {
-                            const pos = meaning.partOfSpeech;
-                            meaning.definitions.slice(0, 3).forEach(defObj => {
-                                let cleanDef = defObj.definition
-                                    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-                                    .replace(/<[^>]*>?/gm, '')
-                                    .trim();
-
-                                if (cleanDef.length > 0) {
-                                    defs.push({ pos: pos, def: cleanDef, selected: false });
-                                }
-                            });
-                        });
-                        if (defs.length === 0) throw new Error('Wiki has no definitions');
-                        return { word: word, defs: defs, source: 'Wiktionary' };
-                    })
-                ]);
-
-                tempDefinitions = result.defs;
-                currentFetchingWord = result.word;
-                renderDefinitionSuggestions(result.source);
-
-            } catch (error) {
-                console.error("All dictionary APIs failed to respond:", error);
-                tempDefinitions = [];
-                currentFetchingWord = word;
-                renderDefinitionSuggestions('Manual Entry (API failed)');
-            }
-        }
-
-        function renderSpellingSuggestions(originalWord, suggestions) {
-            const container = document.getElementById('definitions-suggestions');
-            let html = `
-                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p class="text-xs text-amber-800 font-bold mb-2">
-                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Did you mean one of these?
-                    </p>
-                    <div class="flex flex-wrap gap-2 mb-3">
-            `;
-
-            suggestions.forEach(item => {
-                html += `
-                    <button onclick="applySpellingCorrection('${item.value.replace(/'/g, "\\'")}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-md text-xs font-semibold transition">
-                        ${item.value}
-                    </button>
-                `;
-            });
-
-            html += `
-                    </div>
-                    <p class="text-xs text-gray-500">
-                        Or click <button onclick="lookupDefinitions('${originalWord.replace(/'/g, "\\'")}')" class="text-blue-600 underline font-medium">Continue with "${originalWord}"</button> anyway.
-                    </p>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        function applySpellingCorrection(correctedWord) {
-            document.getElementById('new-word-input').value = correctedWord;
-            lookupDefinitions(correctedWord);
-        }
-
-        function renderDefinitionSuggestions(sourceName) {
-            const container = document.getElementById('definitions-suggestions');
-            let html = `
-                <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-bold text-gray-700 break-words max-w-[70%]">Definitions for "${currentFetchingWord}":</h4>
-                    <span class="text-xs text-gray-400 flex-shrink-0">Source: ${sourceName}</span>
-                </div>
-            `;
-
-            if (tempDefinitions.length > 0) {
-                html += `<div class="space-y-2 max-h-48 overflow-y-auto pr-2 mb-3">`;
-                tempDefinitions.forEach((def, index) => {
-                    html += `
-                        <label class="flex items-start space-x-3 p-2 hover:bg-gray-100 rounded cursor-pointer border border-transparent hover:border-gray-200">
-                            <input type="checkbox" class="mt-1 form-checkbox text-blue-600 rounded flex-shrink-0" onchange="toggleDefSelection(${index})" ${def.selected ? 'checked' : ''}>
-                            <div class="break-words min-w-0">
-                                <span class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-1 rounded mr-1">${def.pos}</span>
-                                <span class="text-sm text-gray-700">${def.def}</span>
-                            </div>
-                        </label>
-                    `;
-                });
-                html += `</div>`;
-            } else {
-                html += `<p class="text-xs text-gray-500 mb-2 italic">No online suggestions loaded. You can type your custom definition below.</p>`;
-            }
-
-            html += `
-                <div class="pt-2 border-t border-gray-200 mt-2">
-                    <label class="block text-xs font-bold text-gray-600 mb-1"><i class="fa-solid fa-pen"></i> Add Custom Meaning / Note:</label>
-                    <div class="flex gap-2">
-                        <select id="custom-pos" class="text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500 bg-white">
-                            <option value="noun">noun</option>
-                            <option value="verb">verb</option>
-                            <option value="adj">adj</option>
-                            <option value="adv">adv</option>
-                            <option value="phrase">phrase</option>
-                            <option value="other">other</option>
-                        </select>
-                        <input type="text" id="custom-def-input" placeholder="Type custom meaning or translation..." class="flex-1 text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500 min-w-0" oninput="checkSaveButtonState()">
-                    </div>
-                </div>
-
-                <button id="add-word-btn" onclick="saveNewWord()" class="w-full mt-3 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg transition font-bold disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Save Word to Vault
-                </button>
-            `;
-            container.innerHTML = html;
-            checkSaveButtonState();
-        }
-
-        function toggleDefSelection(index) {
-            tempDefinitions[index].selected = !tempDefinitions[index].selected;
-            checkSaveButtonState();
-        }
-
-        function checkSaveButtonState() {
-            const btn = document.getElementById('add-word-btn');
-            if (!btn) return;
-            const hasSelected = tempDefinitions.some(d => d.selected);
-            const customInput = document.getElementById('custom-def-input');
-            const hasCustomText = customInput && customInput.value.trim().length > 0;
-            
-            btn.disabled = !(hasSelected || hasCustomText);
-        }
-
-        function saveNewWord() {
-            let selectedDefs = tempDefinitions.filter(d => d.selected).map(d => ({ pos: d.pos, def: d.def }));
-            
-            const customDefInput = document.getElementById('custom-def-input');
-            const customPosInput = document.getElementById('custom-pos');
-            
-            if (customDefInput && customDefInput.value.trim().length > 0) {
-                selectedDefs.push({
-                    pos: customPosInput.value,
-                    def: customDefInput.value.trim()
-                });
-            }
-
-            if (selectedDefs.length === 0) return;
-
-            const finalWord = currentFetchingWord || document.getElementById('new-word-input').value.trim();
-
-            if (vocabList.some(v => v.word.toLowerCase() === finalWord.toLowerCase())) {
-                showToast("This word is already in your vault!", true);
-                return;
-            }
-
-            vocabList.unshift({
-                id: Date.now().toString(),
-                word: finalWord,
-                definitions: selectedDefs,
-                addedAt: Date.now()
-            });
-
-            saveData();
-            
-            document.getElementById('new-word-input').value = '';
-            document.getElementById('definitions-suggestions').classList.add('hidden');
-            tempDefinitions = [];
-            currentFetchingWord = '';
-            
-            showToast("Successfully added to your vault!");
-            renderWordList();
-        }
-
-        function renderWordList() {
-            const container = document.getElementById('word-list-container');
-            const searchQ = document.getElementById('search-list').value.toLowerCase();
-            
-            const filtered = vocabList.filter(v => v.word.toLowerCase().includes(searchQ));
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400 py-4">No matching words found</p>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(item => {
-                if (editingWordId === item.id) {
-                    return `
-                        <div class="bg-blue-50/60 p-4 rounded-xl shadow-sm border border-blue-200">
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="font-bold text-lg text-blue-900 break-words min-w-0">${item.word}</h4>
-                                <span class="text-xs bg-blue-200 text-blue-800 font-bold px-2 py-0.5 rounded">Editing Definitions</span>
-                            </div>
-                            
-                            <div id="edit-defs-container-${item.id}" class="space-y-2 mb-3">
-                                ${item.definitions.map((d, index) => `
-                                    <div class="flex gap-2 items-center edit-def-row">
-                                        <select class="edit-pos-select text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none bg-white font-semibold text-gray-700">
-                                            <option value="noun" ${d.pos === 'noun' ? 'selected' : ''}>noun</option>
-                                            <option value="verb" ${d.pos === 'verb' ? 'selected' : ''}>verb</option>
-                                            <option value="adj" ${d.pos === 'adj' ? 'selected' : ''}>adj</option>
-                                            <option value="adv" ${d.pos === 'adv' ? 'selected' : ''}>adv</option>
-                                            <option value="phrase" ${d.pos === 'phrase' ? 'selected' : ''}>phrase</option>
-                                            <option value="other" ${['noun','verb','adj','adv','phrase'].includes(d.pos) ? '' : 'selected'}>other</option>
-                                        </select>
-                                        <input type="text" value="${d.def.replace(/"/g, '&quot;')}" class="edit-def-text flex-1 text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500">
-                                        <button onclick="removeEditDefRow(this)" class="text-red-400 hover:text-red-600 text-sm p-1" title="Remove definition">
-                                            <i class="fa-solid fa-circle-minus"></i>
-                                        </button>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <button onclick="addEditDefRow('${item.id}')" class="text-xs text-blue-600 hover:text-blue-800 font-semibold mb-4 flex items-center gap-1">
-                                <i class="fa-solid fa-plus-circle"></i> Add Meaning Option
-                            </button>
-
-                            <div class="flex gap-2 justify-end">
-                                <button onclick="cancelEditingWord()" class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-xs font-semibold transition">
-                                    Cancel
-                                </button>
-                                <button onclick="saveWordDefinitions('${item.id}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition">
-                                    <i class="fa-solid fa-check"></i> Save Changes
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex justify-between items-start group gap-3">
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2">
-                                <h4 class="font-bold text-lg text-gray-800 break-words min-w-0">${item.word}</h4>
-                                <button onclick="event.preventDefault(); event.stopPropagation(); speakWord('${item.word.replace(/'/g, "\\'")}')" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-50 text-base transition" title="Speak Word">
-                                    <i class="fa-solid fa-volume-high"></i>
-                                </button>
-                            </div>
-                            <ul class="text-sm text-gray-600 mt-1 space-y-1">
-                                ${item.definitions.slice(0, 3).map(d => `<li class="break-words"><span class="text-xs text-blue-500 italic mr-1 flex-shrink-0">${d.pos}.</span>${d.def}</li>`).join('')}
-                                ${item.definitions.length > 3 ? `<li class="text-xs text-gray-400">+ ${item.definitions.length - 3} more...</li>` : ''}
-                            </ul>
-                        </div>
-                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition flex-shrink-0">
-                            <button onclick="startEditingWord('${item.id}')" class="text-gray-400 hover:text-blue-600 p-2" title="Edit meanings">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteWord('${item.id}')" class="text-red-400 hover:text-red-600 p-2" title="Delete word">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function startEditingWord(id) {
-            editingWordId = id;
-            renderWordList();
-        }
-
-        function cancelEditingWord() {
-            editingWordId = null;
-            renderWordList();
-        }
-
-        function addEditDefRow(id) {
-            const container = document.getElementById(`edit-defs-container-${id}`);
-            if (!container) return;
-            
-            const newRow = document.createElement('div');
-            newRow.className = "flex gap-2 items-center edit-def-row";
-            newRow.innerHTML = `
-                <select class="edit-pos-select text-xs border border-gray-300 rounded-lg px-2 py-1 outline-none bg-white font-semibold text-gray-700">
-                    <option value="noun">noun</option>
-                    <option value="verb">verb</option>
-                    <option value="adj">adj</option>
-                    <option value="adv">adv</option>
-                    <option value="phrase">phrase</option>
-                    <option value="other">other</option>
-                </select>
-                <input type="text" placeholder="Enter meaning..." class="edit-def-text flex-1 text-sm border border-gray-300 rounded-lg px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500">
-                <button onclick="removeEditDefRow(this)" class="text-red-400 hover:text-red-600 text-sm p-1" title="Remove definition">
-                    <i class="fa-solid fa-circle-minus"></i>
-                </button>
-            `;
-            container.appendChild(newRow);
-        }
-
-        function removeEditDefRow(btn) {
-            const row = btn.closest('.edit-def-row');
-            if (row) row.remove();
-        }
-
-        function saveWordDefinitions(id) {
-            const container = document.getElementById(`edit-defs-container-${id}`);
-            if (!container) return;
-
-            const rows = container.querySelectorAll('.edit-def-row');
-            let updatedDefs = [];
-
-            rows.forEach(row => {
-                const pos = row.querySelector('.edit-pos-select').value;
-                const defText = row.querySelector('.edit-def-text').value.trim();
-                if (defText.length > 0) {
-                    updatedDefs.push({ pos: pos, def: defText });
-                }
-            });
-
-            if (updatedDefs.length === 0) {
-                showToast("A word must have at least one definition!", true);
-                return;
-            }
-
-            const targetWord = vocabList.find(v => v.id === id);
-            if (targetWord) {
-                targetWord.definitions = updatedDefs;
-                saveData();
-                editingWordId = null;
-                renderWordList();
-                showToast("Meaning updated successfully!");
-            }
-        }
-
-        function deleteWord(id) {
-            if(confirm("Are you sure you want to delete this word?")) {
-                vocabList = vocabList.filter(v => v.id !== id);
-                if (editingWordId === id) editingWordId = null;
-                saveData();
-                renderWordList();
-            }
-        }
-
-        async function exportWords() {
-            if (vocabList.length === 0) {
-                showToast("Vault is empty, cannot export", true);
-                return;
-            }
-            const dataStr = JSON.stringify(vocabList, null, 2);
-            const vaultName = vaults[activeVaultId].name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-            
-            try {
-                if (window.showSaveFilePicker) {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`,
-                        types: [{ description: 'Words File', accept: {'text/plain': ['.words', '.txt']} }],
-                    });
-                    const writable = await handle.createWritable();
-                    await writable.write(dataStr);
-                    await writable.close();
-                    showToast("Export successful!");
-                } else {
-                    fallbackDownload(dataStr, vaultName);
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    fallbackDownload(dataStr, vaultName);
-                }
-            }
-        }
-
-        function fallbackDownload(dataStr, vaultName = "vault") {
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `VocabMaster_${vaultName}_${new Date().toISOString().slice(0,10)}.words`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast("Download triggered! Please check your downloads folder.");
-        }
-
-        function importWords(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (Array.isArray(importedData)) {
-                        let addedCount = 0;
-                        importedData.forEach(newItem => {
-                            if (!vocabList.some(v => v.word.toLowerCase() === newItem.word.toLowerCase())) {
-                                newItem.id = Date.now().toString() + Math.random().toString(36).substr(2, 5);
-                                vocabList.push(newItem);
-                                addedCount++;
-                            }
-                        });
-                        saveData();
-                        renderWordList();
-                        showToast(`Successfully imported ${addedCount} new words!`);
-                    }
-                } catch (err) {
-                    showToast("File format error!", true);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        // --- FLASHCARD LOGIC ---
-        let flashcardList = [];
-        let currentCardIndex = 0;
-
-        function initFlashcards() {
-            if (vocabList.length === 0) {
-                document.getElementById('flashcard-ui').classList.add('hidden');
-                document.getElementById('flashcard-empty').classList.remove('hidden');
-                return;
-            }
-            document.getElementById('flashcard-empty').classList.add('hidden');
-            document.getElementById('flashcard-ui').classList.remove('hidden');
-            document.getElementById('flashcard-ui').classList.add('flex');
-            
-            flashcardList = [...vocabList];
-            currentCardIndex = 0;
-            updateFlashcardView();
-        }
-
-        function updateFlashcardView() {
-            const card = flashcardList[currentCardIndex];
-            document.getElementById('flashcard-counter').innerText = `${currentCardIndex + 1} / ${flashcardList.length}`;
-            document.getElementById('flashcard-word').innerText = card.word;
-            
-            const defsHtml = card.definitions.map(d => `
-                <div class="mb-2 pb-2 border-b border-gray-100 last:border-0 flex items-start justify-between gap-3">
-                    <div class="min-w-0 flex-1">
-                        <span class="text-xs font-bold text-blue-500 uppercase">${d.pos}</span>
-                        <p class="text-sm text-gray-700 break-words">${d.def}</p>
-                    </div>
-                    <button onclick="event.preventDefault(); event.stopPropagation(); speakWord('${d.def.replace(/'/g, "\\'")}')" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-100 text-sm transition" title="Read definition">
-                        <i class="fa-solid fa-volume-high"></i>
-                    </button>
-                </div>
-            `).join('');
-            document.getElementById('flashcard-defs').innerHTML = defsHtml;
-            document.getElementById('flashcard-element').classList.remove('is-flipped');
-        }
-
-        function flipCard() {
-            document.getElementById('flashcard-element').classList.toggle('is-flipped');
-        }
-
-        function nextCard() {
-            if (currentCardIndex < flashcardList.length - 1) {
-                currentCardIndex++;
-                updateFlashcardView();
-            }
-        }
-
-        function prevCard() {
-            if (currentCardIndex > 0) {
-                currentCardIndex--;
-                updateFlashcardView();
-            }
-        }
-
-        function shuffleCards() {
-            flashcardList.sort(() => Math.random() - 0.5);
-            currentCardIndex = 0;
-            updateFlashcardView();
-            showToast("Cards shuffled!");
-        }
-
-        // --- PRACTICE TEST LOGIC ---
-        let testQuestions = [];
-        let currentTestIndex = 0;
-        let testScore = 0;
-
-        function startTest() {
-            const optionCount = parseInt(document.getElementById('option-count').value);
-            if (vocabList.length < 2) {
-                const err = document.getElementById('test-error-msg');
-                err.innerText = "You need at least 2 words in your vault to start practice!";
-                err.classList.remove('hidden');
-                return;
-            }
-            
-            const actualOptions = Math.min(optionCount, vocabList.length);
-            document.getElementById('test-setup').classList.add('hidden');
-            document.getElementById('test-result').classList.add('hidden');
-            document.getElementById('test-active').classList.remove('hidden');
-
-            testQuestions = [...vocabList].sort(() => Math.random() - 0.5);
-            currentTestIndex = 0;
-            testScore = 0;
-            
-            renderTestQuestion(actualOptions);
-        }
-
-        function renderTestQuestion(optionCount) {
-            if (currentTestIndex >= testQuestions.length) {
-                endTest();
-                return;
-            }
-
-            const currentTarget = testQuestions[currentTestIndex];
-            document.getElementById('test-progress').innerText = `Question: ${currentTestIndex + 1} / ${testQuestions.length}`;
-            document.getElementById('test-score-display').innerText = `Score: ${testScore}`;
-            document.getElementById('test-question-word').innerText = currentTarget.word;
-
-            const correctDef = currentTarget.definitions[Math.floor(Math.random() * currentTarget.definitions.length)].def;
-            
-            let wrongDefs = [];
-            let otherWords = vocabList.filter(v => v.id !== currentTarget.id).sort(() => Math.random() - 0.5);
-            for (let i = 0; i < optionCount - 1; i++) {
-                if (otherWords[i]) {
-                    wrongDefs.push(otherWords[i].definitions[0].def);
-                }
-            }
-
-            let options = [{ text: correctDef, isCorrect: true }, ...wrongDefs.map(d => ({ text: d, isCorrect: false }))];
-            options.sort(() => Math.random() - 0.5);
-
-            const optionsContainer = document.getElementById('test-options');
-            optionsContainer.innerHTML = '';
-            
-            options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left p-4 rounded-xl border border-gray-200 bg-white hover:bg-blue-50 hover:border-blue-300 transition text-sm text-gray-700 shadow-sm break-words";
-                btn.innerText = opt.text;
-                btn.onclick = () => handleTestAnswer(btn, opt.isCorrect, optionCount);
-                optionsContainer.appendChild(btn);
-            });
-        }
-
-        function handleTestAnswer(btnElement, isCorrect, optionCount) {
-            const buttons = document.getElementById('test-options').querySelectorAll('button');
-            buttons.forEach(b => b.disabled = true);
-
-            if (isCorrect) {
-                btnElement.classList.replace('border-gray-200', 'border-green-500');
-                btnElement.classList.replace('bg-white', 'bg-green-100');
-                btnElement.classList.remove('hover:bg-blue-50');
-                testScore += 10;
-            } else {
-                btnElement.classList.replace('border-gray-200', 'border-red-500');
-                btnElement.classList.replace('bg-white', 'bg-red-100');
-                btnElement.classList.remove('hover:bg-blue-50');
-                
-                buttons.forEach(b => {
-                    if (b.onclick.toString().includes('true')) {
-                         b.classList.replace('border-gray-200', 'border-green-500');
-                         b.classList.add('bg-green-50');
-                    }
-                });
-            }
-            document.getElementById('test-score-display').innerText = `Score: ${testScore}`;
-
-            setTimeout(() => {
-                currentTestIndex++;
-                renderTestQuestion(optionCount);
-            }, 1200);
-        }
-
-        function endTest() {
-            document.getElementById('test-active').classList.add('hidden');
-            document.getElementById('test-result').classList.remove('hidden');
-            document.getElementById('final-score').innerText = testScore;
-        }
-
-        // --- DEFINITION QUIZ LOGIC ---
-        let defQuizQuestions = [];
-        let currentDefQuizIndex = 0;
-        let defQuizCorrectCount = 0;
-
-        function startDefQuiz() {
-            const count = parseInt(document.getElementById('def-quiz-word-count').value);
-            if (vocabList.length === 0) {
-                const err = document.getElementById('def-quiz-error-msg');
-                err.innerText = "You need at least 1 word in your vault to start the quiz!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('def-quiz-setup').classList.add('hidden');
-            document.getElementById('def-quiz-result').classList.add('hidden');
-            document.getElementById('def-quiz-active').classList.remove('hidden');
-
-            defQuizQuestions = [...vocabList].sort(() => Math.random() - 0.5).slice(0, count);
-            currentDefQuizIndex = 0;
-            defQuizCorrectCount = 0;
-
-            renderDefQuizQuestion();
-        }
-
-        function renderDefQuizQuestion() {
-            if (currentDefQuizIndex >= defQuizQuestions.length) {
-                endDefQuiz();
-                return;
-            }
-
-            const currentTarget = defQuizQuestions[currentDefQuizIndex];
-            document.getElementById('def-quiz-progress').innerText = `Word: ${currentDefQuizIndex + 1} / ${defQuizQuestions.length}`;
-            document.getElementById('def-quiz-score-display').innerText = `Score: ${defQuizCorrectCount}`;
-
-            const randomDefObj = currentTarget.definitions[Math.floor(Math.random() * currentTarget.definitions.length)];
-            document.getElementById('def-quiz-pos').innerText = randomDefObj.pos;
-            document.getElementById('def-quiz-explanation').innerText = randomDefObj.def;
-
-            const input = document.getElementById('def-quiz-answer-input');
-            input.value = '';
-            input.disabled = false;
-            
-            const submitBtn = document.getElementById('def-quiz-submit-btn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            const feedback = document.getElementById('def-quiz-feedback');
-            feedback.classList.add('hidden');
-
-            input.focus();
-        }
-
-        function submitDefQuizAnswer() {
-            const input = document.getElementById('def-quiz-answer-input');
-            const userAns = input.value.trim().toLowerCase();
-            const targetObj = defQuizQuestions[currentDefQuizIndex];
-            const correctWord = targetObj.word.trim().toLowerCase();
-
-            if (!userAns) return;
-
-            input.disabled = true;
-            const submitBtn = document.getElementById('def-quiz-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-            const feedback = document.getElementById('def-quiz-feedback');
-            feedback.classList.remove('hidden');
-
-            const isCorrect = userAns === correctWord;
-            if (isCorrect) {
-                defQuizCorrectCount++;
-                feedback.className = "mt-6 p-4 rounded-xl border bg-green-50 border-green-200 text-green-800 text-sm";
-                feedback.innerHTML = `
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Correct!</p>
-                    <p>Word: <span class="font-bold font-mono text-green-900">${targetObj.word}</span></p>
-                `;
-            } else {
-                feedback.className = "mt-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-800 text-sm";
-                feedback.innerHTML = `
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-xmark text-red-600 mr-2"></i> Incorrect</p>
-                    <p class="mb-1">You typed: <span class="line-through font-mono">${input.value.trim()}</span></p>
-                    <p>Correct Word: <span class="font-bold text-green-700 font-mono">${targetObj.word}</span></p>
-                `;
-            }
-
-            document.getElementById('def-quiz-score-display').innerText = `Score: ${defQuizCorrectCount}`;
-
-            setTimeout(() => {
-                currentDefQuizIndex++;
-                renderDefQuizQuestion();
-            }, 2000);
-        }
-
-        function endDefQuiz() {
-            document.getElementById('def-quiz-active').classList.add('hidden');
-            document.getElementById('def-quiz-result').classList.remove('hidden');
-            document.getElementById('def-quiz-final-score').innerText = `${defQuizCorrectCount} / ${defQuizQuestions.length}`;
-        }
-
-        // --- SPELLING QUIZ LOGIC ---
-        let spellingQuestions = [];
-        let currentSpellingIndex = 0;
-        let spellingCorrectCount = 0;
-
-        function startSpellingQuiz() {
-            const count = parseInt(document.getElementById('spelling-word-count').value);
-            if (vocabList.length === 0) {
-                const err = document.getElementById('spelling-error-msg');
-                err.innerText = "You need at least 1 word in your vault to start the spelling quiz!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('spelling-setup').classList.add('hidden');
-            document.getElementById('spelling-result').classList.add('hidden');
-            document.getElementById('spelling-active').classList.remove('hidden');
-
-            spellingQuestions = [...vocabList].sort(() => Math.random() - 0.5).slice(0, count);
-            currentSpellingIndex = 0;
-            spellingCorrectCount = 0;
-
-            renderSpellingQuestion();
-        }
-
-        function renderSpellingQuestion() {
-            if (currentSpellingIndex >= spellingQuestions.length) {
-                endSpellingQuiz();
-                return;
-            }
-
-            const currentTarget = spellingQuestions[currentSpellingIndex];
-            document.getElementById('spelling-progress').innerText = `Word: ${currentSpellingIndex + 1} / ${spellingQuestions.length}`;
-            document.getElementById('spelling-score-display').innerText = `Correct: ${spellingCorrectCount}`;
-
-            const input = document.getElementById('spelling-answer-input');
-            input.value = '';
-            input.disabled = false;
-            
-            const submitBtn = document.getElementById('spelling-submit-btn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            const feedback = document.getElementById('spelling-feedback');
-            feedback.classList.add('hidden');
-
-            speakSpellingTarget();
-            input.focus();
-        }
-
-        function speakSpellingTarget() {
-            if (spellingQuestions[currentSpellingIndex]) {
-                speakWord(spellingQuestions[currentSpellingIndex].word);
-            }
-        }
-
-        function submitSpellingAnswer() {
-            const input = document.getElementById('spelling-answer-input');
-            const userAns = input.value.trim().toLowerCase();
-            const targetObj = spellingQuestions[currentSpellingIndex];
-            const correctWord = targetObj.word.trim().toLowerCase();
-
-            if (!userAns) return;
-
-            input.disabled = true;
-            const submitBtn = document.getElementById('spelling-submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-
-            const feedback = document.getElementById('spelling-feedback');
-            feedback.classList.remove('hidden');
-
-            const isCorrect = userAns === correctWord;
-            if (isCorrect) {
-                spellingCorrectCount++;
-                feedback.className = "mt-6 p-4 rounded-xl border bg-green-50 border-green-200 text-green-800 text-sm";
-                feedback.innerHTML = `
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-check text-green-600 mr-2"></i> Correct!</p>
-                    <p>Spelling: <span class="font-bold font-mono">${targetObj.word}</span></p>
-                `;
-            } else {
-                feedback.className = "mt-6 p-4 rounded-xl border bg-red-50 border-red-200 text-red-800 text-sm";
-                feedback.innerHTML = `
-                    <p class="font-bold text-base mb-1"><i class="fa-solid fa-circle-xmark text-red-600 mr-2"></i> Incorrect</p>
-                    <p class="mb-1">You typed: <span class="line-through font-mono">${input.value.trim()}</span></p>
-                    <p>Correct Spelling: <span class="font-bold text-green-700 font-mono">${targetObj.word}</span></p>
-                `;
-            }
-
-            document.getElementById('spelling-score-display').innerText = `Correct: ${spellingCorrectCount}`;
-
-            setTimeout(() => {
-                currentSpellingIndex++;
-                renderSpellingQuestion();
-            }, 2000);
-        }
-
-        function endSpellingQuiz() {
-            document.getElementById('spelling-active').classList.add('hidden');
-            document.getElementById('spelling-result').classList.remove('hidden');
-            document.getElementById('spelling-final-accuracy').innerText = `${spellingCorrectCount} / ${spellingQuestions.length}`;
-        }
-
-        // --- MATCHING GAME LOGIC ---
-        let matchCards = [];
-        let firstSelected = null;
-        let matchedPairs = 0;
-        let matchMoves = 0;
-
-        function startMatch() {
-            if (vocabList.length < 2) {
-                const err = document.getElementById('match-error-msg');
-                err.innerText = "You need at least 2 words in your vault to play the matching game!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('match-setup').classList.add('hidden');
-            document.getElementById('match-active').classList.remove('hidden');
-            
-            document.getElementById('match-success-overlay').classList.add('hidden');
-            document.getElementById('match-success-overlay').style.display = '';
-
-            const playWords = [...vocabList].sort(() => Math.random() - 0.5).slice(0, 6);
-            matchCards = [];
-            
-            playWords.forEach(w => {
-                const pairId = w.id;
-                matchCards.push({ id: `w_${pairId}`, text: w.word, type: 'word', pairId: pairId });
-                let def = w.definitions[0].def;
-                if(def.length > 60) def = def.substring(0, 57) + '...';
-                matchCards.push({ id: `d_${pairId}`, text: def, type: 'def', pairId: pairId });
-            });
-
-            matchCards.sort(() => Math.random() - 0.5);
-            
-            matchedPairs = 0;
-            matchMoves = 0;
-            firstSelected = null;
-            updateMatchStats(playWords.length);
-            renderMatchBoard();
-        }
-
-        function updateMatchStats(totalPairs) {
-            document.getElementById('match-remain').innerText = `${totalPairs - matchedPairs}`;
-            document.getElementById('match-moves').innerText = matchMoves;
-        }
-
-        function renderMatchBoard() {
-            const board = document.getElementById('match-board');
-            board.innerHTML = matchCards.map((card, index) => `
-                <div id="mcard-${index}" class="match-card" onclick="handleMatchClick(${index})">
-                    ${card.type === 'word' ? `<span class="font-bold text-blue-800 text-lg break-words w-full">${card.text}</span>` : `<span class="text-gray-600 text-xs break-words w-full">${card.text}</span>`}
-                </div>
-            `).join('');
-        }
-
-        function handleMatchClick(index) {
-            const cardEl = document.getElementById(`mcard-${index}`);
-            const cardData = matchCards[index];
-
-            if (cardEl.classList.contains('matched') || cardEl.classList.contains('selected')) return;
-
-            cardEl.classList.add('selected');
-
-            if (!firstSelected) {
-                firstSelected = { index, data: cardData, el: cardEl };
-            } else {
-                matchMoves++;
-                
-                if (firstSelected.data.pairId === cardData.pairId && firstSelected.data.type !== cardData.type) {
-                    setTimeout(() => {
-                        cardEl.classList.remove('selected');
-                        cardEl.classList.add('matched');
-                        firstSelected.el.classList.remove('selected');
-                        firstSelected.el.classList.add('matched');
-                        firstSelected = null;
-                        matchedPairs++;
-                        updateMatchStats(matchCards.length / 2);
-                        
-                        if (matchedPairs === matchCards.length / 2) {
-                            setTimeout(() => {
-                                const overlay = document.getElementById('match-success-overlay');
-                                overlay.classList.remove('hidden');
-                                overlay.style.display = 'flex';
-                            }, 500);
-                        }
-                    }, 300);
-                } else {
-                    cardEl.classList.add('wrong');
-                    firstSelected.el.classList.add('wrong');
-                    const tempFirst = firstSelected.el;
-                    
-                    setTimeout(() => {
-                        cardEl.classList.remove('selected', 'wrong');
-                        tempFirst.classList.remove('selected', 'wrong');
-                    }, 500);
-                    firstSelected = null;
-                    updateMatchStats(matchCards.length / 2);
-                }
-            }
-        }
-
-        // --- UPDATED VOCABLOCKY GAME MODE LOGIC ---
         const GRID_SIZE = 8;
-        let blockyGrid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-        let blockyScore = 0;
-        let activePieces = [null, null, null];
-        let selectedPieceIndex = null;
-        let blockyDictionary = new Set();
+        let gridData = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
+        let dictionary = new Set();
+        let score = 0;
+        let blocksPlaced = 0;
+        let draggedPieceIndex = null;
 
-        const ALPHABET = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTLLLLSSSSUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ";
-
-        // Exactly 9 Shapes (No L, No T)
-        const BLOCK_SHAPES = [
+        // Allowed 9 block shapes
+        const SHAPES = [
             { r: 1, c: 1, shape: [[1]] },
             { r: 1, c: 2, shape: [[1, 1]] },
             { r: 2, c: 1, shape: [[1], [1]] },
@@ -1838,205 +271,171 @@
             { r: 3, c: 3, shape: [[1, 1, 1], [1, 1, 1], [1, 1, 1]] }
         ];
 
-        async function loadBlockyDictionary() {
+        const ALPHABET = "EEEEEEEEEEEEAAAAAAAAAIIIIIIIIIOOOOOOOOONNNNNNRRRRRRTTTTTTLLLLSSSSUUUUDDDDGGGBBCCMMPPFFHHVVWWYYKJXQZ";
+
+        // Load Dictionary
+        async function loadDictionary() {
             try {
                 const response = await fetch('./words_alpha.txt');
                 if (response.ok) {
                     const text = await response.text();
-                    text.split(/\r?\n/).forEach(w => {
-                        const word = w.trim().toUpperCase();
-                        if (word.length >= 3) blockyDictionary.add(word);
+                    const words = text.split(/\r?\n/);
+                    words.forEach(w => {
+                        const trimmed = w.trim().toUpperCase();
+                        if (trimmed.length >= 3) dictionary.add(trimmed);
                     });
+                    console.log(`Dictionary loaded: ${dictionary.size} words.`);
                 } else {
-                    fallbackBlockyDict();
+                    document.getElementById('game-status').innerText = "Notice: words_alpha.txt not found. Using fallback dictionary.";
+                    useFallbackDictionary();
                 }
             } catch (e) {
-                fallbackBlockyDict();
+                console.warn("Could not load local file, using fallback.", e);
+                useFallbackDictionary();
             }
         }
 
-        function fallbackBlockyDict() {
-            const list = ["CAT", "DOG", "WORD", "GAME", "CODE", "PLAY", "TEST", "BOOK", "TREE", "FISH", "STAR", "CITY", "MIND", "LIFE"];
-            list.forEach(w => blockyDictionary.add(w));
+        function useFallbackDictionary() {
+            const fallback = ["CAT", "DOG", "WORD", "GAME", "CODE", "PLAY", "TEST", "BOOK", "TREE", "FISH", "STAR", "CITY", "MIND", "LIFE"];
+            fallback.forEach(w => dictionary.add(w));
+        }
+
+        function initGrid() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    cell.addEventListener('dragover', handleDragOver);
+                    cell.addEventListener('drop', handleDrop);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function renderGrid() {
+            for (let r = 0; r < GRID_SIZE; r++) {
+                for (let c = 0; c < GRID_SIZE; c++) {
+                    const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+                    if (gridData[r][c]) {
+                        cellEl.classList.add('filled');
+                        cellEl.innerText = gridData[r][c];
+                    } else {
+                        cellEl.classList.remove('filled');
+                        cellEl.innerText = '';
+                    }
+                }
+            }
         }
 
         function getRandomLetter() {
             return ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
         }
 
-        function startBlockyGame() {
-            blockyGrid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(null));
-            blockyScore = 0;
-            selectedPieceIndex = null;
-
-            document.getElementById('blocky-score').innerText = '0';
-            document.getElementById('blocky-setup').classList.add('hidden');
-            document.getElementById('blocky-gameover-overlay').classList.add('hidden');
-            document.getElementById('blocky-gameover-overlay').style.display = '';
-            document.getElementById('blocky-active').classList.remove('hidden');
-
-            renderBlockyGrid();
-            spawnBlockyPieces();
-        }
-
-        function renderBlockyGrid() {
-            const board = document.getElementById('blocky-board');
-            board.innerHTML = '';
-            for (let r = 0; r < GRID_SIZE; r++) {
-                for (let c = 0; c < GRID_SIZE; c++) {
-                    const cell = document.createElement('div');
-                    const letter = blockyGrid[r][c];
-                    cell.className = `blocky-cell ${letter ? 'filled' : ''}`;
-                    cell.innerText = letter || '';
-                    cell.dataset.r = r;
-                    cell.dataset.c = c;
-                    
-                    cell.onclick = () => handleCellClick(r, c);
-                    cell.ondragover = (e) => handleDragOver(e, r, c);
-                    cell.ondragleave = () => clearBoardHover();
-                    cell.ondrop = (e) => handleDrop(e, r, c);
-                    
-                    board.appendChild(cell);
-                }
-            }
-        }
-
-        function generateSinglePiece() {
-            const base = BLOCK_SHAPES[Math.floor(Math.random() * BLOCK_SHAPES.length)];
+        function generatePiece() {
+            const baseShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
             const letters = [];
-            for (let r = 0; r < base.r; r++) {
+            for (let r = 0; r < baseShape.r; r++) {
                 const row = [];
-                for (let c = 0; c < base.c; c++) {
+                for (let c = 0; c < baseShape.c; c++) {
                     row.push(getRandomLetter());
                 }
                 letters.push(row);
             }
             return {
-                rows: base.r,
-                cols: base.c,
-                shape: base.shape,
+                rows: baseShape.r,
+                cols: baseShape.c,
+                shape: baseShape.shape,
                 letters: letters
             };
         }
 
-        function spawnBlockyPieces() {
-            selectedPieceIndex = null;
-            activePieces = [generateSinglePiece(), generateSinglePiece(), generateSinglePiece()];
-            renderPiecePreviews();
-            checkBlockyGameOver();
+        function spawnDockPieces() {
+            const dock = document.getElementById('dock');
+            dock.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const pieceData = generatePiece();
+                const pieceEl = createPieceDOM(pieceData, i);
+                dock.appendChild(pieceEl);
+            }
         }
 
-        function renderPiecePreviews() {
-            const container = document.getElementById('blocky-pieces');
-            container.innerHTML = '';
+        function createPieceDOM(pieceData, index) {
+            const piece = document.createElement('div');
+            piece.className = 'piece';
+            piece.draggable = true;
+            piece.dataset.index = index;
+            piece.style.gridTemplateColumns = `repeat(${pieceData.cols}, 30px)`;
 
-            activePieces.forEach((pData, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = `piece-preview ${selectedPieceIndex === index ? 'selected-piece' : ''}`;
-                if (!pData) {
-                    wrapper.style.visibility = 'hidden';
-                    container.appendChild(wrapper);
-                    return;
-                }
-
-                wrapper.draggable = true;
-                wrapper.style.gridTemplateColumns = `repeat(${pData.cols}, 26px)`;
-                
-                for (let r = 0; r < pData.rows; r++) {
-                    for (let c = 0; c < pData.cols; c++) {
-                        const cell = document.createElement('div');
-                        cell.className = 'piece-cell';
-                        cell.innerText = pData.letters[r][c];
-                        wrapper.appendChild(cell);
-                    }
-                }
-
-                wrapper.onclick = () => {
-                    selectedPieceIndex = selectedPieceIndex === index ? null : index;
-                    renderPiecePreviews();
-                };
-
-                wrapper.ondragstart = (e) => {
-                    selectedPieceIndex = index;
-                    e.dataTransfer.setData('text/plain', index);
-                };
-
-                container.appendChild(wrapper);
+            piece.addEventListener('dragstart', (e) => {
+                draggedPieceIndex = index;
+                window.currentPieceData = pieceData;
             });
+
+            for (let r = 0; r < pieceData.rows; r++) {
+                for (let c = 0; c < pieceData.cols; c++) {
+                    const pCell = document.createElement('div');
+                    pCell.className = 'piece-cell';
+                    pCell.innerText = pieceData.letters[r][c];
+                    piece.appendChild(pCell);
+                }
+            }
+
+            return piece;
         }
 
-        function canPlacePiece(pData, startR, startC) {
-            if (startR + pData.rows > GRID_SIZE || startC + pData.cols > GRID_SIZE) return false;
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
 
-            for (let r = 0; r < pData.rows; r++) {
-                for (let c = 0; c < pData.cols; c++) {
-                    if (blockyGrid[startR + r][startC + c] !== null) {
-                        return false;
-                    }
+        function handleDrop(e) {
+            e.preventDefault();
+            const target = e.target;
+            if (!target.classList.contains('cell')) return;
+
+            const startR = parseInt(target.dataset.r);
+            const startC = parseInt(target.dataset.c);
+            const piece = window.currentPieceData;
+
+            if (canPlace(piece, startR, startC)) {
+                placePiece(piece, startR, startC);
+                
+                // Clear placed piece from dock
+                const dock = document.getElementById('dock');
+                dock.children[draggedPieceIndex].style.visibility = 'hidden';
+
+                blocksPlaced++;
+                document.getElementById('placed-val').innerText = blocksPlaced;
+
+                checkWordMatches();
+                renderGrid();
+
+                // Check if all pieces used
+                const visiblePieces = Array.from(dock.children).filter(p => p.style.visibility !== 'hidden');
+                if (visiblePieces.length === 0) {
+                    spawnDockPieces();
+                }
+            }
+        }
+
+        function canPlace(piece, startR, startC) {
+            if (startR + piece.rows > GRID_SIZE || startC + piece.cols > GRID_SIZE) return false;
+            for (let r = 0; r < piece.rows; r++) {
+                for (let c = 0; c < piece.cols; c++) {
+                    if (gridData[startR + r][startC + c] !== null) return false;
                 }
             }
             return true;
         }
 
-        function handleDragOver(e, r, c) {
-            e.preventDefault();
-            if (selectedPieceIndex === null || !activePieces[selectedPieceIndex]) return;
-            
-            clearBoardHover();
-            const pData = activePieces[selectedPieceIndex];
-            const isValid = canPlacePiece(pData, r, c);
-
-            for (let pr = 0; pr < pData.rows; pr++) {
-                for (let pc = 0; pc < pData.cols; pc++) {
-                    if (r + pr < GRID_SIZE && c + pc < GRID_SIZE) {
-                        const targetCell = document.querySelector(`.blocky-cell[data-r="${r + pr}"][data-c="${c + pc}"]`);
-                        if (targetCell) {
-                            targetCell.classList.add(isValid ? 'hover-valid' : 'hover-invalid');
-                        }
-                    }
+        function placePiece(piece, startR, startC) {
+            for (let r = 0; r < piece.rows; r++) {
+                for (let c = 0; c < piece.cols; c++) {
+                    gridData[startR + r][startC + c] = piece.letters[r][c];
                 }
-            }
-        }
-
-        function clearBoardHover() {
-            document.querySelectorAll('.blocky-cell').forEach(el => el.classList.remove('hover-valid', 'hover-invalid'));
-        }
-
-        function handleDrop(e, r, c) {
-            e.preventDefault();
-            clearBoardHover();
-            if (selectedPieceIndex !== null && activePieces[selectedPieceIndex]) {
-                placePiece(selectedPieceIndex, r, c);
-            }
-        }
-
-        function handleCellClick(r, c) {
-            if (selectedPieceIndex !== null && activePieces[selectedPieceIndex]) {
-                placePiece(selectedPieceIndex, r, c);
-            }
-        }
-
-        function placePiece(index, r, c) {
-            const pData = activePieces[index];
-            if (!pData || !canPlacePiece(pData, r, c)) return;
-
-            for (let pr = 0; pr < pData.rows; pr++) {
-                for (let pc = 0; pc < pData.cols; pc++) {
-                    blockyGrid[r + pr][c + pc] = pData.letters[pr][pc];
-                }
-            }
-
-            activePieces[index] = null;
-            selectedPieceIndex = null;
-            
-            checkWordMatches();
-            renderBlockyGrid();
-            renderPiecePreviews();
-
-            if (activePieces.every(p => p === null)) {
-                spawnBlockyPieces();
-            } else {
-                checkBlockyGameOver();
             }
         }
 
@@ -2048,8 +447,8 @@
                 let currentStr = "";
                 let coords = [];
                 for (let c = 0; c < GRID_SIZE; c++) {
-                    if (blockyGrid[r][c]) {
-                        currentStr += blockyGrid[r][c];
+                    if (gridData[r][c]) {
+                        currentStr += gridData[r][c];
                         coords.push({r, c});
                     } else {
                         findSubwords(currentStr, coords, cellsToClear);
@@ -2065,8 +464,8 @@
                 let currentStr = "";
                 let coords = [];
                 for (let r = 0; r < GRID_SIZE; r++) {
-                    if (blockyGrid[r][c]) {
-                        currentStr += blockyGrid[r][c];
+                    if (gridData[r][c]) {
+                        currentStr += gridData[r][c];
                         coords.push({r, c});
                     } else {
                         findSubwords(currentStr, coords, cellsToClear);
@@ -2077,16 +476,15 @@
                 findSubwords(currentStr, coords, cellsToClear);
             }
 
+            // Clear cells and add score
             if (cellsToClear.size > 0) {
                 cellsToClear.forEach(key => {
                     const [r, c] = key.split(',').map(Number);
-                    blockyGrid[r][c] = null;
+                    gridData[r][c] = null;
                 });
-                const gainedScore = cellsToClear.size * 10;
-                blockyScore += gainedScore;
-                showToast(`Word Matched! +${gainedScore} pts`);
+                score += cellsToClear.size * 10;
+                document.getElementById('score-val').innerText = score;
             }
-            document.getElementById('blocky-score').innerText = blockyScore;
         }
 
         function findSubwords(str, coords, cellsToClear) {
@@ -2094,7 +492,7 @@
             for (let len = str.length; len >= 3; len--) {
                 for (let i = 0; i <= str.length - len; i++) {
                     const sub = str.substring(i, i + len);
-                    if (blockyDictionary.has(sub)) {
+                    if (dictionary.has(sub)) {
                         for (let k = i; k < i + len; k++) {
                             cellsToClear.add(`${coords[k].r},${coords[k].c}`);
                         }
@@ -2103,131 +501,23 @@
             }
         }
 
-        function checkBlockyGameOver() {
-            const available = activePieces.filter(p => p !== null);
-            if (available.length === 0) return;
-
-            let canMove = false;
-            for (let pData of available) {
-                for (let r = 0; r < GRID_SIZE; r++) {
-                    for (let c = 0; c < GRID_SIZE; c++) {
-                        if (canPlacePiece(pData, r, c)) {
-                            canMove = true;
-                            break;
-                        }
-                    }
-                    if (canMove) break;
-                }
-                if (canMove) break;
-            }
-
-            if (!canMove) {
-                document.getElementById('blocky-final-score').innerText = blockyScore;
-                const overlay = document.getElementById('blocky-gameover-overlay');
-                overlay.classList.remove('hidden');
-                overlay.style.display = 'flex';
-            }
-        }
-
-        // --- SENTENCE & GRAMMAR LOGIC ---
-        function updateSentenceSelect() {
-            const select = document.getElementById('sentence-word-select');
-            select.innerHTML = '<option value="">-- Select or pick random --</option>' + 
-                vocabList.map(v => `<option value="${v.id}">${v.word}</option>`).join('');
-        }
-
-        function randomSentenceWord() {
-            if (vocabList.length === 0) {
-                showToast("Vault is empty!", true);
-                return;
-            }
-            const randomIndex = Math.floor(Math.random() * vocabList.length);
-            const wordObj = vocabList[randomIndex];
-            document.getElementById('sentence-word-select').value = wordObj.id;
-            updateSentenceHint();
-        }
-
-        function updateSentenceHint() {
-            const select = document.getElementById('sentence-word-select');
-            const hintDiv = document.getElementById('sentence-hint');
-            if (!select.value) {
-                hintDiv.classList.add('hidden');
-                return;
-            }
+        function switchView(viewId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
-            const wordObj = vocabList.find(v => v.id === select.value);
-            if (wordObj) {
-                hintDiv.innerHTML = `<strong>Hint:</strong> ${wordObj.word} (${wordObj.definitions[0].pos}) - ${wordObj.definitions[0].def}`;
-                hintDiv.classList.remove('hidden');
-            }
+            document.getElementById(viewId).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        async function checkGrammar() {
-            const text = document.getElementById('sentence-input').value.trim();
-            const resultDiv = document.getElementById('grammar-result');
-            const feedbackDiv = document.getElementById('grammar-feedback');
-            const btn = document.getElementById('check-grammar-btn');
-
-            if (!text) {
-                showToast("Please enter a sentence!", true);
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI Checking...';
-            
-            try {
-                const response = await fetch('https://api.languagetool.org/v2/check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        text: text,
-                        language: 'en-US'
-                    })
-                });
-
-                if (!response.ok) throw new Error('API Request Failed');
-                
-                const data = await response.json();
-                resultDiv.classList.remove('hidden');
-                
-                if (data.matches.length === 0) {
-                    feedbackDiv.innerHTML = `
-                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center">
-                            <i class="fa-solid fa-face-smile-beam text-2xl mr-3"></i>
-                            <div>
-                                <p class="font-bold">Perfect!</p>
-                                <p class="text-sm">Great job! No grammar errors found.</p>
-                            </div>
-                        </div>`;
-                } else {
-                    let errHtml = `<p class="text-sm text-red-600 mb-2">Found ${data.matches.length} potential issues:</p>`;
-                    data.matches.forEach(match => {
-                        const errorWord = text.substring(match.offset, match.offset + match.length);
-                        const suggestions = match.replacements.slice(0, 3).map(r => `<span class="bg-blue-100 text-blue-700 px-1 rounded text-xs font-mono mr-1">${r.value}</span>`).join('');
-                        
-                        errHtml += `
-                            <div class="p-3 bg-red-50 border border-red-100 rounded-lg mb-2">
-                                <p class="text-sm text-gray-800 mb-1">
-                                    <span class="line-through text-red-500 mr-1">${errorWord}</span> 
-                                    <i class="fa-solid fa-arrow-right-long text-gray-400 mx-1"></i> 
-                                    ${suggestions || '<span class="text-gray-500 text-xs">(No specific suggestion)</span>'}
-                                </p>
-                                <p class="text-xs text-red-600">${match.message}</p>
-                            </div>
-                        `;
-                    });
-                    feedbackDiv.innerHTML = errHtml;
-                }
-
-            } catch (error) {
-                console.error(error);
-                showToast("Failed to connect to grammar server, please try again later.", true);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)';
-            }
+        function toggleCardDef() {
+            const def = document.getElementById('card-def');
+            def.style.display = def.style.display === 'none' ? 'block' : 'none';
         }
+
+        // Initialize Game
+        loadDictionary();
+        initGrid();
+        spawnDockPieces();
     </script>
 </body>
 </html>
