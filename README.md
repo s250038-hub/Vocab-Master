@@ -23,10 +23,9 @@
 - 🧩 **Matching Game**: Match target vocabulary words with their corresponding definitions in a fun, memory-style game.
 - ✍️ **Sentence & Grammar Practice**: Practice writing sentences using target words and receive instant grammar feedback via LanguageTool.
 - 💾 **Import & Export**: Easily back up or share your word vaults with `.words` JSON/text files.
-### Author-recommend Gamemodes
+### 🕹️Author-recommend Gamemodes
 - 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
-- 🧩 **Spelling Bee Game**: for beginners
 
 ---
 
