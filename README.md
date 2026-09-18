@@ -26,7 +26,6 @@
 ### 🕹️Author-recommend Gamemodes(use csw 24 dictionary)
 - 🧩 **Vocabtetris Game**: Ultra hard,not recommended for beginners 
 - 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
-- 🧩 **Vocablocky Game Easy mode**: just a easier Vocablocky
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
 - 🧩 **Spelling Bee**: recommend as beginers,but if you want to get all word than hard
 
