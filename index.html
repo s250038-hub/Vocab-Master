@@ -529,7 +529,7 @@
 
                     <div>
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-bold text-gray-700">Saved Words Saved</h3>
+                            <h3 class="text-lg font-bold text-gray-700">Saved Words</h3>
                             <input type="text" id="search-list" placeholder="Search..." class="text-sm border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="renderWordList()">
                         </div>
                         <div id="word-list-container" class="space-y-3"></div>
@@ -761,7 +761,6 @@
                     </div>
                 </div>
 
-                <!-- View 4.5: VOCABLOCKY & SCRABBLE & SPELLING BEE MODE -->
                 <div id="view-blocky" class="view-section">
                     <!-- Tab Switcher -->
                     <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1">
@@ -788,10 +787,13 @@
                         </h2>
 
                         <div id="blocky-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
                                 <i class="fa-solid fa-spell-check"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Vocablocky Rules</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Vocablocky Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full inline-block border border-red-200">
+                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> (★★★★★ 5/5)
+                            </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
@@ -805,16 +807,35 @@
                         </div>
 
                         <div id="blocky-active" class="hidden relative">
+                            <!-- Header Bar with Restart -->
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Vocablocky Grid</span>
+                                <button onclick="startBlockyGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
+                                </button>
+                            </div>
+
                             <!-- 9x9 Board -->
                             <div id="blocky-board" class="mb-4"></div>
 
                             <!-- 3 Available Pieces -->
-                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm mb-4">
                                 <div class="flex justify-between items-center mb-2 px-1">
                                     <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">TAP OR DRAG PIECE TO PLACE</span>
                                     <span class="text-xs text-blue-600 font-bold" id="placed-counter-text">Placed: 0</span>
                                 </div>
                                 <div id="blocky-pieces" class="piece-container"></div>
+                            </div>
+
+                            <!-- Discovered Words List -->
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-blue-500 mr-1"></i> Discovered Words (<span id="blocky-found-count">0</span>)</h4>
+                                    <button onclick="toggleBlockyFoundList()" id="blocky-toggle-list-btn" class="text-xs text-blue-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="blocky-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words formed yet. Start placing blocks!</p>
+                                </div>
                             </div>
 
                             <!-- Game Over Overlay -->
@@ -840,10 +861,13 @@
                         </h2>
 
                         <div id="scrabble-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl font-bold">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
                                 S₁
                             </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Classic Scrabble (Unended)</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Classic Scrabble (Unended)</h3>
+                            <div class="mb-4 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block border border-amber-200">
+                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★★☆☆ 3/5)
+                            </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell words.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
@@ -856,11 +880,19 @@
                         </div>
 
                         <div id="scrabble-active" class="hidden relative">
+                            <!-- Header Bar with Restart -->
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Endless Scrabble Board</span>
+                                <button onclick="startScrabbleGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
+                                </button>
+                            </div>
+
                             <!-- 9x9 Scrabble Grid -->
                             <div id="scrabble-board" class="mb-4"></div>
 
                             <!-- Player Tile Rack & Controls -->
-                            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 shadow-sm">
+                            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 shadow-sm mb-4">
                                 <div class="text-xs text-amber-800 font-bold uppercase tracking-wider mb-2 text-center">Your Tile Rack (7 Tiles)</div>
                                 
                                 <div id="scrabble-rack" class="flex justify-center items-center gap-2 mb-3 min-h-[50px]"></div>
@@ -877,6 +909,17 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <!-- Discovered Words List -->
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-amber-500 mr-1"></i> Discovered Words (<span id="scrabble-found-count">0</span>)</h4>
+                                    <button onclick="toggleScrabbleFoundList()" id="scrabble-toggle-list-btn" class="text-xs text-amber-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="scrabble-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words played yet. Start spelling on board!</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -891,10 +934,13 @@
                         </h2>
 
                         <div id="bee-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
                                 <i class="fa-solid fa-bee"></i>
                             </div>
-                            <h3 class="text-xl font-bold text-gray-800 mb-2">Spelling Bee Rules</h3>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Spelling Bee Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block border border-green-200">
+                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★☆☆☆ 2/5)
+                            </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form words using the honeycomb letters. Words must be at least <strong>4 letters</strong> long.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every word <strong>must include the center letter</strong> (amber color).</span></li>
@@ -913,6 +959,14 @@
                         </div>
 
                         <div id="bee-active" class="hidden relative">
+                            <!-- Header Bar with Restart -->
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Spelling Bee Hive</span>
+                                <button onclick="startBeeGame(beeLetterCount)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
+                                </button>
+                            </div>
+
                             <!-- Progress Bar -->
                             <div class="mb-4 bg-gray-100 p-2.5 rounded-xl border border-gray-200">
                                 <div class="flex justify-between items-center text-xs font-bold text-gray-600 mb-1">
@@ -995,6 +1049,36 @@
         </div>
     </div>
     
+    <!-- Word Detail Modal -->
+    <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <h3 id="modal-word-title" class="text-2xl font-bold font-serif">Word</h3>
+                    <button id="modal-speak-btn" onclick="" class="audio-btn-std bg-slate-700 text-blue-300 hover:bg-slate-600 transition" title="Pronounce">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+                <button onclick="closeWordModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 max-h-[60vh] overflow-y-auto" id="modal-word-content">
+                <p class="text-center text-gray-500 py-6"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching definition...</p>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-t border-gray-100 flex gap-2 justify-end">
+                <button onclick="closeWordModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded-xl transition">
+                    Close
+                </button>
+                <button id="modal-add-vault-btn" onclick="" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add to Current Vault
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast">Message</div>
 
     <script>
@@ -1010,7 +1094,7 @@
             'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
         };
 
-        // Comprehensive English Word Set for instant offline matching + dynamically populated with Scrabble list
+        // Comprehensive English Word Set
         const BUILTIN_ENGLISH_WORDS = new Set([
             "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA",
             "ADD","AGE","AGO","AID","AIM","AIR","ALL","ALT","AND","ANT","ANY","APE","APT","ARC","ARE","ARK","ARM","ART","ASH","ASK","ATE","BAD","BAG","BAR","BAT","BAY","BED","BEE","BEG","BET","BID","BIG","BIN","BIT","BOY","BUS","BUT","BUY","CAN","CAP","CAR","CAT","COW","CRY","CUP","CUT","DAY","DIE","DIG","DIP","DOG","DRY","DUE","EAR","EAT","EGG","END","ERA","EVE","EYE","FAN","FAR","FAT","FED","FEE","FEW","FIT","FLY","FOG","FOR","FOX","FUN","GAP","GAS","GEL","GET","GIG","GIN","GOD","GOT","GUM","GUN","GUY","HAD","HAT","HAY","HEN","HER","HIM","HIS","HIT","HOT","HOW","HUB","HUG","ICE","ILL","INK","INN","ION","ITS","JAM","JAR","JAW","JET","JOB","JOG","JOY","KEY","KID","KIT","LAB","LAD","LAP","LAW","LAY","LEG","LET","LIP","LOG","LOT","LOW","MAD","MAN","MAP","MAT","MAY","MED","MEN","MET","MIX","MUD","MUG","NET","NEW","NOT","NOW","NUN","NUT","OAK","OAR","ODD","OFF","OFT","OIL","OLD","ONE","OPT","ORB","ORE","OUR","OUT","OWL","OWN","PAD","PAL","PAN","PAR","PAT","PAY","PEG","PEN","PET","PIG","PIN","PIT","POD","POP","POT","PRO","PUB","PUP","PUT","RAG","RAM","RAN","RAT","RAW","RAY","RED","RIB","RID","RIG","RIM","ROD","ROW","RUB","RUG","RUN","SAD","SAT","SAW","SAY","SEA","SEE","SET","SEW","SHE","SIP","SIT","SKY","SLY","SON","SOY","SPY","SUN","TAB","TAG","TAN","TAP","TAR","TAX","TEA","TEN","TET","THE","TIE","TIN","TIP","TOE","TON","TOO","TOP","TOY","TRY","TUB","TWO","URG","USE","VAN","VET","VIA","VIEW","WAR","WAS","WAY","WEB","WED","WET","WHO","WHY","WIN","WIT","YES","YET","YOU","ZOO",
@@ -1737,6 +1821,105 @@
             event.target.value = '';
         }
 
+        let modalCurrentWordObj = null;
+
+        async function showWordDetailModal(word) {
+            const modal = document.getElementById('word-detail-modal');
+            const titleEl = document.getElementById('modal-word-title');
+            const speakBtn = document.getElementById('modal-speak-btn');
+            const contentEl = document.getElementById('modal-word-content');
+            const addBtn = document.getElementById('modal-add-vault-btn');
+
+            titleEl.innerText = word;
+            speakBtn.onclick = () => speakWord(word);
+            contentEl.innerHTML = `<p class="text-center text-gray-500 py-6"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Loading word definition...</p>`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const existingInVault = vocabList.find(v => v.word.toLowerCase() === word.toLowerCase());
+            
+            let wordDefs = [];
+            
+            if (existingInVault) {
+                wordDefs = existingInVault.definitions;
+                modalCurrentWordObj = existingInVault;
+            } else {
+                try {
+                    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        data[0].meanings.forEach(m => {
+                            m.definitions.slice(0, 2).forEach(d => {
+                                wordDefs.push({ pos: m.partOfSpeech, def: d.definition });
+                            });
+                        });
+                    }
+                } catch(e) {
+                    console.warn("Modal dictionary fetch failed:", e);
+                }
+
+                if (wordDefs.length === 0) {
+                    wordDefs = [{ pos: "word", def: "Discovered during word game mode." }];
+                }
+
+                modalCurrentWordObj = {
+                    id: Date.now().toString(),
+                    word: word,
+                    definitions: wordDefs,
+                    addedAt: Date.now()
+                };
+            }
+
+            // Render Definitions
+            contentEl.innerHTML = `
+                <div class="space-y-3">
+                    ${wordDefs.map(d => `
+                        <div class="p-3 bg-gray-50 border border-gray-100 rounded-xl">
+                            <span class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">${d.pos}</span>
+                            <p class="text-sm text-gray-800 mt-1">${d.def}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            if (existingInVault) {
+                addBtn.disabled = true;
+                addBtn.className = "px-4 py-2 bg-green-100 text-green-700 text-xs font-bold rounded-xl flex items-center gap-1 cursor-default";
+                addBtn.innerHTML = `<i class="fa-solid fa-check"></i> Already in Vault`;
+            } else {
+                addBtn.disabled = false;
+                addBtn.className = "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 cursor-pointer";
+                addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> Add to Current Vault`;
+                addBtn.onclick = () => addModalWordToVault();
+            }
+        }
+
+        function addModalWordToVault() {
+            if (!modalCurrentWordObj) return;
+
+            if (vocabList.some(v => v.word.toLowerCase() === modalCurrentWordObj.word.toLowerCase())) {
+                showToast("Word is already in your vault!");
+                return;
+            }
+
+            vocabList.unshift(modalCurrentWordObj);
+            saveData();
+            renderWordList();
+            showToast(`Added "${modalCurrentWordObj.word}" to vault!`);
+
+            const addBtn = document.getElementById('modal-add-vault-btn');
+            addBtn.disabled = true;
+            addBtn.className = "px-4 py-2 bg-green-100 text-green-700 text-xs font-bold rounded-xl flex items-center gap-1 cursor-default";
+            addBtn.innerHTML = `<i class="fa-solid fa-check"></i> Added to Vault`;
+        }
+
+        function closeWordModal() {
+            const modal = document.getElementById('word-detail-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         let flashcardList = [];
         let currentCardIndex = 0;
 
@@ -2202,6 +2385,7 @@
         let totalWordsFormed = 0;
         let activePieces = [null, null, null];
         let selectedPieceIndex = null;
+        let blockyFoundWords = new Set();
 
         const VOCAB_SHAPES = [
             [[1]],
@@ -2238,6 +2422,7 @@
             blocksPlacedCount = 0;
             totalWordsFormed = 0;
             selectedPieceIndex = null;
+            blockyFoundWords.clear();
 
             document.getElementById('blocky-score-display').innerText = '0';
             document.getElementById('words-count-display').innerText = '0';
@@ -2249,6 +2434,7 @@
             document.getElementById('blocky-active').classList.remove('hidden');
 
             renderBlockyGrid();
+            renderBlockyFoundList();
             spawnBlockyPieces();
         }
 
@@ -2472,8 +2658,11 @@
                 blockyScore += totalGained;
                 totalWordsFormed += matchedWordsList.length;
 
+                matchedWordsList.forEach(w => blockyFoundWords.add(w));
+
                 document.getElementById('blocky-score-display').innerText = blockyScore;
                 document.getElementById('words-count-display').innerText = totalWordsFormed;
+                renderBlockyFoundList();
 
                 matchedCells.forEach(key => {
                     const [r, c] = key.split(',').map(Number);
@@ -2545,12 +2734,43 @@
             }
         }
 
+        function renderBlockyFoundList() {
+            const container = document.getElementById('blocky-found-list');
+            const countEl = document.getElementById('blocky-found-count');
+            countEl.innerText = blockyFoundWords.size;
+
+            if (blockyFoundWords.size === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 italic">No words formed yet. Start placing blocks!</p>`;
+                return;
+            }
+
+            const sorted = Array.from(blockyFoundWords).sort();
+            container.innerHTML = sorted.map(w => `
+                <button onclick="showWordDetailModal('${w}')" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-2 py-1 rounded-md border border-blue-200 transition flex items-center gap-1">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> ${w}
+                </button>
+            `).join('');
+        }
+
+        function toggleBlockyFoundList() {
+            const list = document.getElementById('blocky-found-list');
+            const btn = document.getElementById('blocky-toggle-list-btn');
+            if (list.classList.contains('hidden')) {
+                list.classList.remove('hidden');
+                btn.innerText = 'Hide List';
+            } else {
+                list.classList.add('hidden');
+                btn.innerText = 'Show List';
+            }
+        }
+
         let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
         let playerRack = [];
         let selectedRackIndex = null;
         let tempPlacedTiles = [];
+        let scrabbleFoundWords = new Set();
 
         const SCRABBLE_BONUSES = {
             "0,0": "TW", "0,8": "TW", "8,0": "TW", "8,8": "TW",
@@ -2567,6 +2787,7 @@
             playerRack = [];
             selectedRackIndex = null;
             tempPlacedTiles = [];
+            scrabbleFoundWords.clear();
 
             document.getElementById('scrabble-score-display').innerText = '0';
             document.getElementById('scrabble-words-count').innerText = '0';
@@ -2577,6 +2798,7 @@
             refillScrabbleRack();
             renderScrabbleBoard();
             renderScrabbleRack();
+            renderScrabbleFoundList();
         }
 
         function refillScrabbleRack() {
@@ -2828,12 +3050,17 @@
                 scrabbleBoardGrid[t.r][t.c] = { letter: t.letter, locked: true };
             });
 
-            formedWords.forEach(w => totalTurnScore += w.score);
+            formedWords.forEach(w => {
+                totalTurnScore += w.score;
+                scrabbleFoundWords.add(w.word);
+            });
+
             scrabbleScore += totalTurnScore;
             scrabbleWordsCount += formedWords.length;
 
             document.getElementById('scrabble-score-display').innerText = scrabbleScore;
             document.getElementById('scrabble-words-count').innerText = scrabbleWordsCount;
+            renderScrabbleFoundList();
 
             const wordsPlayedStr = formedWords.map(w => `${w.word} (+${w.score}pts)`).join(', ');
             showToast(`Played: ${wordsPlayedStr}`);
@@ -2843,6 +3070,36 @@
 
             renderScrabbleBoard();
             renderScrabbleRack();
+        }
+
+        function renderScrabbleFoundList() {
+            const container = document.getElementById('scrabble-found-list');
+            const countEl = document.getElementById('scrabble-found-count');
+            countEl.innerText = scrabbleFoundWords.size;
+
+            if (scrabbleFoundWords.size === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 italic">No words played yet. Start spelling on board!</p>`;
+                return;
+            }
+
+            const sorted = Array.from(scrabbleFoundWords).sort();
+            container.innerHTML = sorted.map(w => `
+                <button onclick="showWordDetailModal('${w}')" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold px-2 py-1 rounded-md border border-amber-200 transition flex items-center gap-1">
+                    <i class="fa-solid fa-book-open text-[10px]"></i> ${w}
+                </button>
+            `).join('');
+        }
+
+        function toggleScrabbleFoundList() {
+            const list = document.getElementById('scrabble-found-list');
+            const btn = document.getElementById('scrabble-toggle-list-btn');
+            if (list.classList.contains('hidden')) {
+                list.classList.remove('hidden');
+                btn.innerText = 'Hide List';
+            } else {
+                list.classList.add('hidden');
+                btn.innerText = 'Show List';
+            }
         }
 
         let beeLetterCount = 7;
@@ -3106,9 +3363,9 @@
                 const pts = info ? info.pts : 1;
 
                 return `
-                    <span class="text-xs ${isPangram ? 'bg-amber-500 text-white font-bold' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-md border flex items-center gap-1">
-                        ${w} <span class="opacity-75 font-mono text-[10px]">(+${pts})</span>
-                    </span>
+                    <button onclick="showWordDetailModal('${w}')" class="text-xs ${isPangram ? 'bg-amber-500 text-white font-bold' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-md border flex items-center gap-1 transition hover:opacity-80">
+                        <i class="fa-solid fa-book-open text-[10px]"></i> ${w} <span class="opacity-75 font-mono text-[10px]">(+${pts})</span>
+                    </button>
                 `;
             }).join('');
         }
