@@ -29,7 +29,6 @@
 - 🧩 **Vocablocky Game Easy mode**: just a easier Vocablocky
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
 - 🧩 **Spelling Bee**: recommend as beginers,but if you want to get all word than hard
-- 🧩 **Wordle**: so simple
 
 ---
 
