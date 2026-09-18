@@ -508,6 +508,480 @@
 
                 <div class="flex gap-2">
                     <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
+                    <button onclick="document.getElementByI            background-color: #fcf9f2;
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            border-radius: 12px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 0 60px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            transform: translateX(-50%);
+            background: linear-gradient(
+                to right, 
+                rgba(255,255,255,0) 0%, 
+                rgba(0,0,0,0.08) 20%, 
+                rgba(0,0,0,0.15) 50%, 
+                rgba(0,0,0,0.08) 80%, 
+                rgba(255,255,255,0) 100%
+            );
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .page {
+            flex: 1;
+            padding: 2.5rem;
+            overflow-y: auto;
+            position: relative;
+            min-height: 0;
+        }
+        
+        .page-left {
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .view-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 300px;
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background: #f8fafc;
+        }
+
+        .match-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        .match-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            text-align: center;
+            user-select: none;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            word-break: break-word;
+            overflow: hidden;
+        }
+        .match-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .match-card.selected { border-color: #3b82f6; background-color: #eff6ff; }
+        .match-card.matched { opacity: 0; pointer-events: none; }
+        .match-card.wrong { animation: shake 0.4s; border-color: #ef4444; background-color: #fef2f2; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+        }
+
+        .responsive-word {
+            font-size: clamp(1.25rem, 4vw, 2.25rem);
+            word-break: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            max-width: 100%;
+        }
+
+        .audio-btn-std {
+            width: 2.5rem;
+            height: 2.5rem;
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+
+        #blocky-board, #scrabble-board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 3px;
+            background-color: #1e293b;
+            padding: 6px;
+            border-radius: 12px;
+            max-width: 380px;
+            margin: 0 auto;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+        }
+        .blocky-cell, .scrabble-cell {
+            aspect-ratio: 1;
+            background-color: #f8fafc;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: clamp(11px, 2.7vw, 17px);
+            color: #0f172a;
+            user-select: none;
+            cursor: pointer;
+            position: relative;
+        }
+        .blocky-cell.sub-grid-alt, .scrabble-cell.sub-grid-alt {
+            background-color: #e2e8f0;
+        }
+        .blocky-cell.filled, .scrabble-cell.filled {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.2);
+            border: 1px solid #1d4ed8;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        }
+        .scrabble-cell.temp-filled {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #ffffff !important;
+            border: 2px solid #b45309 !important;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Scrabble Bonus Multipliers */
+        .scrabble-cell.cell-dl { background-color: #bae6fd; color: #0284c7; font-size: 10px; font-weight: 700; }
+        .scrabble-cell.cell-tl { background-color: #38bdf8; color: #0369a1; font-size: 10px; font-weight: 700; }
+        .scrabble-cell.cell-dw { background-color: #fbcfe8; color: #db2777; font-size: 10px; font-weight: 700; }
+        .scrabble-cell.cell-tw { background-color: #f43f5e; color: #ffffff; font-size: 10px; font-weight: 800; }
+        .scrabble-cell.cell-star { background-color: #fef08a; color: #ca8a04; font-size: 14px; }
+
+        .scrabble-tile-points {
+            position: absolute;
+            bottom: 1px;
+            right: 2px;
+            font-size: 8px;
+            font-weight: 700;
+            opacity: 0.85;
+            line-height: 1;
+        }
+
+        .blocky-cell.clearing {
+            animation: pulseClear 0.5s ease-out forwards;
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            color: white !important;
+            z-index: 5;
+        }
+        @keyframes pulseClear {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.18); filter: brightness(1.4); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .blocky-cell.hover-valid {
+            background-color: #93c5fd !important;
+            border: 2px dashed #2563eb;
+        }
+        .blocky-cell.hover-invalid {
+            background-color: #fca5a5 !important;
+            border: 2px dashed #dc2626;
+        }
+        .piece-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 12px;
+            min-height: 110px;
+            padding: 8px;
+        }
+        .piece-preview {
+            display: grid;
+            gap: 3px;
+            padding: 6px;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            border-radius: 8px;
+            transition: transform 0.15s, background-color 0.15s;
+            background-color: rgba(241, 245, 249, 0.8);
+            border: 1px solid #cbd5e1;
+        }
+        .piece-preview:hover {
+            transform: translateY(-2px);
+            background-color: #f1f5f9;
+        }
+        .piece-cell {
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .piece-cell.active {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .piece-preview.selected-piece {
+            outline: 3px solid #2563eb;
+            background-color: rgba(59, 130, 246, 0.2);
+            transform: scale(1.06);
+        }
+
+        .scrabble-rack-tile {
+            width: 40px;
+            height: 44px;
+            background: linear-gradient(135deg, #fef3c7, #fde047);
+            border: 2px solid #d97706;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #78350f;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .scrabble-rack-tile.selected {
+            outline: 3px solid #2563eb;
+            transform: translateY(-4px) scale(1.08);
+            border-color: #2563eb;
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .bee-honeycomb {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .bee-tile {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            border: 2px solid #cbd5e1;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .bee-tile:hover {
+            transform: scale(1.08);
+            background-color: #f1f5f9;
+        }
+        .bee-tile:active {
+            transform: scale(0.95);
+        }
+        .bee-tile.center-tile {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            border-color: #b45309;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+            transform: scale(1.08);
+        }
+        .bee-tile.center-tile:hover {
+            transform: scale(1.15);
+        }
+
+        /* Mobile Responsive Layout (1:2 Split) */
+        @media (max-width: 768px) {
+            .book { flex-direction: column; overflow: hidden; }
+            .spine { display: none; }
+            .page { padding: 1.5rem; }
+            
+            .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); overflow-y: auto; min-height: 0; }
+            .page-right { flex: 2; overflow-y: auto; min-height: 0; }
+            .book-wrapper { height: 95vh; }
+
+            #blocky-board, #scrabble-board {
+                max-width: 310px;
+                gap: 2px;
+                padding: 4px;
+            }
+            .piece-container {
+                min-height: 80px;
+                padding: 4px;
+                gap: 4px;
+            }
+            .piece-cell {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+            .piece-preview {
+                padding: 4px;
+            }
+            .scrabble-rack-tile {
+                width: 34px;
+                height: 38px;
+                font-size: 15px;
+            }
+            .bee-tile {
+                width: 44px;
+                height: 44px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="book-wrapper">
+        <div class="book">
+            <div class="spine"></div>
+            
+            <div class="page page-left">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
+                    <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
+                </div>
+
+                <!-- Vault Switcher Section -->
+                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
+                    <div class="flex gap-2 mb-2">
+                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
+                        </select>
+                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center px-1">
+                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i> Rename
+                        </button>
+                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Navigation Sidebar -->
+                <div class="space-y-2 mb-6">
+                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-house w-6"></i> Main Page
+                    </button>
+                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-layer-group w-6"></i> Flashcards
+                    </button>
+                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-spell-check w-6"></i> Practice
+                    </button>
+                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
+                    </button>
+                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
+                    </button>
+                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
+                    </button>
+                    <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
+                        <i class="fa-solid fa-cubes-stacked w-6"></i> Gamemodes (CSW24)
+                    </button>
+                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
+                    </button>
+                </div>
+
+                <div class="bg-white/50 p-4 rounded-xl mb-6">
+                    <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-500 text-sm">Words in Vault:</span>
+                        <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm">Total Vaults:</span>
+                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
                     <button onclick="document.getElementByI                    </button>
                     <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-spell-check w-6"></i> Practice
