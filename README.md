@@ -26,6 +26,7 @@
 ### 🕹️Author-recommend Gamemodes
 - 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
+- 🧩 **Spelling bee**: recommend as beginers,but if you want to get all word than very hard
 
 ---
 
