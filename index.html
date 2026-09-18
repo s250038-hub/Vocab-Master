@@ -199,7 +199,6 @@
             z-index: 20;
         }
 
-        /* --- VOCABLOCKY GAME STYLES --- */
         #blocky-board, #scrabble-board {
             display: grid;
             grid-template-columns: repeat(9, 1fr);
@@ -350,11 +349,84 @@
             box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
         }
 
+        .bee-honeycomb {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        .bee-tile {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            border: 2px solid #cbd5e1;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .bee-tile:hover {
+            transform: scale(1.08);
+            background-color: #f1f5f9;
+        }
+        .bee-tile:active {
+            transform: scale(0.95);
+        }
+        .bee-tile.center-tile {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            border-color: #b45309;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+            transform: scale(1.08);
+        }
+        .bee-tile.center-tile:hover {
+            transform: scale(1.15);
+        }
+
         @media (max-width: 768px) {
             .book { flex-direction: column; overflow-y: auto; }
             .spine { display: none; }
-            .page-left { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: auto; }
+            .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: 0; overflow-y: auto; }
+            .page-right { flex: 2; min-height: 0; overflow-y: auto; }
             .book-wrapper { height: 95vh; }
+
+            /* Mobile height tuning for game modes */
+            #blocky-board, #scrabble-board {
+                max-width: 310px;
+                gap: 2px;
+                padding: 4px;
+            }
+            .piece-container {
+                min-height: 80px;
+                padding: 4px;
+                gap: 4px;
+            }
+            .piece-cell {
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
+            }
+            .piece-preview {
+                padding: 4px;
+            }
+            .scrabble-rack-tile {
+                width: 34px;
+                height: 38px;
+                font-size: 15px;
+            }
+            .flashcard-container {
+                height: 240px;
+            }
         }
     </style>
 </head>
@@ -436,7 +508,6 @@
             </div>
 
             <div class="page page-right">
-                
                 <!-- View 1: Main Page -->
                 <div id="view-home" class="view-section active">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
@@ -690,15 +761,18 @@
                     </div>
                 </div>
 
-                <!-- View 4.5: VOCABLOCKY & SCRABBLE MODE -->
+                <!-- View 4.5: VOCABLOCKY & SCRABBLE & SPELLING BEE MODE -->
                 <div id="view-blocky" class="view-section">
                     <!-- Tab Switcher -->
-                    <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold">
+                    <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1">
                         <button id="tab-btn-blocky" onclick="switchWordGameMode('blocky')" class="flex-1 py-2 rounded-lg bg-white shadow-sm text-blue-600 transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-cubes-stacked"></i> Vocablocky Grid
+                            <i class="fa-solid fa-cubes-stacked"></i> Vocablocky
                         </button>
                         <button id="tab-btn-scrabble" onclick="switchWordGameMode('scrabble')" class="flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-font"></i> Classic Scrabble (Endless)
+                            <i class="fa-solid fa-font"></i> Scrabble
+                        </button>
+                        <button id="tab-btn-bee" onclick="switchWordGameMode('bee')" class="flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-bug text-amber-500"></i> Spelling Bee
                         </button>
                     </div>
 
@@ -805,6 +879,84 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- SUB-VIEW 3: SPELLING BEE MODE -->
+                    <div id="subview-bee" class="hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-bug text-amber-500"></i> Spelling Bee</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg">Words: <span id="bee-progress-text">0 / 0 (0%)</span></span>
+                                <span class="text-base font-bold text-amber-600">Score: <span id="bee-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="bee-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">
+                                <i class="fa-solid fa-bee"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Spelling Bee Rules</h3>
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form words using the honeycomb letters. Words must be at least <strong>4 letters</strong> long.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every word <strong>must include the center letter</strong> (amber color).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Letters may be <strong>used more than once</strong> in a word.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>4-letter words = 1 pt. 5+ letter words = 1 pt per letter.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong>Pangrams</strong> (using all letters) give <strong>+7 pts</strong> (7-letter mode) or <strong>+20 pts</strong> (10-letter mode)!</span></li>
+                            </ul>
+                            <div class="flex flex-wrap justify-center gap-3">
+                                <button onclick="startBeeGame(7)" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2">
+                                    <i class="fa-solid fa-play"></i> Classic 7-Letter Mode
+                                </button>
+                                <button onclick="startBeeGame(10)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2">
+                                    <i class="fa-solid fa-star"></i> Special 10-Letter Mode
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="bee-active" class="hidden relative">
+                            <!-- Progress Bar -->
+                            <div class="mb-4 bg-gray-100 p-2.5 rounded-xl border border-gray-200">
+                                <div class="flex justify-between items-center text-xs font-bold text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span id="bee-progress-detail">0 / 0 words found (0%)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
+                                    <div id="bee-progress-bar" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Word Input Display -->
+                            <div class="text-center mb-4 min-h-[42px] flex items-center justify-center">
+                                <div id="bee-input-display" class="text-2xl font-black font-mono tracking-wider text-gray-800 min-h-[36px] px-4 py-1 bg-amber-50 border-2 border-amber-300 rounded-xl min-w-[200px]"></div>
+                            </div>
+
+                            <!-- Honeycomb Buttons -->
+                            <div id="bee-honeycomb" class="bee-honeycomb mb-6"></div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex justify-center gap-3 mb-6">
+                                <button onclick="deleteBeeLetter()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-delete-left"></i> Delete
+                                </button>
+                                <button onclick="shuffleBeeLetters()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Shuffle
+                                </button>
+                                <button onclick="submitBeeWord()" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow flex items-center gap-1">
+                                    <i class="fa-solid fa-check"></i> Enter
+                                </button>
+                            </div>
+
+                            <!-- Found Words Accordion / Box -->
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-amber-500 mr-1"></i> Discovered Words (<span id="bee-found-count">0</span>)</h4>
+                                    <button onclick="toggleBeeFoundList()" id="bee-toggle-list-btn" class="text-xs text-amber-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="bee-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words found yet. Start spelling!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- View 5: Sentences & Grammar -->
@@ -907,7 +1059,7 @@
                         let count = 0;
                         words.forEach(w => {
                             const clean = w.trim().toUpperCase().replace(/[^A-Z]/g, '');
-                            if (clean.length >= 2 && clean.length <= 9) {
+                            if (clean.length >= 2 && clean.length <= 12) {
                                 BUILTIN_ENGLISH_WORDS.add(clean);
                                 count++;
                             }
@@ -961,17 +1113,17 @@
         function switchWordGameMode(mode) {
             document.getElementById('subview-blocky').classList.toggle('hidden', mode !== 'blocky');
             document.getElementById('subview-scrabble').classList.toggle('hidden', mode !== 'scrabble');
+            document.getElementById('subview-bee').classList.toggle('hidden', mode !== 'bee');
 
             const bBtn = document.getElementById('tab-btn-blocky');
             const sBtn = document.getElementById('tab-btn-scrabble');
+            const beeBtn = document.getElementById('tab-btn-bee');
 
-            if (mode === 'blocky') {
-                bBtn.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-blue-600 transition flex items-center justify-center gap-1";
-                sBtn.className = "flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1";
-            } else {
-                sBtn.className = "flex-1 py-2 rounded-lg bg-white shadow-sm text-amber-600 transition flex items-center justify-center gap-1";
-                bBtn.className = "flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1";
-            }
+            const inactiveCls = "flex-1 py-2 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1";
+
+            bBtn.className = mode === 'blocky' ? "flex-1 py-2 rounded-lg bg-white shadow-sm text-blue-600 transition flex items-center justify-center gap-1" : inactiveCls;
+            sBtn.className = mode === 'scrabble' ? "flex-1 py-2 rounded-lg bg-white shadow-sm text-amber-600 transition flex items-center justify-center gap-1" : inactiveCls;
+            beeBtn.className = mode === 'bee' ? "flex-1 py-2 rounded-lg bg-white shadow-sm text-amber-600 font-bold transition flex items-center justify-center gap-1" : inactiveCls;
         }
 
         function saveData() {
@@ -1744,7 +1896,6 @@
             document.getElementById('final-score').innerText = testScore;
         }
 
-        // --- DEFINITION QUIZ LOGIC ---
         let defQuizQuestions = [];
         let currentDefQuizIndex = 0;
         let defQuizCorrectCount = 0;
@@ -1844,7 +1995,6 @@
             document.getElementById('def-quiz-final-score').innerText = `${defQuizCorrectCount} / ${defQuizQuestions.length}`;
         }
 
-        // --- SPELLING QUIZ LOGIC ---
         let spellingQuestions = [];
         let currentSpellingIndex = 0;
         let spellingCorrectCount = 0;
@@ -2046,7 +2196,6 @@
             }
         }
 
-        // --- VOCABLOCKY GRID MODE LOGIC ---
         let blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let blockyScore = 0;
         let blocksPlacedCount = 0;
@@ -2158,7 +2307,7 @@
                 const letters = piece.letters;
 
                 wrapper.draggable = true;
-                wrapper.style.gridTemplateColumns = `repeat(${shape[0].length}, 24px)`;
+                wrapper.style.gridTemplateColumns = `repeat(${shape[0].length}, 20px)`;
                 
                 shape.forEach((row, r) => {
                     row.forEach((val, c) => {
@@ -2396,15 +2545,13 @@
             }
         }
 
-        // --- CLASSIC SCRABBLE ENDLESS MODE LOGIC ---
-        let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null)); // { letter, locked }
+        let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
         let playerRack = [];
         let selectedRackIndex = null;
-        let tempPlacedTiles = []; // { r, c, letter, rackIndex }
+        let tempPlacedTiles = [];
 
-        // Special Board Multipliers for 9x9 Scrabble layout
         const SCRABBLE_BONUSES = {
             "0,0": "TW", "0,8": "TW", "8,0": "TW", "8,8": "TW",
             "1,1": "DW", "1,7": "DW", "7,1": "DW", "7,7": "DW",
@@ -2427,7 +2574,6 @@
             document.getElementById('scrabble-setup').classList.add('hidden');
             document.getElementById('scrabble-active').classList.remove('hidden');
 
-            // Initial fill to 7 tiles
             refillScrabbleRack();
             renderScrabbleBoard();
             renderScrabbleRack();
@@ -2506,7 +2652,6 @@
         function handleScrabbleCellClick(r, c) {
             const existingTempIndex = tempPlacedTiles.findIndex(t => t.r === r && t.c === c);
 
-            // If clicking existing temp tile, recall it
             if (existingTempIndex !== -1) {
                 const tile = tempPlacedTiles.splice(existingTempIndex, 1)[0];
                 playerRack.push(tile.letter);
@@ -2516,7 +2661,6 @@
                 return;
             }
 
-            // Place selected tile from rack
             if (selectedRackIndex !== null && playerRack[selectedRackIndex]) {
                 if (scrabbleBoardGrid[r][c] !== null) {
                     showToast("Cell already occupied!", true);
@@ -2554,7 +2698,6 @@
                 return;
             }
 
-            // Check tile alignment (horizontal or vertical)
             const sameRow = tempPlacedTiles.every(t => t.r === tempPlacedTiles[0].r);
             const sameCol = tempPlacedTiles.every(t => t.c === tempPlacedTiles[0].c);
 
@@ -2563,7 +2706,6 @@
                 return;
             }
 
-            // Board state verification (must touch star if board empty, or touch existing tile)
             let isBoardEmpty = scrabbleBoardGrid.every(row => row.every(cell => cell === null));
             if (isBoardEmpty) {
                 const touchesCenter = tempPlacedTiles.some(t => t.r === 4 && t.c === 4);
@@ -2590,7 +2732,6 @@
                 }
             }
 
-            // Create temporary full board to scan formed words
             let fullBoard = scrabbleBoardGrid.map(row => row ? row.map(cell => cell ? cell.letter : null) : Array(9).fill(null));
             tempPlacedTiles.forEach(t => fullBoard[t.r][t.c] = t.letter);
 
@@ -2598,7 +2739,6 @@
             let formedWords = [];
             let totalTurnScore = 0;
 
-            // Scan horizontal words formed through new tiles
             let checkedH = new Set();
             tempPlacedTiles.forEach(t => {
                 let cStart = t.c;
@@ -2619,7 +2759,6 @@
                             word += letter;
                             let basePoints = SCRABBLE_POINTS[letter] || 1;
                             
-                            // Apply multipliers only if newly placed
                             let isNew = tempPlacedTiles.some(pt => pt.r === t.r && pt.c === c);
                             if (isNew) {
                                 let bonus = SCRABBLE_BONUSES[`${t.r},${c}`];
@@ -2637,7 +2776,6 @@
                 }
             });
 
-            // Scan vertical words formed through new tiles
             let checkedV = new Set();
             tempPlacedTiles.forEach(t => {
                 let rStart = t.r;
@@ -2680,14 +2818,12 @@
                 return;
             }
 
-            // Verify all formed words in dictionary
             let invalidWord = formedWords.find(w => !dictionary.has(w.word));
             if (invalidWord) {
                 showToast(`"${invalidWord.word}" is not a valid Scrabble word!`, true);
                 return;
             }
 
-            // Lock tiles onto board
             tempPlacedTiles.forEach(t => {
                 scrabbleBoardGrid[t.r][t.c] = { letter: t.letter, locked: true };
             });
@@ -2702,7 +2838,6 @@
             const wordsPlayedStr = formedWords.map(w => `${w.word} (+${w.score}pts)`).join(', ');
             showToast(`Played: ${wordsPlayedStr}`);
 
-            // Clear temporary tiles & endless refill rack
             tempPlacedTiles = [];
             refillScrabbleRack();
 
@@ -2710,7 +2845,286 @@
             renderScrabbleRack();
         }
 
-        // --- SENTENCE & GRAMMAR LOGIC ---
+        let beeLetterCount = 7;
+        let beeCenterLetter = '';
+        let beeOuterLetters = [];
+        let beePossibleWords = new Map();
+        let beeFoundWords = new Set();
+        let beeScore = 0;
+        let beeCurrentInput = '';
+
+        const SAMPLE_PANGRAMS_7 = ["DICTION", "PLAYING", "WORKING", "TEACHER", "MONSTER", "SURFACE", "PACKAGE", "BLANKET"];
+        const SAMPLE_PANGRAMS_10 = ["COMPLEXITY", "BACKGROUND", "IMPORTANCE", "BLACKSMITH", "ATMOSPHERE", "OVERMATCH"];
+
+        function startBeeGame(letterCount = 7) {
+            beeLetterCount = letterCount;
+            beeScore = 0;
+            beeFoundWords.clear();
+            beeCurrentInput = '';
+
+            document.getElementById('bee-setup').classList.add('hidden');
+            document.getElementById('bee-active').classList.remove('hidden');
+
+            generateBeePuzzle();
+            renderBeeGame();
+
+            window.removeEventListener('keydown', handleBeeKeyboard);
+            window.addEventListener('keydown', handleBeeKeyboard);
+        }
+
+        function generateBeePuzzle() {
+            const dictionary = getCombinedDictionary();
+            let candidatePangrams = [];
+
+            dictionary.forEach(word => {
+                const uniqueChars = new Set(word);
+                if (uniqueChars.size === beeLetterCount && word.length >= beeLetterCount) {
+                    candidatePangrams.push(word);
+                }
+            });
+
+            if (candidatePangrams.length === 0) {
+                candidatePangrams = beeLetterCount === 7 ? SAMPLE_PANGRAMS_7 : SAMPLE_PANGRAMS_10;
+            }
+
+            let bestLetterSet = null;
+            let bestCenter = '';
+            let bestPossibleWords = new Map();
+
+            const shuffledCandidates = candidatePangrams.sort(() => Math.random() - 0.5);
+
+            for (let baseWord of shuffledCandidates.slice(0, 25)) {
+                const uniqueLetters = Array.from(new Set(baseWord.split('')));
+                if (uniqueLetters.length !== beeLetterCount) continue;
+
+                const shuffledLetters = uniqueLetters.sort(() => Math.random() - 0.5);
+
+                for (let centerCandidate of shuffledLetters) {
+                    let possible = new Map();
+                    const validCharSet = new Set(uniqueLetters);
+
+                    dictionary.forEach(word => {
+                        if (word.length >= 4 && word.includes(centerCandidate)) {
+                            let isValid = true;
+                            for (let ch of word) {
+                                if (!validCharSet.has(ch)) {
+                                    isValid = false;
+                                    break;
+                                }
+                            }
+                            if (isValid) {
+                                const isPangram = uniqueLetters.every(c => word.includes(c));
+                                let pts = word.length === 4 ? 1 : word.length;
+                                if (isPangram) pts += (beeLetterCount === 7 ? 7 : 20);
+                                possible.set(word, { pts, isPangram });
+                            }
+                        }
+                    });
+
+                    if (possible.size >= (beeLetterCount === 7 ? 5 : 3)) {
+                        bestLetterSet = uniqueLetters;
+                        bestCenter = centerCandidate;
+                        bestPossibleWords = possible;
+                        break;
+                    }
+                }
+                if (bestLetterSet) break;
+            }
+
+            if (!bestLetterSet) {
+                const fallbackWord = beeLetterCount === 7 ? "WORKING" : "COMPLEXITY";
+                bestLetterSet = Array.from(new Set(fallbackWord.split('')));
+                bestCenter = bestLetterSet[0];
+                bestPossibleWords = new Map();
+                bestPossibleWords.set(fallbackWord, { pts: fallbackWord.length + (beeLetterCount === 7 ? 7 : 20), isPangram: true });
+            }
+
+            beeCenterLetter = bestCenter;
+            beeOuterLetters = bestLetterSet.filter(c => c !== bestCenter);
+            beePossibleWords = bestPossibleWords;
+        }
+
+        function renderBeeGame() {
+            document.getElementById('bee-score-display').innerText = beeScore;
+            updateBeeProgress();
+            renderBeeHoneycomb();
+            updateBeeInputDisplay();
+            renderBeeFoundList();
+        }
+
+        function updateBeeProgress() {
+            const totalWords = beePossibleWords.size;
+            const foundWords = beeFoundWords.size;
+            const pct = totalWords > 0 ? Math.floor((foundWords / totalWords) * 100) : 0;
+
+            document.getElementById('bee-progress-text').innerText = `${foundWords} / ${totalWords} (${pct}%)`;
+            document.getElementById('bee-progress-detail').innerText = `${foundWords} / ${totalWords} words found (${pct}%)`;
+            document.getElementById('bee-progress-bar').style.width = `${pct}%`;
+            document.getElementById('bee-found-count').innerText = foundWords;
+        }
+
+        function renderBeeHoneycomb() {
+            const container = document.getElementById('bee-honeycomb');
+            container.innerHTML = '';
+
+            const centerTile = document.createElement('div');
+            centerTile.className = 'bee-tile center-tile';
+            centerTile.innerText = beeCenterLetter;
+            centerTile.onclick = () => appendBeeLetter(beeCenterLetter);
+
+            const outerTilesHtml = beeOuterLetters.map(letter => {
+                const tile = document.createElement('div');
+                tile.className = 'bee-tile';
+                tile.innerText = letter;
+                tile.onclick = () => appendBeeLetter(letter);
+                return tile;
+            });
+
+            outerTilesHtml.forEach((tile, i) => {
+                if (i === Math.floor(outerTilesHtml.length / 2)) {
+                    container.appendChild(centerTile);
+                }
+                container.appendChild(tile);
+            });
+
+            if (outerTilesHtml.length <= 6) {
+                if (!container.contains(centerTile)) container.appendChild(centerTile);
+            }
+        }
+
+        function appendBeeLetter(letter) {
+            beeCurrentInput += letter;
+            updateBeeInputDisplay();
+        }
+
+        function deleteBeeLetter() {
+            if (beeCurrentInput.length > 0) {
+                beeCurrentInput = beeCurrentInput.slice(0, -1);
+                updateBeeInputDisplay();
+            }
+        }
+
+        function shuffleBeeLetters() {
+            beeOuterLetters.sort(() => Math.random() - 0.5);
+            renderBeeHoneycomb();
+        }
+
+        function updateBeeInputDisplay() {
+            const display = document.getElementById('bee-input-display');
+            if (!beeCurrentInput) {
+                display.innerHTML = `<span class="text-gray-300 text-lg italic">Type or tap letters...</span>`;
+                return;
+            }
+
+            let html = '';
+            for (let ch of beeCurrentInput) {
+                if (ch === beeCenterLetter) {
+                    html += `<span class="text-amber-600 font-black">${ch}</span>`;
+                } else {
+                    html += `<span class="text-gray-800">${ch}</span>`;
+                }
+            }
+            display.innerHTML = html;
+        }
+
+        function submitBeeWord() {
+            const word = beeCurrentInput.trim().toUpperCase();
+            if (!word) return;
+
+            if (word.length < 4) {
+                showToast("Word too short (minimum 4 letters)", true);
+                beeCurrentInput = '';
+                updateBeeInputDisplay();
+                return;
+            }
+
+            if (!word.includes(beeCenterLetter)) {
+                showToast(`Must contain center letter '${beeCenterLetter}'`, true);
+                beeCurrentInput = '';
+                updateBeeInputDisplay();
+                return;
+            }
+
+            if (beeFoundWords.has(word)) {
+                showToast(`Already found "${word}"!`, true);
+                beeCurrentInput = '';
+                updateBeeInputDisplay();
+                return;
+            }
+
+            if (beePossibleWords.has(word)) {
+                const wordInfo = beePossibleWords.get(word);
+                beeFoundWords.add(word);
+                beeScore += wordInfo.pts;
+
+                document.getElementById('bee-score-display').innerText = beeScore;
+                updateBeeProgress();
+                renderBeeFoundList();
+
+                if (wordInfo.isPangram) {
+                    showToast(`PANGRAM! "${word}" (+${wordInfo.pts} pts)`);
+                } else {
+                    showToast(`Nice! "${word}" (+${wordInfo.pts} pts)`);
+                }
+            } else {
+                showToast(`"${word}" is not in the word list`, true);
+            }
+
+            beeCurrentInput = '';
+            updateBeeInputDisplay();
+        }
+
+        function handleBeeKeyboard(e) {
+            const beeActive = document.getElementById('subview-bee');
+            if (!beeActive || beeActive.classList.contains('hidden')) return;
+
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+            const key = e.key.toUpperCase();
+            if (key === 'BACKSPACE') {
+                deleteBeeLetter();
+            } else if (key === 'ENTER') {
+                submitBeeWord();
+            } else if (key.length === 1 && key >= 'A' && key <= 'Z') {
+                if (key === beeCenterLetter || beeOuterLetters.includes(key)) {
+                    appendBeeLetter(key);
+                }
+            }
+        }
+
+        function renderBeeFoundList() {
+            const container = document.getElementById('bee-found-list');
+            if (beeFoundWords.size === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 italic">No words found yet. Start spelling!</p>`;
+                return;
+            }
+
+            const sorted = Array.from(beeFoundWords).sort();
+            container.innerHTML = sorted.map(w => {
+                const info = beePossibleWords.get(w);
+                const isPangram = info ? info.isPangram : false;
+                const pts = info ? info.pts : 1;
+
+                return `
+                    <span class="text-xs ${isPangram ? 'bg-amber-500 text-white font-bold' : 'bg-gray-100 text-gray-800'} px-2 py-1 rounded-md border flex items-center gap-1">
+                        ${w} <span class="opacity-75 font-mono text-[10px]">(+${pts})</span>
+                    </span>
+                `;
+            }).join('');
+        }
+
+        function toggleBeeFoundList() {
+            const list = document.getElementById('bee-found-list');
+            const btn = document.getElementById('bee-toggle-list-btn');
+            if (list.classList.contains('hidden')) {
+                list.classList.remove('hidden');
+                btn.innerText = 'Hide List';
+            } else {
+                list.classList.add('hidden');
+                btn.innerText = 'Show List';
+            }
+        }
+
         function updateSentenceSelect() {
             const select = document.getElementById('sentence-word-select');
             select.innerHTML = '<option value="">-- Select or pick random --</option>' + 
