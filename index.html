@@ -67,6 +67,7 @@
             padding: 2.5rem;
             overflow-y: auto;
             position: relative;
+            min-height: 0; /* Ensures proper scrollbar constraint inside flexbox */
         }
         
         .page-left {
@@ -394,13 +395,16 @@
         }
 
         @media (max-width: 768px) {
-            .book { flex-direction: column; overflow-y: auto; }
+            .book { flex-direction: column; overflow: hidden; }
             .spine { display: none; }
-            .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); min-height: 0; overflow-y: auto; }
-            .page-right { flex: 2; min-height: 0; overflow-y: auto; }
+            .page { padding: 1.5rem; }
+            
+            /* Crucial mobile split: 1/3 top, 2/3 bottom, independent scrolling */
+            .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); overflow-y: auto; min-height: 0; }
+            .page-right { flex: 2; overflow-y: auto; min-height: 0; }
             .book-wrapper { height: 95vh; }
 
-            /* Mobile height tuning for game modes */
+            /* Mobile UI scaling for games */
             #blocky-board, #scrabble-board {
                 max-width: 310px;
                 gap: 2px;
@@ -424,8 +428,10 @@
                 height: 38px;
                 font-size: 15px;
             }
-            .flashcard-container {
-                height: 240px;
+            .bee-tile {
+                width: 44px;
+                height: 44px;
+                font-size: 16px;
             }
         }
     </style>
@@ -481,7 +487,7 @@
                         <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
                     </button>
                     <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
-                        <i class="fa-solid fa-cubes-stacked w-6"></i> Author-recommend gamemodes
+                        <i class="fa-solid fa-cubes-stacked w-6"></i> Gamemodes (CSW24)
                     </button>
                     <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
@@ -508,6 +514,7 @@
             </div>
 
             <div class="page page-right">
+                
                 <!-- View 1: Main Page -->
                 <div id="view-home" class="view-section active">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
@@ -761,6 +768,7 @@
                     </div>
                 </div>
 
+                <!-- View 4.5: CSW24 GAMEMODES -->
                 <div id="view-blocky" class="view-section">
                     <!-- Tab Switcher -->
                     <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1">
@@ -780,7 +788,7 @@
                         <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
                             <span class="flex items-center gap-2"><i class="fa-solid fa-cubes-stacked text-blue-600"></i> Vocablocky</span>
                             <div class="flex items-center gap-2">
-                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...</span>
+                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading CSW24...</span>
                                 <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="words-count-display">0</span></span>
                                 <span class="text-base font-bold text-blue-600">Score: <span id="blocky-score-display">0</span></span>
                             </div>
@@ -792,12 +800,12 @@
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 mb-1">Vocablocky Rules</h3>
                             <div class="mb-4 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full inline-block border border-red-200">
-                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> (★★★★★ 5/5)
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> (★★★★★ 5/5)
                             </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid Scrabble words (left-to-right or top-to-bottom).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid CSW24 words (left-to-right or top-to-bottom).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Main word (3+ letters): <strong>+10 pts per block cleared</strong>. Sub-words (2+ letters): <strong>+10 bonus pts each</strong>!</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Only matched word cells clear; remaining letters stay in place.</span></li>
                             </ul>
@@ -866,10 +874,10 @@
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 mb-1">Classic Scrabble (Unended)</h3>
                             <div class="mb-4 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block border border-amber-200">
-                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★★☆☆ 3/5)
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★★☆☆ 3/5)
                             </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell words.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell valid CSW24 words.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Utilize multipliers: <strong>DL</strong> (Double Letter), <strong>TL</strong> (Triple Letter), <strong>DW</strong> (Double Word), <strong>TW</strong> (Triple Word).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong>Endless Rack:</strong> Tiles auto-replenish to 7 after every valid turn!</span></li>
@@ -939,10 +947,10 @@
                             </div>
                             <h3 class="text-xl font-bold text-gray-800 mb-1">Spelling Bee Rules</h3>
                             <div class="mb-4 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block border border-green-200">
-                                難度 (Difficulty): <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★☆☆☆ 2/5)
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★☆☆☆ 2/5)
                             </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form words using the honeycomb letters. Words must be at least <strong>4 letters</strong> long.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form CSW24 words using the honeycomb letters. Words must be at least <strong>4 letters</strong> long.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every word <strong>must include the center letter</strong> (amber color).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Letters may be <strong>used more than once</strong> in a word.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>4-letter words = 1 pt. 5+ letter words = 1 pt per letter.</span></li>
@@ -1049,7 +1057,7 @@
         </div>
     </div>
     
-    <!-- Word Detail Modal -->
+    <!-- Word Detail Modal (for Discovered Game Words) -->
     <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
@@ -1094,12 +1102,9 @@
             'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10
         };
 
-        // Comprehensive English Word Set
-        const BUILTIN_ENGLISH_WORDS = new Set([
-            "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA",
-            "ADD","AGE","AGO","AID","AIM","AIR","ALL","ALT","AND","ANT","ANY","APE","APT","ARC","ARE","ARK","ARM","ART","ASH","ASK","ATE","BAD","BAG","BAR","BAT","BAY","BED","BEE","BEG","BET","BID","BIG","BIN","BIT","BOY","BUS","BUT","BUY","CAN","CAP","CAR","CAT","COW","CRY","CUP","CUT","DAY","DIE","DIG","DIP","DOG","DRY","DUE","EAR","EAT","EGG","END","ERA","EVE","EYE","FAN","FAR","FAT","FED","FEE","FEW","FIT","FLY","FOG","FOR","FOX","FUN","GAP","GAS","GEL","GET","GIG","GIN","GOD","GOT","GUM","GUN","GUY","HAD","HAT","HAY","HEN","HER","HIM","HIS","HIT","HOT","HOW","HUB","HUG","ICE","ILL","INK","INN","ION","ITS","JAM","JAR","JAW","JET","JOB","JOG","JOY","KEY","KID","KIT","LAB","LAD","LAP","LAW","LAY","LEG","LET","LIP","LOG","LOT","LOW","MAD","MAN","MAP","MAT","MAY","MED","MEN","MET","MIX","MUD","MUG","NET","NEW","NOT","NOW","NUN","NUT","OAK","OAR","ODD","OFF","OFT","OIL","OLD","ONE","OPT","ORB","ORE","OUR","OUT","OWL","OWN","PAD","PAL","PAN","PAR","PAT","PAY","PEG","PEN","PET","PIG","PIN","PIT","POD","POP","POT","PRO","PUB","PUP","PUT","RAG","RAM","RAN","RAT","RAW","RAY","RED","RIB","RID","RIG","RIM","ROD","ROW","RUB","RUG","RUN","SAD","SAT","SAW","SAY","SEA","SEE","SET","SEW","SHE","SIP","SIT","SKY","SLY","SON","SOY","SPY","SUN","TAB","TAG","TAN","TAP","TAR","TAX","TEA","TEN","TET","THE","TIE","TIN","TIP","TOE","TON","TOO","TOP","TOY","TRY","TUB","TWO","URG","USE","VAN","VET","VIA","VIEW","WAR","WAS","WAY","WEB","WED","WET","WHO","WHY","WIN","WIT","YES","YET","YOU","ZOO",
-            "ABLE","ACRE","AGED","ALSO","ARCH","AREA","ARMY","ARTS","AUTO","AUNT","BABY","BACK","BAKE","BALL","BAND","BANK","BARE","BARK","BARN","BASE","BEAR","BEAT","BEER","BELL","BELT","BEST","BIRD","BITE","BLUE","BOAT","BODY","BOLD","BOMB","BONE","BOOK","BORN","BOSS","BOTH","BOWL","BOYS","BULK","BUSH","BUSY","CAKE","CALL","CALM","CAMP","CARD","CARE","CASH","CAST","CELL","CHAT","CHEF","CHIP","CITY","CLAN","CLAY","CLUB","COAL","COAT","CODE","COIN","COLD","COOK","COOL","COPY","CORE","CORN","COST","CREW","CROP","DARK","DATA","DATE","DAWN","DAYS","DEAD","DEAL","DEAN","DEAR","DEBT","DEEP","DEER","DESK","DIET","DISK","DOOR","DOSE","DOWN","DRAW","DROP","DRUG","DUST","DUTY","EACH","EARN","EAST","EASY","EDGE","EGGS","ELSE","EVEN","EVER","FACE","FACT","FAIR","FALL","FARM","FAST","FEAR","FEED","FEEL","FEES","FILE","FILL","FILM","FIND","FINE","FIRE","FIRM","FISH","FLAT","FLOW","FLY","FOOD","FOOT","FORD","FORM","FORT","FREE","FUEL","FULL","FUND","GAME","GIFT","GIRL","GIVE","GLAD","GOAL","GOLD","GOLF","GOOD","GROW","GUEST","GOLF","GUY","HAIR","HALF","HALL","HAND","HARD","HARM","HATE","HAVE","HEAD","HEAR","HEAT","HELL","HELP","HERO","HIGH","HILL","HIRE","HOLD","HOLE","HOME","HOPE","HOST","HOUR","HUGE","ICON","IDEA","INCH","INFO","IRON","ITEM","JACK","JAZZ","JOIN","JUMP","JURY","KEEP","KICK","KIND","KING","KISS","KNEE","KNOW","LACK","LADY","LAKE","LAMP","LAND","LANE","LAST","LATE","LEAD","LEAF","LEAN","LEFT","LESS","LIFE","LIFT","LIKE","LINE","LINK","LION","LIST","LIVE","LOAD","LOAN","LOCK","LONG","LOOK","LORD","LOSS","LOVE","LUCK","LUCK","LUNG","MAIN","MAKE","MALL","MANY","MAPS","MARK","MASS","MATH","MEAL","MEAT","MEET","MIND","MINE","MODE","MOON","MOST","MOVE","MUCH","NAME","NAVY","NEAR","NECK","NEED","NEWS","NEXT","NICE","NIGHT","NODE","NOSE","NOTE","OKAY","OPEN","PACE","PACK","PAGE","PAIN","PAIR","PARK","PART","PASS","PATH","PEAK","PEER","PENS","PICK","PIPE","PLAN","PLAY","PLUS","POEM","POET","POLL","POOL","POOR","POST","PULL","PURE","PUSH","RACE","RAIL","RAIN","RANK","RARE","RATE","READ","REAL","RELY","REST","RICE","RICH","RIDE","RING","RISE","RISK","ROAD","ROCK","ROLE","ROOF","ROOM","ROOT","ROSE","RULE","RUSH","SAFE","SAID","SAIL","SALE","SALT","SAME","SAND","SAVE","SEAT","SEED","SEEK","SEEM","SELL","SEND","SIDE","SIGN","SILK","SITE","SIZE","SKIN","SLOW","SNOW","SOAP","SOFT","SOIL","SOLE","SOME","SONG","SOON","SOUL","SOUP","SOUTH","SPOT","STAR","STEP","STOP","SUCH","SUIT","SURE","SWIM","TAIL","TAKE","TALK","TALL","TASK","TEAM","TEAR","TELL","TERM","TEST","TEXT","THAT","THEM","THEN","THEY","THIS","TIDE","TIED","TIME","TINY","TIPS","TOLL","TONE","TONG","TOOL","TOUR","TOWN","TREE","TRIP","TRUE","TUBE","TUNE","TURN","TYPE","UNIT","UPON","USER","VAST","VIEW","WAGE","WAIT","WALK","WALL","WANT","WARD","WARM","WAVE","WAYS","WEAK","WEAR","WEEK","WELL","WEST","WHAT","WIFE","WILD","WILL","WIND","WINE","WING","WIRE","WISH","WITH","WOOD","WORD","WORK","YARD","YEAR","ZERO","ZONE",
-            "ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","AMONG","ANGER","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARRAY","ASIDE","ASSET","AUDIO","AUDIT","AVOID","AWARD","AWARE","BADLY","BAKER","BASES","BASIC","BASIS","BEACH","BEGIN","BEING","BELOW","BENCH","BIRTH","BLACK","BLAME","BLIND","BLOCK","BLOOD","BOARD","BOAST","BOOST","BOUND","BRAIN","BRAND","BREAD","BREAK","BRICK","BRIEF","BRING","BROAD","BROWN","BUILD","BUYER","CABLE","CARRY","CATCH","CAUSE","CHAIN","CHAIR","CHARM","CHART","CHASE","CHEAP","CHECK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLOCK","CLOSE","CLOUD","COACH","COAST","COLOR","COUNT","COURT","COVER","CRAFT","CRASH","CREAM","CRIME","CROSS","CROWD","CROWN","CURVE","CYCLE","DAILY","DANCE","DATED","DEATH","DEBUG","DELAY","DEPTH","DIRTY","DRAFT","DRAMA","DREAM","DRESS","DRINK","DRIVE","EAGER","EARLY","EARTH","EIGHT","EMPTY","ENEMY","ENJOY","ENTER","EQUAL","ERROR","EVENT","EVERY","EXACT","EXIST","EXTRA","FAITH","FALSE","FAULT","FIBER","FIELD","FIFTH","FIFTY","FINAL","FIRST","FIXED","FLAME","FLASH","FLEET","FLOAT","FLOOR","FLUID","FOCUS","FORCE","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT","FRUIT","GIANT","GIVEN","GLASS","GLOBE","GOING","GRACE","GRADE","GRAND","GRANT","GRASS","GREAT","GREEN","GROSS","GROUP","GROWN","GUARD","GUESS","GUEST","GUIDE","HAPPY","HEART","HEAVY","HELLO","HOUSE","HUMAN","IDEAL","IMAGE","INDEX","INNER","INPUT","ISSUE","JAPAN","JUDGE","JUICE","KNIFE","KNOCK","KNOWN","LABEL","LABOR","LARGE","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEVEL","LIGHT","LIMIT","LOCAL","LOGIC","LOOSE","LOWER","LUCKY","LUNCH","MAGIC","MAJOR","MAKER","MARCH","MATCH","MAXIM","MAYBE","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MODEL","MONEY","MONTH","MOTOR","MOUNT","MOUSE","MOUTH","MOVIE","MUSIC","NEEDS","NEVER","NIGHT","NOISE","NORTH","NOVEL","NURSE","OFFER","ORDER","OTHER","OUTER","OWNER","PANEL","PAPER","PARTY","PEACE","PHASE","PHONE","PHOTO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","POINT","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","RADIO","RAISE","RANGE","RAPID","RATIO","REACH","READY","REFER","RIGHT","RIVAL","RIVER","ROUGH","ROUND","ROUTE","ROYAL","RURAL","SCALE","SCENE","SCOPE","SCORE","SENSE","SERVE","SEVEN","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHIRT","SHOCK","SHOOT","SHORT","SHOWN","SIGHT","SINCE","SKILL","SLEEP","SLIDE","SMALL","SMART","SMILE","SMOKE","SOLID","SOLVE","SORRY","SOUND","SOUTH","SPACE","SPARE","SPEAK","SPEED","SPEND","SPLIT","SPORT","STAFF","STAGE","STAND","START","STATE","STEAM","STEEL","STICK","STILL","STOCK","STONE","STORE","STORM","STORY","STRIP","STUDY","STYLE","SUGAR","SUITE","SUPER","SWEET","TABLE","TASTE","TEACH","THANK","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THROW","TIGHT","TITLE","TODAY","TOTAL","TOUCH","TOUGH","TOWER","TRACK","TRADE","TRAIN","TREAT","TREND","TRIAL","TRUCK","TRULY","TRUST","TRUTH","TWICE","UNDER","UNION","UNiT","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VALID","VALUE","VIDEO","VIRUS","VISIT","VITAL","VOICE","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHITE","WHOLE","WHOSE","WOMAN","WORLD","WORRY","WORTH","WOULD","WRITE","WRONG","YOUTH"
+        // Complete Game Dictionary Set (To be populated fully via loadFullScrabbleDictionary)
+        const CSW24_DICTIONARY = new Set([
+            "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA"
         ]);
 
         function speakWord(text, lang = 'en-US') {
@@ -1126,13 +1131,19 @@
         };
 
         async function loadFullScrabbleDictionary() {
+            const badge = document.getElementById('dict-status-badge');
+            if (badge) badge.innerHTML = `<i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading CSW24...`;
+
+            // Order of priority: 
+            // 1. Local file (user uploaded ./csw24.txt to GitHub repo)
+            // 2. Fallback reliable raw URLs
             const urls = [
-                'https://cdn.jsdelivr.net/gh/raun/Scrabble@master/words.txt',
-                'https://raw.githubusercontent.com/raun/Scrabble/master/words.txt',
-                'https://cdn.jsdelivr.net/gh/dwyl/english-words@master/words_alpha.txt'
+                './csw24.txt',
+                'https://raw.githubusercontent.com/scrabblewords/scrabblewords/main/words/csw21.txt',
+                'https://cdn.jsdelivr.net/gh/raun/Scrabble@master/words.txt'
             ];
 
-            const badge = document.getElementById('dict-status-badge');
+            let loadSuccess = false;
 
             for (const url of urls) {
                 try {
@@ -1140,31 +1151,37 @@
                     if (res.ok) {
                         const text = await res.text();
                         const words = text.split(/\r?\n/);
-                        let count = 0;
                         words.forEach(w => {
                             const clean = w.trim().toUpperCase().replace(/[^A-Z]/g, '');
-                            if (clean.length >= 2 && clean.length <= 12) {
-                                BUILTIN_ENGLISH_WORDS.add(clean);
-                                count++;
+                            if (clean.length >= 2) {
+                                CSW24_DICTIONARY.add(clean);
                             }
                         });
+                        
+                        const countStr = CSW24_DICTIONARY.size.toLocaleString();
                         if (badge) {
-                            badge.innerHTML = `<i class="fa-solid fa-check text-green-600 mr-1"></i> Dict: ${BUILTIN_ENGLISH_WORDS.size.toLocaleString()} words`;
+                            badge.innerHTML = `<i class="fa-solid fa-check text-green-600 mr-1"></i> Dict: CSW24 (${countStr} words)`;
                             badge.className = "text-xs bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded font-mono";
                         }
+                        
+                        // Re-trigger board scan if a game is actively showing
                         if (document.getElementById('blocky-active') && !document.getElementById('blocky-active').classList.contains('hidden')) {
                             checkAndClearWords();
                         }
-                        return;
+                        
+                        loadSuccess = true;
+                        break; // Stop fetching if one source succeeded
                     }
                 } catch (err) {
-                    console.warn(`Mirror ${url} failed, trying next...`, err);
+                    console.warn(`Source ${url} failed, trying next...`);
                 }
             }
 
-            if (badge) {
-                badge.innerHTML = `<i class="fa-solid fa-book mr-1"></i> Dict: ${BUILTIN_ENGLISH_WORDS.size.toLocaleString()} (Offline)`;
+            if (!loadSuccess && badge) {
+                const countStr = CSW24_DICTIONARY.size.toLocaleString();
+                badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Dict: Fallback (${countStr} words)`;
                 badge.className = "text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded font-mono";
+                showToast("Failed to load full CSW24 dictionary. Using limited basic words.", true);
             }
         }
 
@@ -1391,7 +1408,7 @@
                     }
                 }
             } catch (err) {
-                console.warn("Spell check service unavailable, proceeding directly to dictionary lookup...", err);
+                console.warn("Spell check service unavailable, proceeding directly to dictionary lookup...");
             }
 
             await lookupDefinitions(word);
@@ -1860,7 +1877,7 @@
                 }
 
                 if (wordDefs.length === 0) {
-                    wordDefs = [{ pos: "word", def: "Discovered during word game mode." }];
+                    wordDefs = [{ pos: "word", def: "Valid CSW24 Scrabble word." }];
                 }
 
                 modalCurrentWordObj = {
@@ -1871,7 +1888,6 @@
                 };
             }
 
-            // Render Definitions
             contentEl.innerHTML = `
                 <div class="space-y-3">
                     ${wordDefs.map(d => `
@@ -2405,17 +2421,6 @@
             return ALPHABET_WEIGHTED.charAt(Math.floor(Math.random() * ALPHABET_WEIGHTED.length));
         }
 
-        function getCombinedDictionary() {
-            const combined = new Set(BUILTIN_ENGLISH_WORDS);
-            if (vocabList && vocabList.length > 0) {
-                vocabList.forEach(v => {
-                    const clean = v.word.trim().toUpperCase().replace(/[^A-Z]/g, '');
-                    if (clean.length >= 2) combined.add(clean);
-                });
-            }
-            return combined;
-        }
-
         function startBlockyGame() {
             blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
             blockyScore = 0;
@@ -2604,7 +2609,7 @@
         }
 
         function checkAndClearWords() {
-            const dictionary = getCombinedDictionary();
+            // Strictly check against CSW24_DICTIONARY only
             let matchedCells = new Set();
             let matchedWordsList = [];
             let subWordsCount = 0;
@@ -2622,7 +2627,7 @@
                             c++;
                         }
 
-                        findWordsInSequence(letterSeq, coords, dictionary, matchedCells, matchedWordsList, () => subWordsCount++);
+                        findWordsInSequence(letterSeq, coords, CSW24_DICTIONARY, matchedCells, matchedWordsList, () => subWordsCount++);
                     } else {
                         c++;
                     }
@@ -2642,7 +2647,7 @@
                             r++;
                         }
 
-                        findWordsInSequence(letterSeq, coords, dictionary, matchedCells, matchedWordsList, () => subWordsCount++);
+                        findWordsInSequence(letterSeq, coords, CSW24_DICTIONARY, matchedCells, matchedWordsList, () => subWordsCount++);
                     } else {
                         r++;
                     }
@@ -2957,7 +2962,6 @@
             let fullBoard = scrabbleBoardGrid.map(row => row ? row.map(cell => cell ? cell.letter : null) : Array(9).fill(null));
             tempPlacedTiles.forEach(t => fullBoard[t.r][t.c] = t.letter);
 
-            const dictionary = getCombinedDictionary();
             let formedWords = [];
             let totalTurnScore = 0;
 
@@ -3040,9 +3044,10 @@
                 return;
             }
 
-            let invalidWord = formedWords.find(w => !dictionary.has(w.word));
+            // Strictly check against CSW24_DICTIONARY only
+            let invalidWord = formedWords.find(w => !CSW24_DICTIONARY.has(w.word));
             if (invalidWord) {
-                showToast(`"${invalidWord.word}" is not a valid Scrabble word!`, true);
+                showToast(`"${invalidWord.word}" is not a valid CSW24 word!`, true);
                 return;
             }
 
@@ -3130,10 +3135,9 @@
         }
 
         function generateBeePuzzle() {
-            const dictionary = getCombinedDictionary();
             let candidatePangrams = [];
 
-            dictionary.forEach(word => {
+            CSW24_DICTIONARY.forEach(word => {
                 const uniqueChars = new Set(word);
                 if (uniqueChars.size === beeLetterCount && word.length >= beeLetterCount) {
                     candidatePangrams.push(word);
@@ -3160,7 +3164,7 @@
                     let possible = new Map();
                     const validCharSet = new Set(uniqueLetters);
 
-                    dictionary.forEach(word => {
+                    CSW24_DICTIONARY.forEach(word => {
                         if (word.length >= 4 && word.includes(centerCandidate)) {
                             let isValid = true;
                             for (let ch of word) {
@@ -3324,7 +3328,7 @@
                     showToast(`Nice! "${word}" (+${wordInfo.pts} pts)`);
                 }
             } else {
-                showToast(`"${word}" is not in the word list`, true);
+                showToast(`"${word}" is not a valid word for these letters`, true);
             }
 
             beeCurrentInput = '';
