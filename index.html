@@ -1,3 +1,4 @@
+
 <!DOCTYPE html> 
 <html lang="en">
 <head>
@@ -67,7 +68,7 @@
             padding: 2.5rem;
             overflow-y: auto;
             position: relative;
-            min-height: 0; /* Ensures proper scrollbar constraint inside flexbox */
+            min-height: 0;
         }
         
         .page-left {
@@ -324,7 +325,6 @@
             transform: scale(1.06);
         }
 
-        /* Scrabble Rack Tile */
         .scrabble-rack-tile {
             width: 40px;
             height: 44px;
@@ -394,17 +394,16 @@
             transform: scale(1.15);
         }
 
+        /* Mobile Responsive Layout (1:2 Split) */
         @media (max-width: 768px) {
             .book { flex-direction: column; overflow: hidden; }
             .spine { display: none; }
             .page { padding: 1.5rem; }
             
-            /* Crucial mobile split: 1/3 top, 2/3 bottom, independent scrolling */
             .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); overflow-y: auto; min-height: 0; }
             .page-right { flex: 2; overflow-y: auto; min-height: 0; }
             .book-wrapper { height: 95vh; }
 
-            /* Mobile UI scaling for games */
             #blocky-board, #scrabble-board {
                 max-width: 310px;
                 gap: 2px;
@@ -467,6 +466,7 @@
                     </div>
                 </div>
 
+                <!-- Navigation Sidebar -->
                 <div class="space-y-2 mb-6">
                     <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-house w-6"></i> Main Page
@@ -474,6 +474,41 @@
                     <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-layer-group w-6"></i> Flashcards
                     </button>
+                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-spell-check w-6"></i> Practice
+                    </button>
+                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
+                    </button>
+                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
+                    </button>
+                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
+                    </button>
+                    <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
+                        <i class="fa-solid fa-cubes-stacked w-6"></i> Gamemodes (CSW24)
+                    </button>
+                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
+                    </button>
+                </div>
+
+                <div class="bg-white/50 p-4 rounded-xl mb-6">
+                    <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-500 text-sm">Words in Vault:</span>
+                        <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm">Total Vaults:</span>
+                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
+                    <button onclick="document.getElementByI                    </button>
                     <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-spell-check w-6"></i> Practice
                     </button>
