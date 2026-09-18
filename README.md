@@ -28,7 +28,7 @@
 - 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
 - 🧩 **Spelling Bee**: recommend as beginers,but if you want to get all word than hard
-
+- 🧩 **Wordle**: sometimes easy sometimes hard,but normally easy
 ---
 
 ## 🛠️ Built With
