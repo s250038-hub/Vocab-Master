@@ -502,44 +502,22 @@
             .book-wrapper { height: 95vh; }
 
             .page-left {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 82%;
-                max-width: 320px;
-                height: 100vh;
-                z-index: 60;
-                background-color: #fcf9f2;
-                box-shadow: 10px 0 25px rgba(0,0,0,0.3);
-                transform: translateX(-100%);
-                transition: transform 0.3s ease-in-out;
-                border-right: 1px solid rgba(0,0,0,0.1);
-                padding: 1.5rem;
+                flex: 1;
+                width: 100%;
+                height: auto;
+                max-height: 33vh;
+                border-right: none;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                padding: 1rem;
                 overflow-y: auto;
             }
 
-            .page-left.drawer-open {
-                transform: translateX(0);
-            }
-
-            /* Completely transparent overlay (no backdrop blur) */
-            .mobile-drawer-overlay {
-                position: fixed;
-                inset: 0;
-                background: transparent;
-                z-index: 55;
-                display: none;
-            }
-
-            .mobile-drawer-overlay.active {
-                display: block;
-            }
-
             .page-right {
-                flex: 1;
+                flex: 2;
                 width: 100%;
-                height: 100%;
-                padding: 1.25rem;
+                height: auto;
+                max-height: 67vh;
+                padding: 1rem;
                 overflow-y: auto;
             }
 
@@ -589,23 +567,13 @@
     </style>
 </head>
 <body>
-    <!-- Transparent mobile overlay backdrop -->
-    <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
-
     <div class="book-wrapper">
         <div class="book">
             <div class="spine"></div>
             
-            <!-- Left Navigation Drawer / Sidebar -->
+            <!-- Left Navigation Sidebar -->
             <div class="page page-left">
-                <div class="flex justify-between items-center mb-4 md:hidden">
-                    <span class="font-bold text-gray-800 font-serif text-lg"><i class="fa-solid fa-book-open text-blue-600 mr-1"></i> Navigation</span>
-                    <button onclick="closeMobileDrawer()" class="text-gray-500 hover:text-gray-800 p-1 rounded-lg">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
-
-                <div class="text-center mb-6 hidden md:block">
+                <div class="text-center mb-6">
                     <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
                     <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
                 </div>
@@ -616,40 +584,40 @@
                     <div class="flex gap-2 mb-2">
                         <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
                         </select>
-                        <button onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
+                        <button type="button" onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
                             <i class="fa-solid fa-plus"></i>
                         </button>
                     </div>
                     <div class="flex justify-between items-center px-1">
-                        <button onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
+                        <button type="button" onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
                             <i class="fa-solid fa-pen-to-square"></i> Rename
                         </button>
-                        <button onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+                        <button type="button" onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </div>
                 </div>
 
                 <div class="space-y-2 mb-6">
-                    <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button type="button" onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-house w-6"></i> Main Page
                     </button>
-                    <button onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button type="button" onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-layer-group w-6"></i> Flashcards
                     </button>
-                    <button onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button type="button" onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-spell-check w-6"></i> Practice
                     </button>
-                    <button onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button type="button" onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-circle-question w-6"></i> Quiz
                     </button>
-                    <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button type="button" onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
                     </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
+                    <button type="button" onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
                         <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
                     </button>
-                    <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
+                    <button type="button" onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
                         <span class="w-6 text-base">🎮</span> Author-recommend Gamemodes
                     </button>
                 </div>
@@ -667,21 +635,13 @@
                 </div>
 
                 <div class="flex gap-2">
-                    <button onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
-                    <button onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
+                    <button type="button" onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
+                    <button type="button" onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
                     <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
                 </div>
             </div>
 
             <div class="page page-right">
-                <!-- Mobile Navigation Header -->
-                <div class="md:hidden flex items-center justify-between pb-3 mb-3 border-b border-gray-200">
-                    <button onclick="toggleMobileDrawer()" class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 text-gray-800 px-3 py-1.5 rounded-lg text-sm font-bold transition">
-                        <i class="fa-solid fa-bars text-blue-600"></i> Menu
-                    </button>
-                    <span class="font-bold text-gray-800 font-serif text-base"><i class="fa-solid fa-book-open text-blue-600 mr-1"></i> Vocab Master</span>
-                </div>
-
                 <!-- View 1: Main Page -->
                 <div id="view-home" class="view-section active">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
@@ -1500,24 +1460,6 @@
             "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA"
         ]);
 
-        function toggleMobileDrawer() {
-            const drawer = document.querySelector('.page-left');
-            const overlay = document.getElementById('mobile-drawer-overlay');
-            if (drawer && overlay) {
-                drawer.classList.toggle('drawer-open');
-                overlay.classList.toggle('active');
-            }
-        }
-
-        function closeMobileDrawer() {
-            const drawer = document.querySelector('.page-left');
-            const overlay = document.getElementById('mobile-drawer-overlay');
-            if (drawer && overlay) {
-                drawer.classList.remove('drawer-open');
-                overlay.classList.remove('active');
-            }
-        }
-
         function speakWord(text, lang = 'en-US') {
             if (!('speechSynthesis' in window)) {
                 showToast("Your browser does not support text-to-speech.", true);
@@ -1607,12 +1549,9 @@
         function switchView(viewId) {
             const targetView = document.getElementById(`view-${viewId}`);
             if (targetView && targetView.classList.contains('active')) {
-                // If the target view is already active, do not switch or close drawer
                 return;
             }
 
-            // PER USER REQUEST: The mobile drawer does NOT automatically close when selecting items.
-            // It remains open while the right-hand view switches in real-time, closing only via 'X' or backdrop tap.
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if (targetView) targetView.classList.add('active');
             
