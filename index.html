@@ -1611,7 +1611,8 @@
                 return;
             }
 
-            closeMobileDrawer();
+            // PER USER REQUEST: The mobile drawer does NOT automatically close when selecting items.
+            // It remains open while the right-hand view switches in real-time, closing only via 'X' or backdrop tap.
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             if (targetView) targetView.classList.add('active');
             
