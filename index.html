@@ -493,7 +493,6 @@
             opacity: 0.6;
         }
 
-        /* Mobile full-screen replacing layout */
         @media (max-width: 768px) {
             .book {
                 flex-direction: column;
@@ -630,7 +629,6 @@
                     </div>
                 </div>
 
-                <!-- Navigation Section -->
                 <div class="space-y-2 mb-6">
                     <button onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-house w-6"></i> Main Page
@@ -647,7 +645,7 @@
                     <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
                     </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
                         <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
                     </button>
                     <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
@@ -674,7 +672,6 @@
                 </div>
             </div>
 
-            <!-- Right Main Content Page -->
             <div class="page page-right">
                 
                 <!-- Mobile Navigation Header -->
@@ -752,7 +749,6 @@
                     </div>
                 </div>
 
-                <!-- View 3: Practice -->
                 <div id="view-test" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Practice</h2>
                     
@@ -856,7 +852,6 @@
                     </div>
                 </div>
 
-                <!-- View 5: SPELLING QUIZ VIEW -->
                 <div id="view-spelling" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
 
@@ -911,39 +906,92 @@
                     </div>
                 </div>
 
-                <!-- View 6: Sentences & Grammar (Moved Above Gamemodes) -->
                 <div id="view-sentence" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-nib text-blue-600"></i>
+                        <span>Sentence Practice & Intelligent Grammar Analyzer</span>
+                    </h2>
                     
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
-                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-bold text-gray-700">Choose a target word to practice:</label>
+                            <button onclick="randomSentenceWord()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
                                 <i class="fa-solid fa-dice"></i> Pick Random
                             </button>
                         </div>
-                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
+                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-3" onchange="updateSentenceHint()">
                             <option value="">-- Select or pick random --</option>
                         </select>
-                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
+                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3.5 rounded-xl hidden break-words border border-blue-200"></div>
                     </div>
 
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
-                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-bold text-gray-700">Compose an English sentence using the target word:</label>
+                            <span id="sentence-word-counter" class="text-xs font-bold text-gray-400">0 words</span>
+                        </div>
+
+                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3 font-medium text-gray-800 text-base" placeholder="Write your sentence here... (e.g., I read an interesting book yesterday.)" oninput="onSentenceInputChange()"></textarea>
+
+                        <!-- Real-time Quality Pills -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span id="pill-capital" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-font mr-1"></i> Capital Initial
+                            </span>
+                            <span id="pill-punctuation" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-circle-dot mr-1"></i> Terminal Mark
+                            </span>
+                            <span id="pill-length" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-arrows-left-right mr-1"></i> Min 4 Words
+                            </span>
+                            <span id="pill-target" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-bullseye mr-1"></i> Target Word Found
+                            </span>
+                        </div>
                         
-                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
-                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
+                        <button id="check-grammar-btn" onclick="checkGrammarIntelligent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition shadow-md flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-check-double"></i> Run Intelligent Grammar & Quality Check
                         </button>
                     </div>
 
-                    <div id="grammar-result" class="mt-6 hidden">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
+                    <!-- Intelligent Grammar Score Dashboard -->
+                    <div id="grammar-result" class="mt-5 hidden space-y-4">
+                        <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-5 rounded-xl shadow-md border border-slate-700">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <h3 class="font-bold text-lg"><i class="fa-solid fa-award text-yellow-400 mr-2"></i> Quality Score Dashboard</h3>
+                                    <p class="text-xs text-slate-300">Intelligent Rule Analysis & Grammar Verification</p>
+                                </div>
+                                <div class="text-right">
+                                    <div id="overall-score-badge" class="text-3xl font-black text-yellow-400">0 / 100</div>
+                                    <div id="overall-grade-tag" class="text-xs font-bold bg-yellow-400/20 text-yellow-300 px-2 py-0.5 rounded-full inline-block mt-1">Grade: F</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs pt-3 border-t border-slate-700">
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Target Word Use</div>
+                                    <div id="score-target-val" class="font-bold text-sm text-green-400">0 / 30</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Format & Syntax</div>
+                                    <div id="score-format-val" class="font-bold text-sm text-blue-400">0 / 20</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Grammar Engine</div>
+                                    <div id="score-grammar-val" class="font-bold text-sm text-purple-400">0 / 30</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Complexity & Flow</div>
+                                    <div id="score-richness-val" class="font-bold text-sm text-amber-400">0 / 20</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="grammar-feedback" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- View 7: Author-recommend Gamemodes -->
                 <div id="view-blocky" class="view-section">
                     <!-- Tab Switcher Bar with Horizontal Wheel Scrolling -->
                     <div id="gamemode-tab-bar" class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1 overflow-x-auto whitespace-nowrap scroll-smooth">
@@ -1404,7 +1452,6 @@
         </div>
     </div>
     
-    <!-- Word Detail Modal -->
     <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
@@ -2702,7 +2749,6 @@
             document.getElementById('spelling-final-accuracy').innerText = `${spellingCorrectCount} / ${spellingQuestions.length}`;
         }
 
-        // --- VOCABTETRIS MODE LOGIC ---
         let tetrisGrid = Array(13).fill(null).map(() => Array(13).fill(null));
         let tetrisScore = 0;
         let tetrisWordsCount = 0;
@@ -3136,7 +3182,6 @@
             }
         }
 
-        // --- VOCABLOCKY GRID MODE LOGIC ---
         let blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let blockyScore = 0;
         let blocksPlacedCount = 0;
@@ -3526,7 +3571,6 @@
             }
         }
 
-        // --- ENDLESS SCRABBLE MODE LOGIC ---
         let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
@@ -3869,7 +3913,6 @@
             }
         }
 
-        // --- SPELLING BEE MODE LOGIC ---
         let beeLetterCount = 7;
         let beeCenterLetter = '';
         let beeOuterLetters = [];
@@ -4159,7 +4202,6 @@
             }
         }
 
-        // --- WORDLE MODE LOGIC ---
         let wordleWordLength = 5;
         let wordleTargetWord = '';
         let wordleGuesses = [];
@@ -4470,7 +4512,6 @@
             }
         }
 
-        // --- SENTENCE PRACTICE & GRAMMAR CHECK ---
         function updateSentenceSelect() {
             const select = document.getElementById('sentence-word-select');
             select.innerHTML = '<option value="">-- Select or pick random --</option>' + 
@@ -4493,17 +4534,109 @@
             const hintDiv = document.getElementById('sentence-hint');
             if (!select.value) {
                 hintDiv.classList.add('hidden');
+                onSentenceInputChange();
                 return;
             }
             
             const wordObj = vocabList.find(v => v.id === select.value);
             if (wordObj) {
-                hintDiv.innerHTML = `<strong>Hint:</strong> ${wordObj.word.toLowerCase()} (${wordObj.definitions[0].pos}) - ${wordObj.definitions[0].def}`;
+                const posStr = wordObj.definitions[0] ? wordObj.definitions[0].pos : 'word';
+                const defStr = wordObj.definitions[0] ? wordObj.definitions[0].def : '';
+                const variants = generateTargetWordVariants(wordObj.word.toLowerCase());
+                
+                hintDiv.innerHTML = `
+                    <div class="flex items-center justify-between font-bold text-blue-900 mb-1">
+                        <span><i class="fa-solid fa-lightbulb text-yellow-500 mr-1"></i> Target: <strong class="text-blue-600 font-serif text-base">${wordObj.word.toLowerCase()}</strong> (${posStr})</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-mono">${variants.length} Recognized Forms</span>
+                    </div>
+                    <p class="text-xs text-gray-700 mb-2">${defStr}</p>
+                    <div class="text-[11px] text-gray-500 bg-white/70 p-1.5 rounded border border-blue-100">
+                        <strong>Accepted inflections:</strong> ${variants.slice(0, 8).join(', ')}${variants.length > 8 ? '...' : ''}
+                    </div>
+                `;
                 hintDiv.classList.remove('hidden');
+            }
+            onSentenceInputChange();
+        }
+
+        function generateTargetWordVariants(baseWord) {
+            const word = baseWord.toLowerCase().trim();
+            const set = new Set([word]);
+
+            if (!word) return [];
+
+            // Plurals & present tense
+            if (word.endsWith('y') && word.length > 2 && !'aeiou'.includes(word[word.length - 2])) {
+                const stem = word.slice(0, -1);
+                set.add(stem + 'ies');
+                set.add(stem + 'ied');
+                set.add(stem + 'ying');
+            } else if (word.endsWith('e')) {
+                const stem = word.slice(0, -1);
+                set.add(word + 's');
+                set.add(word + 'd');
+                set.add(stem + 'ing');
+                set.add(stem + 'er');
+                set.add(stem + 'est');
+            } else {
+                set.add(word + 's');
+                set.add(word + 'es');
+                set.add(word + 'ed');
+                set.add(word + 'ing');
+                set.add(word + 'er');
+                set.add(word + 'est');
+            }
+
+            // Stem trimming for suffixes
+            if (word.endsWith('ing') && word.length > 4) set.add(word.slice(0, -3));
+            if (word.endsWith('ed') && word.length > 3) set.add(word.slice(0, -2));
+            if (word.endsWith('es') && word.length > 3) set.add(word.slice(0, -2));
+            if (word.endsWith('s') && word.length > 2) set.add(word.slice(0, -1));
+
+            return Array.from(set);
+        }
+
+        function onSentenceInputChange() {
+            const text = document.getElementById('sentence-input').value;
+            const words = text.trim() ? text.trim().split(/\s+/) : [];
+            document.getElementById('sentence-word-counter').innerText = `${words.length} ${words.length === 1 ? 'word' : 'words'}`;
+
+            // Real-time indicators
+            const hasCapital = /^[A-Z]/.test(text.trim());
+            const hasPunctuation = /[.!?]$/.test(text.trim());
+            const hasMinLength = words.length >= 4;
+
+            const select = document.getElementById('sentence-word-select');
+            let hasTargetWord = false;
+            if (select.value) {
+                const wordObj = vocabList.find(v => v.id === select.value);
+                if (wordObj) {
+                    const variants = generateTargetWordVariants(wordObj.word);
+                    const cleanTokens = text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/);
+                    hasTargetWord = cleanTokens.some(token => variants.includes(token));
+                }
+            }
+
+            updatePillState('pill-capital', hasCapital, 'Capital Initial');
+            updatePillState('pill-punctuation', hasPunctuation, 'Terminal Mark');
+            updatePillState('pill-length', hasMinLength, 'Min 4 Words');
+            updatePillState('pill-target', hasTargetWord, select.value ? 'Target Word Found' : 'Select Target Word');
+        }
+
+        function updatePillState(pillId, isValid, labelText) {
+            const pill = document.getElementById(pillId);
+            if (!pill) return;
+
+            if (isValid) {
+                pill.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-800 border border-green-300 transition flex items-center gap-1";
+                pill.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${labelText}`;
+            } else {
+                pill.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition flex items-center gap-1";
+                pill.innerHTML = `<i class="fa-solid fa-circle text-[8px]"></i> ${labelText}`;
             }
         }
 
-        async function checkGrammar() {
+        async function checkGrammarIntelligent() {
             const text = document.getElementById('sentence-input').value.trim();
             const resultDiv = document.getElementById('grammar-result');
             const feedbackDiv = document.getElementById('grammar-feedback');
@@ -4515,8 +4648,66 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AI Checking...';
-            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Analyzing Sentence Structure...';
+
+            // 1. Target word detection & morphological rule evaluation
+            const select = document.getElementById('sentence-word-select');
+            let targetScore = 0;
+            let targetFeedbackHtml = '';
+            let targetWordObj = select.value ? vocabList.find(v => v.id === select.value) : null;
+
+            if (targetWordObj) {
+                const targetWordStr = targetWordObj.word.toLowerCase();
+                const variants = generateTargetWordVariants(targetWordStr);
+                const tokens = text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+                const matchedVariant = tokens.find(tok => variants.includes(tok));
+
+                if (matchedVariant) {
+                    targetScore = 30;
+                    targetFeedbackHtml = `
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-800 flex items-center justify-between">
+                            <span><i class="fa-solid fa-bullseye text-green-600 mr-1.5"></i> Target Word Match: Recognized <strong>"${matchedVariant}"</strong> (form of "${targetWordStr}") in sentence!</span>
+                            <span class="font-bold font-mono text-green-700 bg-green-100 px-2 py-0.5 rounded">+30 pts</span>
+                        </div>`;
+                } else {
+                    targetScore = 0;
+                    targetFeedbackHtml = `
+                        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
+                            <span><i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1.5"></i> Missing Target Word: Neither "${targetWordStr}" nor its derived forms were found.</span>
+                            <span class="font-bold font-mono text-amber-700 bg-amber-100 px-2 py-0.5 rounded">+0 pts</span>
+                        </div>`;
+                }
+            } else {
+                targetScore = 15;
+                targetFeedbackHtml = `
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 flex items-center justify-between">
+                        <span><i class="fa-solid fa-info-circle text-blue-600 mr-1.5"></i> No Target Word Selected (Default Practice Mode)</span>
+                        <span class="font-bold font-mono text-blue-700 bg-blue-100 px-2 py-0.5 rounded">+15 pts</span>
+                    </div>`;
+            }
+
+            // 2. Syntax & Formatting evaluation (Max 20)
+            let formatScore = 0;
+            const startsWithCap = /^[A-Z]/.test(text);
+            const endsWithPunct = /[.!?]$/.test(text);
+            if (startsWithCap) formatScore += 10;
+            if (endsWithPunct) formatScore += 10;
+
+            // 3. Complexity & Flow evaluation (Max 20)
+            const wordsList = text.split(/\s+/).filter(Boolean);
+            const wordCount = wordsList.length;
+            const uniqueWordCount = new Set(wordsList.map(w => w.toLowerCase())).size;
+            let richnessScore = 0;
+
+            if (wordCount >= 4) richnessScore += 8;
+            if (wordCount >= 8) richnessScore += 6;
+            if (uniqueWordCount / (wordCount || 1) >= 0.7) richnessScore += 6;
+            richnessScore = Math.min(20, richnessScore);
+
+            // 4. Rule-Based Engine (LanguageTool API integration) (Max 30)
+            let grammarScore = 30;
+            let ltMatches = [];
+
             try {
                 const response = await fetch('https://api.languagetool.org/v2/check', {
                     method: 'POST',
@@ -4527,47 +4718,72 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('API Request Failed');
-                
-                const data = await response.json();
-                resultDiv.classList.remove('hidden');
-                
-                if (data.matches.length === 0) {
-                    feedbackDiv.innerHTML = `
-                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 flex items-center">
-                            <i class="fa-solid fa-face-smile-beam text-2xl mr-3"></i>
-                            <div>
-                                <p class="font-bold">Perfect!</p>
-                                <p class="text-sm">Great job! No grammar errors found.</p>
-                            </div>
-                        </div>`;
-                } else {
-                    let errHtml = `<p class="text-sm text-red-600 mb-2">Found ${data.matches.length} potential issues:</p>`;
-                    data.matches.forEach(match => {
-                        const errorWord = text.substring(match.offset, match.offset + match.length);
-                        const suggestions = match.replacements.slice(0, 3).map(r => `<span class="bg-blue-100 text-blue-700 px-1 rounded text-xs font-mono mr-1">${r.value}</span>`).join('');
-                        
-                        errHtml += `
-                            <div class="p-3 bg-red-50 border border-red-100 rounded-lg mb-2">
-                                <p class="text-sm text-gray-800 mb-1">
-                                    <span class="line-through text-red-500 mr-1">${errorWord}</span> 
-                                    <i class="fa-solid fa-arrow-right-long text-gray-400 mx-1"></i> 
-                                    ${suggestions || '<span class="text-gray-500 text-xs">(No specific suggestion)</span>'}
-                                </p>
-                                <p class="text-xs text-red-600">${match.message}</p>
-                            </div>
-                        `;
-                    });
-                    feedbackDiv.innerHTML = errHtml;
+                if (response.ok) {
+                    const data = await response.json();
+                    ltMatches = data.matches || [];
+                    grammarScore = Math.max(0, 30 - (ltMatches.length * 10));
                 }
-
-            } catch (error) {
-                console.error(error);
-                showToast("Failed to connect to grammar server, please try again later.", true);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)';
+            } catch (err) {
+                console.warn("LanguageTool API failed, falling back to local rule evaluation.", err);
             }
+
+            // Calculate total score out of 100
+            const totalScore = Math.min(100, targetScore + formatScore + grammarScore + richnessScore);
+            let grade = 'F';
+            let gradeColor = 'text-red-400 bg-red-400/20';
+
+            if (totalScore >= 90) { grade = 'S (Perfect)'; gradeColor = 'text-emerald-400 bg-emerald-400/20'; }
+            else if (totalScore >= 80) { grade = 'A (Excellent)'; gradeColor = 'text-green-400 bg-green-400/20'; }
+            else if (totalScore >= 70) { grade = 'B (Good)'; gradeColor = 'text-blue-400 bg-blue-400/20'; }
+            else if (totalScore >= 50) { grade = 'C (Fair)'; gradeColor = 'text-amber-400 bg-amber-400/20'; }
+
+            // Render Dashboard scores
+            document.getElementById('overall-score-badge').innerText = `${totalScore} / 100`;
+            const gradeTag = document.getElementById('overall-grade-tag');
+            gradeTag.innerText = `Grade: ${grade}`;
+            gradeTag.className = `text-xs font-bold px-2 py-0.5 rounded-full inline-block mt-1 ${gradeColor}`;
+
+            document.getElementById('score-target-val').innerText = `${targetScore} / 30`;
+            document.getElementById('score-format-val').innerText = `${formatScore} / 20`;
+            document.getElementById('score-grammar-val').innerText = `${grammarScore} / 30`;
+            document.getElementById('score-richness-val').innerText = `${richnessScore} / 20`;
+
+            // Render Feedback details
+            let feedbackHtml = targetFeedbackHtml;
+
+            if (ltMatches.length === 0) {
+                feedbackHtml += `
+                    <div class="p-4 bg-green-50 border border-green-200 rounded-xl text-green-800 flex items-center gap-3">
+                        <i class="fa-solid fa-circle-check text-2xl text-green-600"></i>
+                        <div>
+                            <p class="font-bold text-sm">Grammar Engine Passed!</p>
+                            <p class="text-xs text-green-700">No spelling or grammatical issues detected by the rule analyzer.</p>
+                        </div>
+                    </div>`;
+            } else {
+                feedbackHtml += `<div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm"><p class="text-xs font-bold text-red-600 mb-2 uppercase tracking-wider">Spelling & Grammar Suggestions (${ltMatches.length}):</p>`;
+                ltMatches.forEach(match => {
+                    const errorWord = text.substring(match.offset, match.offset + match.length);
+                    const suggestions = match.replacements.slice(0, 3).map(r => `<span class="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-xs font-mono font-bold mr-1">${r.value}</span>`).join('');
+                    
+                    feedbackHtml += `
+                        <div class="p-3 bg-red-50/80 border border-red-200 rounded-lg mb-2 text-xs">
+                            <p class="text-gray-800 mb-1">
+                                <span class="line-through text-red-600 font-bold mr-1">${errorWord}</span> 
+                                <i class="fa-solid fa-arrow-right text-gray-400 mx-1"></i> 
+                                ${suggestions || '<span class="text-gray-400 italic">(No replacement available)</span>'}
+                            </p>
+                            <p class="text-red-700 font-medium">${match.message}</p>
+                        </div>`;
+                });
+                feedbackHtml += `</div>`;
+            }
+
+            feedbackDiv.innerHTML = feedbackHtml;
+            resultDiv.classList.remove('hidden');
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check-double"></i> Run Intelligent Grammar & Quality Check';
         }
     </script>
 </body>
