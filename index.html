@@ -428,7 +428,6 @@
             transform: scale(1.08);
         }
 
-        /* Wordle Specific Styles */
         .wordle-grid {
             display: flex;
             flex-direction: column;
@@ -528,7 +527,6 @@
             opacity: 0.6;
         }
 
-        /* Responsive Mobile Layout Fixes */
         @media (max-width: 768px) {
             .book { flex-direction: column; overflow: hidden; }
             .spine { display: none; }
@@ -636,7 +634,7 @@
                         <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
                     </button>
                     <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
-                        <i class="fa-solid fa-gamepad w-6"></i> Gamemodes (CSW24)
+                        <span class="w-6 text-base">🎮</span> Author-recommend Gamemodes
                     </button>
                     <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
@@ -917,6 +915,7 @@
                     </div>
                 </div>
 
+                <!-- Author-recommend Gamemodes View -->
                 <div id="view-blocky" class="view-section">
                     <!-- Tab Switcher Bar -->
                     <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1 overflow-x-auto">
@@ -933,7 +932,7 @@
                             <i class="fa-solid fa-bug text-amber-500"></i> Spelling Bee
                         </button>
                         <button id="tab-btn-wordle" onclick="switchWordGameMode('wordle')" class="flex-1 py-2 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1 whitespace-nowrap">
-                            <i class="fa-solid fa-grid-2 text-green-600"></i> Wordle
+                            <i class="fa-solid fa-border-all text-green-600"></i> Wordle
                         </button>
                     </div>
 
@@ -942,7 +941,7 @@
                         <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
                             <span class="flex items-center gap-2"><i class="fa-solid fa-shapes text-purple-600"></i> Vocabtetris</span>
                             <div class="flex items-center gap-2">
-                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading CSW24...</span>
+                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...</span>
                                 <span class="text-xs bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="tetris-words-count-display">0</span></span>
                                 <span class="text-base font-bold text-purple-600">Score: <span id="tetris-score-display">0</span></span>
                             </div>
@@ -978,7 +977,7 @@
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>13x13 Tetris Grid with letters dropping from above.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Shapes: 1x1, 1x2, 1x3, 1x4, 2x2, T, L, Reverse-L (Rotate supported!).</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Horizontal & vertical contiguous letters form valid CSW24 words to clear.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Horizontal & vertical contiguous letters form valid words to clear.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Cascade gravity pulls remaining cells down on clear for chain matches!</span></li>
                             </ul>
                             <button onclick="startTetrisGame()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
@@ -995,9 +994,14 @@
                                         <div id="tetris-next-preview" class="inline-grid gap-0.5 p-1 bg-slate-800 rounded"></div>
                                     </div>
                                 </div>
-                                <button onclick="startTetrisGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToTetrisSetup()" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startTetrisGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
                             </div>
 
                             <div id="tetris-board" class="mb-3"></div>
@@ -1029,8 +1033,9 @@
                                 <p class="text-gray-500 mb-4 text-sm">Blocks reached the top row.</p>
                                 <p class="text-lg font-bold text-purple-600 mb-1">Final Score: <span id="tetris-final-score">0</span></p>
                                 <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="tetris-final-words">0</span></p>
-                                <div class="flex gap-2 justify-center">
-                                    <button onclick="startTetrisGame()" class="bg-purple-600 text-white px-6 py-2 rounded-full font-bold hover:bg-purple-700 transition shadow">Play Again</button>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToTetrisSetup()" class="bg-purple-600 text-white px-6 py-2 rounded-full font-bold hover:bg-purple-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startTetrisGame()" class="bg-purple-100 text-purple-800 px-5 py-2 rounded-full font-bold hover:bg-purple-200 transition text-xs">Quick Restart</button>
                                     <button onclick="hideTetrisOverlayAndInspect()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full font-bold hover:bg-gray-300 transition text-xs">Inspect Words</button>
                                 </div>
                             </div>
@@ -1073,7 +1078,7 @@
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid CSW24 words meeting threshold.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid dictionary words meeting threshold.</span></li>
                             </ul>
                             <button onclick="startBlockyGame()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
                                 <i class="fa-solid fa-play"></i> Start Vocablocky Game
@@ -1083,9 +1088,14 @@
                         <div id="blocky-active" class="hidden relative">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Vocablocky Grid</span>
-                                <button onclick="startBlockyGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToBlockySetup()" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startBlockyGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
                             </div>
 
                             <div id="blocky-board" class="mb-4"></div>
@@ -1114,8 +1124,9 @@
                                 <p class="text-gray-500 mb-4 text-sm">No space left on the grid for remaining pieces.</p>
                                 <p class="text-lg font-bold text-blue-600 mb-1">Final Score: <span id="blocky-final-score">0</span></p>
                                 <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="blocky-final-words">0</span></p>
-                                <div class="flex gap-2 justify-center">
-                                    <button onclick="startBlockyGame()" class="bg-blue-600 text-white px-8 py-2.5 rounded-full font-bold hover:bg-blue-700 transition shadow">Play Again</button>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToBlockySetup()" class="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startBlockyGame()" class="bg-blue-100 text-blue-800 px-5 py-2.5 rounded-full font-bold hover:bg-blue-200 transition text-xs">Quick Restart</button>
                                     <button onclick="hideBlockyOverlayAndInspect()" class="bg-gray-200 text-gray-700 px-4 py-2.5 rounded-full font-bold hover:bg-gray-300 transition text-xs">Inspect Words</button>
                                 </div>
                             </div>
@@ -1141,7 +1152,7 @@
                                 Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★★☆☆ 3/5)
                             </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell valid CSW24 words.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell valid words.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
                             </ul>
                             <button onclick="startScrabbleGame()" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
@@ -1152,9 +1163,14 @@
                         <div id="scrabble-active" class="hidden relative">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Endless Scrabble Board</span>
-                                <button onclick="startScrabbleGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToScrabbleSetup()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startScrabbleGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
                             </div>
 
                             <div id="scrabble-board" class="mb-4"></div>
@@ -1208,7 +1224,7 @@
                                 Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★☆☆☆ 2/5)
                             </div>
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form CSW24 words using the honeycomb letters (max target: <strong>120 words</strong> per game).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form words using the honeycomb letters (max target: <strong>120 words</strong> per game).</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every word <strong>must include the center letter</strong> (amber color).</span></li>
                             </ul>
                             <div class="flex flex-wrap justify-center gap-3">
@@ -1224,9 +1240,14 @@
                         <div id="bee-active" class="hidden relative">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Spelling Bee Hive</span>
-                                <button onclick="startBeeGame(beeLetterCount)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToBeeSetup()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startBeeGame(beeLetterCount)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="mb-4 bg-gray-100 p-2.5 rounded-xl border border-gray-200">
@@ -1269,9 +1290,10 @@
                         </div>
                     </div>
 
+                    <!-- SUB-VIEW 4: WORDLE MODE -->
                     <div id="subview-wordle" class="hidden">
                         <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-grid-2 text-green-600"></i> Wordle</span>
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-border-all text-green-600"></i> Wordle</span>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-lg">Wins: <span id="wordle-wins-display">0</span></span>
                                 <span class="text-base font-bold text-green-600">Score: <span id="wordle-score-display">0</span></span>
@@ -1298,11 +1320,11 @@
                             </div>
 
                             <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Guess the secret CSW24 word in 6 attempts or less.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Guess the secret word in 6 attempts or less.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-green-600">Green:</strong> Letter is correct and in the right position.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-yellow-600">Yellow:</strong> Letter is in the word but in a different position.</span></li>
                                 <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-gray-500">Gray:</strong> Letter is not in the secret word at all.</span></li>
-                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every guess must be a valid CSW24 dictionary word.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every guess must be a valid dictionary word.</span></li>
                             </ul>
                         </div>
 
@@ -1310,9 +1332,14 @@
                         <div id="wordle-active" class="hidden relative">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider" id="wordle-mode-badge">5-Letter Wordle</span>
-                                <button onclick="startWordleGame(wordleWordLength)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                                    <i class="fa-solid fa-rotate-right"></i> Restart Game
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToWordleSetup()" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startWordleGame(wordleWordLength)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Wordle Letter Grid -->
@@ -1342,8 +1369,9 @@
                                         <i class="fa-solid fa-book-open"></i> Inspect Word Definition
                                     </button>
                                 </div>
-                                <div class="flex gap-2 justify-center">
-                                    <button onclick="startWordleGame(wordleWordLength)" class="bg-green-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-green-700 transition shadow">Play Again</button>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToWordleSetup()" class="bg-green-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-green-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startWordleGame(wordleWordLength)" class="bg-green-100 text-green-800 px-5 py-2.5 rounded-full font-bold hover:bg-green-200 transition text-xs">Quick Restart</button>
                                 </div>
                             </div>
                         </div>
@@ -1459,7 +1487,7 @@
 
         async function loadFullScrabbleDictionary() {
             const badge = document.getElementById('dict-status-badge');
-            if (badge) badge.innerHTML = `<i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading CSW24...`;
+            if (badge) badge.innerHTML = `<i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...`;
 
             const urls = [
                 './csw24.txt',
@@ -2233,7 +2261,7 @@
                 }
 
                 if (wordDefs.length === 0) {
-                    wordDefs = [{ pos: "word", def: "Valid CSW24 Scrabble word." }];
+                    wordDefs = [{ pos: "word", def: "Valid dictionary word." }];
                 }
 
                 modalCurrentWordObj = {
@@ -2752,6 +2780,7 @@
             }
         }
 
+        // --- VOCABTETRIS MODE ---
         let tetrisGrid = Array(13).fill(null).map(() => Array(13).fill(null));
         let tetrisScore = 0;
         let tetrisWordsCount = 0;
@@ -2783,6 +2812,17 @@
             const shape = TETRIS_SHAPES[Math.floor(Math.random() * TETRIS_SHAPES.length)];
             const letters = shape.map(row => row.map(val => val ? getRandomLetter() : null));
             return { shape, letters };
+        }
+
+        function returnToTetrisSetup() {
+            if (tetrisTimer) clearInterval(tetrisTimer);
+            const overlay = document.getElementById('tetris-gameover-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = '';
+            }
+            document.getElementById('tetris-active').classList.add('hidden');
+            document.getElementById('tetris-setup').classList.remove('hidden');
         }
 
         function startTetrisGame() {
@@ -3174,6 +3214,7 @@
             }
         }
 
+        // --- VOCABLOCKY GRID MODE ---
         let blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let blockyScore = 0;
         let blocksPlacedCount = 0;
@@ -3194,6 +3235,16 @@
             [[1, 1], [1, 1]],
             [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
         ];
+
+        function returnToBlockySetup() {
+            const overlay = document.getElementById('blocky-gameover-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = '';
+            }
+            document.getElementById('blocky-active').classList.add('hidden');
+            document.getElementById('blocky-setup').classList.remove('hidden');
+        }
 
         function startBlockyGame() {
             const overlay = document.getElementById('blocky-gameover-overlay');
@@ -3553,6 +3604,7 @@
             }
         }
 
+        // --- ENDLESS SCRABBLE MODE ---
         let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
@@ -3568,6 +3620,11 @@
             "3,3": "TL", "3,5": "TL", "5,3": "TL", "5,5": "TL",
             "4,4": "★"
         };
+
+        function returnToScrabbleSetup() {
+            document.getElementById('scrabble-active').classList.add('hidden');
+            document.getElementById('scrabble-setup').classList.remove('hidden');
+        }
 
         function startScrabbleGame() {
             scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
@@ -3830,7 +3887,7 @@
 
             let invalidWord = formedWords.find(w => !CSW24_DICTIONARY.has(w.word));
             if (invalidWord) {
-                showToast(`"${invalidWord.word.toLowerCase()}" is not a valid CSW24 word!`, true);
+                showToast(`"${invalidWord.word.toLowerCase()}" is not a valid word!`, true);
                 return;
             }
 
@@ -3890,6 +3947,7 @@
             }
         }
 
+        // --- SPELLING BEE MODE ---
         let beeLetterCount = 7;
         let beeCenterLetter = '';
         let beeOuterLetters = [];
@@ -3900,6 +3958,11 @@
 
         const SAMPLE_PANGRAMS_7 = ["DICTION", "PLAYING", "WORKING", "TEACHER", "MONSTER", "SURFACE", "PACKAGE", "BLANKET"];
         const SAMPLE_PANGRAMS_10 = ["COMPLEXITY", "BACKGROUND", "IMPORTANCE", "BLACKSMITH", "ATMOSPHERE", "OVERMATCH"];
+
+        function returnToBeeSetup() {
+            document.getElementById('bee-active').classList.add('hidden');
+            document.getElementById('bee-setup').classList.remove('hidden');
+        }
 
         function startBeeGame(letterCount = 7) {
             beeLetterCount = letterCount;
@@ -4174,6 +4237,7 @@
             }
         }
 
+        // --- WORDLE MODE ---
         let wordleWordLength = 5;
         let wordleTargetWord = '';
         let wordleGuesses = [];
@@ -4189,6 +4253,16 @@
             ['A','S','D','F','G','H','J','K','L'],
             ['ENTER','Z','X','C','V','B','N','M','DELETE']
         ];
+
+        function returnToWordleSetup() {
+            const overlay = document.getElementById('wordle-gameover-overlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.style.display = '';
+            }
+            document.getElementById('wordle-active').classList.add('hidden');
+            document.getElementById('wordle-setup').classList.remove('hidden');
+        }
 
         function startWordleGame(length = 5) {
             wordleWordLength = length;
@@ -4207,7 +4281,6 @@
             document.getElementById('wordle-active').classList.remove('hidden');
             document.getElementById('wordle-mode-badge').innerText = `${wordleWordLength}-Letter Wordle`;
 
-            // Select random CSW24 word of target length
             const candidateWords = [];
             CSW24_DICTIONARY.forEach(w => {
                 if (w.length === wordleWordLength) {
@@ -4216,7 +4289,7 @@
             });
 
             if (candidateWords.length === 0) {
-                showToast("Dictionary not fully loaded yet!", true);
+                showToast("Dictionary not loaded yet!", true);
                 return;
             }
 
@@ -4273,7 +4346,6 @@
             const targetChars = target.split('');
             const guessChars = guess.split('');
 
-            // First pass: Green check (correct position)
             for (let i = 0; i < guess.length; i++) {
                 if (guessChars[i] === targetChars[i]) {
                     result[i] = 'correct';
@@ -4281,7 +4353,6 @@
                 }
             }
 
-            // Second pass: Yellow check (wrong position)
             for (let i = 0; i < guess.length; i++) {
                 if (result[i] !== 'correct') {
                     const idx = targetChars.indexOf(guessChars[i]);
@@ -4357,13 +4428,12 @@
             }
 
             if (!CSW24_DICTIONARY.has(wordleCurrentGuess)) {
-                showToast(`"${wordleCurrentGuess.toLowerCase()}" is not in CSW24 dictionary!`, true);
+                showToast(`"${wordleCurrentGuess.toLowerCase()}" is not in dictionary!`, true);
                 return;
             }
 
             const evaluations = evaluateWordleGuess(wordleCurrentGuess, wordleTargetWord);
 
-            // Update keyboard key colors with priority: correct > present > absent
             wordleCurrentGuess.split('').forEach((ch, i) => {
                 const evalType = evaluations[i];
                 const currentStatus = wordleKeyboardColors[ch];
@@ -4478,6 +4548,7 @@
             }
         }
 
+        // --- SENTENCE PRACTICE & GRAMMAR CHECK ---
         function updateSentenceSelect() {
             const select = document.getElementById('sentence-word-select');
             select.innerHTML = '<option value="">-- Select or pick random --</option>' + 
