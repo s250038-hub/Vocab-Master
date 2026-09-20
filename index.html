@@ -74,7 +74,7 @@
             border-right: 1px solid rgba(0,0,0,0.1);
         }
 
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.4); }
@@ -125,40 +125,6 @@
         .flashcard-back {
             transform: rotateY(180deg);
             background: #f8fafc;
-        }
-
-        .match-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-        }
-        .match-card {
-            background: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: pointer;
-            text-align: center;
-            user-select: none;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 80px;
-            word-break: break-word;
-            overflow: hidden;
-        }
-        .match-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .match-card.selected { border-color: #3b82f6; background-color: #eff6ff; }
-        .match-card.matched { opacity: 0; pointer-events: none; }
-        .match-card.wrong { animation: shake 0.4s; border-color: #ef4444; background-color: #fef2f2; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
 
         .toast {
@@ -527,14 +493,56 @@
             opacity: 0.6;
         }
 
+        /* Mobile full-screen replacing layout */
         @media (max-width: 768px) {
-            .book { flex-direction: column; overflow: hidden; }
+            .book {
+                flex-direction: column;
+                position: relative;
+            }
             .spine { display: none; }
-            .page { padding: 1.25rem; }
-            
-            .page-left { flex: 1; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.1); overflow-y: auto; min-height: 0; }
-            .page-right { flex: 2; overflow-y: auto; min-height: 0; }
             .book-wrapper { height: 95vh; }
+
+            .page-left {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 82%;
+                max-width: 320px;
+                height: 100vh;
+                z-index: 60;
+                background-color: #fcf9f2;
+                box-shadow: 10px 0 25px rgba(0,0,0,0.3);
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                border-right: 1px solid rgba(0,0,0,0.1);
+                padding: 1.5rem;
+                overflow-y: auto;
+            }
+
+            .page-left.drawer-open {
+                transform: translateX(0);
+            }
+
+            .mobile-drawer-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 55;
+                display: none;
+            }
+
+            .mobile-drawer-overlay.active {
+                display: block;
+            }
+
+            .page-right {
+                flex: 1;
+                width: 100%;
+                height: 100%;
+                padding: 1.25rem;
+                overflow-y: auto;
+            }
 
             #tetris-board {
                 max-width: 310px;
@@ -582,13 +590,22 @@
     </style>
 </head>
 <body>
+    <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
+
     <div class="book-wrapper">
         <div class="book">
             <div class="spine"></div>
             
-            <!-- Left Side Page -->
+            <!-- Left Navigation Drawer / Sidebar -->
             <div class="page page-left">
-                <div class="text-center mb-6">
+                <div class="flex justify-between items-center mb-4 md:hidden">
+                    <span class="font-bold text-gray-800 font-serif text-lg"><i class="fa-solid fa-book-open text-blue-600 mr-1"></i> Navigation</span>
+                    <button onclick="closeMobileDrawer()" class="text-gray-500 hover:text-gray-800 p-1 rounded-lg">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="text-center mb-6 hidden md:block">
                     <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
                     <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
                 </div>
@@ -630,14 +647,11 @@
                     <button onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
                         <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
                     </button>
-                    <button onclick="switchView('match')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-puzzle-piece w-6"></i> Matching Game
+                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
                     </button>
                     <button onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
                         <span class="w-6 text-base">🎮</span> Author-recommend Gamemodes
-                    </button>
-                    <button onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
-                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
                     </button>
                 </div>
 
@@ -660,8 +674,17 @@
                 </div>
             </div>
 
+            <!-- Right Main Content Page -->
             <div class="page page-right">
                 
+                <!-- Mobile Navigation Header -->
+                <div class="md:hidden flex items-center justify-between pb-3 mb-3 border-b border-gray-200">
+                    <button onclick="toggleMobileDrawer()" class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 text-gray-800 px-3 py-1.5 rounded-lg text-sm font-bold transition">
+                        <i class="fa-solid fa-bars text-blue-600"></i> Menu
+                    </button>
+                    <span class="font-bold text-gray-800 font-serif text-base"><i class="fa-solid fa-book-open text-blue-600 mr-1"></i> Vocab Master</span>
+                </div>
+
                 <!-- View 1: Main Page -->
                 <div id="view-home" class="view-section active">
                     <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
@@ -777,7 +800,7 @@
                     </div>
                 </div>
 
-                <!-- View 3.25: QUIZ MODE -->
+                <!-- View 4: QUIZ MODE -->
                 <div id="view-definition-quiz" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz</h2>
 
@@ -833,7 +856,7 @@
                     </div>
                 </div>
 
-                <!-- View 3.5: SPELLING QUIZ VIEW -->
+                <!-- View 5: SPELLING QUIZ VIEW -->
                 <div id="view-spelling" class="view-section">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
 
@@ -888,37 +911,42 @@
                     </div>
                 </div>
 
-                <!-- View 4: Matching Game -->
-                <div id="view-match" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Matching Game</h2>
+                <!-- View 6: Sentences & Grammar (Moved Above Gamemodes) -->
+                <div id="view-sentence" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
                     
-                    <div id="match-setup" class="text-center py-10">
-                        <p class="text-gray-600 mb-6">Match words with their corresponding definitions to clear them!</p>
-                        <button onclick="startMatch()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
-                            <i class="fa-solid fa-play"></i> Start Game
-                        </button>
-                        <p id="match-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
+                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
+                                <i class="fa-solid fa-dice"></i> Pick Random
+                            </button>
+                        </div>
+                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
+                            <option value="">-- Select or pick random --</option>
+                        </select>
+                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
                     </div>
 
-                    <div id="match-active" class="hidden relative">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-sm font-bold text-gray-500">Remaining Matches: <span id="match-remain" class="text-purple-600">0</span></span>
-                            <span class="text-sm font-bold text-gray-500">Moves: <span id="match-moves">0</span></span>
-                        </div>
-                        <div id="match-board" class="match-grid pb-10"></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
+                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
                         
-                        <div id="match-success-overlay" class="absolute inset-0 bg-white/90 rounded-xl flex-col items-center justify-center hidden z-10">
-                            <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4 animate-bounce"></i>
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4">All Matches Cleared!</h3>
-                            <button onclick="startMatch()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">Play Again</button>
-                        </div>
+                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
+                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
+                        </button>
+                    </div>
+
+                    <div id="grammar-result" class="mt-6 hidden">
+                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
+                        <div id="grammar-feedback" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- Author-recommend Gamemodes View -->
+                <!-- View 7: Author-recommend Gamemodes -->
                 <div id="view-blocky" class="view-section">
-                    <!-- Tab Switcher Bar -->
-                    <div class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1 overflow-x-auto">
+                    <!-- Tab Switcher Bar with Horizontal Wheel Scrolling -->
+                    <div id="gamemode-tab-bar" class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1 overflow-x-auto whitespace-nowrap scroll-smooth">
                         <button id="tab-btn-tetris" onclick="switchWordGameMode('tetris')" class="flex-1 py-2 px-2.5 rounded-lg bg-white shadow-sm text-purple-600 transition flex items-center justify-center gap-1 whitespace-nowrap">
                             <i class="fa-solid fa-shapes"></i> Vocabtetris
                         </button>
@@ -1300,7 +1328,6 @@
                             </div>
                         </h2>
 
-                        <!-- Wordle Setup View -->
                         <div id="wordle-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
                                 W
@@ -1328,7 +1355,6 @@
                             </ul>
                         </div>
 
-                        <!-- Wordle Active View -->
                         <div id="wordle-active" class="hidden relative">
                             <div class="flex justify-between items-center mb-3">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider" id="wordle-mode-badge">5-Letter Wordle</span>
@@ -1342,13 +1368,10 @@
                                 </div>
                             </div>
 
-                            <!-- Wordle Letter Grid -->
                             <div id="wordle-grid" class="wordle-grid"></div>
 
-                            <!-- Onscreen Keyboard -->
                             <div id="wordle-keyboard" class="wordle-keyboard mb-6"></div>
 
-                            <!-- Discovered Words -->
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                 <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
                                     <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-green-500 mr-1"></i> Discovered Words (<span id="wordle-found-count">0</span>)</h4>
@@ -1359,7 +1382,6 @@
                                 </div>
                             </div>
 
-                            <!-- Game Over Overlay -->
                             <div id="wordle-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
                                 <div id="wordle-gameover-icon" class="text-6xl mb-3"></div>
                                 <h3 id="wordle-gameover-title" class="text-2xl font-bold text-gray-800 mb-1"></h3>
@@ -1378,42 +1400,11 @@
                     </div>
                 </div>
 
-                <!-- View 5: Sentences & Grammar -->
-                <div id="view-sentence" class="view-section">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Sentence Practice & Grammar Check</h2>
-                    
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <label class="text-sm font-bold text-gray-700">Choose a word to practice:</label>
-                            <button onclick="randomSentenceWord()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-md transition">
-                                <i class="fa-solid fa-dice"></i> Pick Random
-                            </button>
-                        </div>
-                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-4" onchange="updateSentenceHint()">
-                            <option value="">-- Select or pick random --</option>
-                        </select>
-                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg hidden break-words"></div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Try making an English sentence with this word:</label>
-                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3" placeholder="I like to eat an apple every day..."></textarea>
-                        
-                        <button id="check-grammar-btn" onclick="checkGrammar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition flex justify-center items-center">
-                            <i class="fa-solid fa-check-double mr-2"></i> Check Grammar (LanguageTool API)
-                        </button>
-                    </div>
-
-                    <div id="grammar-result" class="mt-6 hidden">
-                        <h3 class="font-bold text-gray-700 mb-3"><i class="fa-solid fa-robot"></i> Feedback Result:</h3>
-                        <div id="grammar-feedback" class="space-y-3"></div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
     
+    <!-- Word Detail Modal -->
     <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
@@ -1461,6 +1452,24 @@
             "AA","AB","AD","AE","AG","AH","AI","AL","AM","AN","AO","AR","AS","AT","AW","AX","AY","BA","BE","BI","BO","BY","DA","DE","DO","ED","EF","EH","EL","EM","EN","ER","ES","ET","EX","FA","FE","FO","GO","HA","HE","HI","HO","ID","IF","IN","IS","IT","JO","KA","LA","LI","LO","MA","ME","MI","MM","MO","MU","MY","NA","NE","NO","NU","OD","OE","OF","OH","OI","OK","OM","ON","OP","OR","OS","OW","OX","OY","PA","PE","PI","PO","RE","SH","SI","SO","TA","TE","TI","TO","UH","UM","UN","UP","US","UT","WE","WO","XI","XU","YA","YE","YO","ZA"
         ]);
 
+        function toggleMobileDrawer() {
+            const drawer = document.querySelector('.page-left');
+            const overlay = document.getElementById('mobile-drawer-overlay');
+            if (drawer && overlay) {
+                drawer.classList.toggle('drawer-open');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function closeMobileDrawer() {
+            const drawer = document.querySelector('.page-left');
+            const overlay = document.getElementById('mobile-drawer-overlay');
+            if (drawer && overlay) {
+                drawer.classList.remove('drawer-open');
+                overlay.classList.remove('active');
+            }
+        }
+
         function speakWord(text, lang = 'en-US') {
             if (!('speechSynthesis' in window)) {
                 showToast("Your browser does not support text-to-speech.", true);
@@ -1483,6 +1492,17 @@
             renderWordList();
             updateSentenceSelect();
             loadFullScrabbleDictionary();
+
+            // Horizontal wheel scrolling for gamemodes tab bar on desktop
+            const tabBar = document.getElementById('gamemode-tab-bar');
+            if (tabBar) {
+                tabBar.addEventListener('wheel', (evt) => {
+                    if (evt.deltaY !== 0) {
+                        evt.preventDefault();
+                        tabBar.scrollLeft += evt.deltaY;
+                    }
+                }, { passive: false });
+            }
         };
 
         async function loadFullScrabbleDictionary() {
@@ -1537,6 +1557,7 @@
         }
 
         function switchView(viewId) {
+            closeMobileDrawer();
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.getElementById(`view-${viewId}`).classList.add('active');
             
@@ -1636,6 +1657,7 @@
         }
 
         function switchVault(vaultId) {
+            closeMobileDrawer();
             if (!vaults[vaultId]) return;
             activeVaultId = vaultId;
             vocabList = vaults[activeVaultId].words || [];
@@ -2680,107 +2702,7 @@
             document.getElementById('spelling-final-accuracy').innerText = `${spellingCorrectCount} / ${spellingQuestions.length}`;
         }
 
-        let matchCards = [];
-        let firstSelected = null;
-        let matchedPairs = 0;
-        let matchMoves = 0;
-
-        function startMatch() {
-            if (vocabList.length < 2) {
-                const err = document.getElementById('match-error-msg');
-                err.innerText = "You need at least 2 words in your vault to play the matching game!";
-                err.classList.remove('hidden');
-                return;
-            }
-
-            document.getElementById('match-setup').classList.add('hidden');
-            document.getElementById('match-active').classList.remove('hidden');
-            
-            const overlay = document.getElementById('match-success-overlay');
-            overlay.classList.add('hidden');
-            overlay.style.display = '';
-
-            const playWords = [...vocabList].sort(() => Math.random() - 0.5).slice(0, 6);
-            matchCards = [];
-            
-            playWords.forEach(w => {
-                const pairId = w.id;
-                matchCards.push({ id: `w_${pairId}`, text: w.word.toLowerCase(), type: 'word', pairId: pairId });
-                let def = w.definitions[0].def;
-                if(def.length > 60) def = def.substring(0, 57) + '...';
-                matchCards.push({ id: `d_${pairId}`, text: def, type: 'def', pairId: pairId });
-            });
-
-            matchCards.sort(() => Math.random() - 0.5);
-            
-            matchedPairs = 0;
-            matchMoves = 0;
-            firstSelected = null;
-            updateMatchStats(playWords.length);
-            renderMatchBoard();
-        }
-
-        function updateMatchStats(totalPairs) {
-            document.getElementById('match-remain').innerText = `${totalPairs - matchedPairs}`;
-            document.getElementById('match-moves').innerText = matchMoves;
-        }
-
-        function renderMatchBoard() {
-            const board = document.getElementById('match-board');
-            board.innerHTML = matchCards.map((card, index) => `
-                <div id="mcard-${index}" class="match-card" onclick="handleMatchClick(${index})">
-                    ${card.type === 'word' ? `<span class="font-bold text-blue-800 text-lg break-words w-full">${card.text}</span>` : `<span class="text-gray-600 text-xs break-words w-full">${card.text}</span>`}
-                </div>
-            `).join('');
-        }
-
-        function handleMatchClick(index) {
-            const cardEl = document.getElementById(`mcard-${index}`);
-            const cardData = matchCards[index];
-
-            if (cardEl.classList.contains('matched') || cardEl.classList.contains('selected')) return;
-
-            cardEl.classList.add('selected');
-
-            if (!firstSelected) {
-                firstSelected = { index, data: cardData, el: cardEl };
-            } else {
-                matchMoves++;
-                
-                if (firstSelected.data.pairId === cardData.pairId && firstSelected.data.type !== cardData.type) {
-                    setTimeout(() => {
-                        cardEl.classList.remove('selected');
-                        cardEl.classList.add('matched');
-                        firstSelected.el.classList.remove('selected');
-                        firstSelected.el.classList.add('matched');
-                        firstSelected = null;
-                        matchedPairs++;
-                        updateMatchStats(matchCards.length / 2);
-                        
-                        if (matchedPairs === matchCards.length / 2) {
-                            setTimeout(() => {
-                                const overlay = document.getElementById('match-success-overlay');
-                                overlay.classList.remove('hidden');
-                                overlay.style.display = 'flex';
-                            }, 500);
-                        }
-                    }, 300);
-                } else {
-                    cardEl.classList.add('wrong');
-                    firstSelected.el.classList.add('wrong');
-                    const tempFirst = firstSelected.el;
-                    
-                    setTimeout(() => {
-                        cardEl.classList.remove('selected', 'wrong');
-                        tempFirst.classList.remove('selected', 'wrong');
-                    }, 500);
-                    firstSelected = null;
-                    updateMatchStats(matchCards.length / 2);
-                }
-            }
-        }
-
-        // --- VOCABTETRIS MODE ---
+        // --- VOCABTETRIS MODE LOGIC ---
         let tetrisGrid = Array(13).fill(null).map(() => Array(13).fill(null));
         let tetrisScore = 0;
         let tetrisWordsCount = 0;
@@ -3214,7 +3136,7 @@
             }
         }
 
-        // --- VOCABLOCKY GRID MODE ---
+        // --- VOCABLOCKY GRID MODE LOGIC ---
         let blockyGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let blockyScore = 0;
         let blocksPlacedCount = 0;
@@ -3604,7 +3526,7 @@
             }
         }
 
-        // --- ENDLESS SCRABBLE MODE ---
+        // --- ENDLESS SCRABBLE MODE LOGIC ---
         let scrabbleBoardGrid = Array(9).fill(null).map(() => Array(9).fill(null));
         let scrabbleScore = 0;
         let scrabbleWordsCount = 0;
@@ -3947,7 +3869,7 @@
             }
         }
 
-        // --- SPELLING BEE MODE ---
+        // --- SPELLING BEE MODE LOGIC ---
         let beeLetterCount = 7;
         let beeCenterLetter = '';
         let beeOuterLetters = [];
@@ -4237,7 +4159,7 @@
             }
         }
 
-        // --- WORDLE MODE ---
+        // --- WORDLE MODE LOGIC ---
         let wordleWordLength = 5;
         let wordleTargetWord = '';
         let wordleGuesses = [];
