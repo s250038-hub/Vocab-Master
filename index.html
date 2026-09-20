@@ -522,11 +522,11 @@
                 transform: translateX(0);
             }
 
+            /* Completely transparent overlay (no backdrop blur) */
             .mobile-drawer-overlay {
                 position: fixed;
                 inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                backdrop-filter: blur(2px);
+                background: transparent;
                 z-index: 55;
                 display: none;
             }
@@ -589,6 +589,7 @@
     </style>
 </head>
 <body>
+    <!-- Transparent mobile overlay backdrop -->
     <div id="mobile-drawer-overlay" class="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
 
     <div class="book-wrapper">
@@ -673,7 +674,6 @@
             </div>
 
             <div class="page page-right">
-                
                 <!-- Mobile Navigation Header -->
                 <div class="md:hidden flex items-center justify-between pb-3 mb-3 border-b border-gray-200">
                     <button onclick="toggleMobileDrawer()" class="flex items-center gap-2 bg-white border border-gray-200 shadow-sm hover:bg-gray-50 text-gray-800 px-3 py-1.5 rounded-lg text-sm font-bold transition">
@@ -1452,6 +1452,7 @@
         </div>
     </div>
     
+    <!-- Word Inspector Modal -->
     <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
             <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
@@ -1604,9 +1605,15 @@
         }
 
         function switchView(viewId) {
+            const targetView = document.getElementById(`view-${viewId}`);
+            if (targetView && targetView.classList.contains('active')) {
+                // If the target view is already active, do not switch or close drawer
+                return;
+            }
+
             closeMobileDrawer();
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
+            if (targetView) targetView.classList.add('active');
             
             if (viewId === 'flashcard') initFlashcards();
             if (viewId === 'test') {
@@ -1704,7 +1711,6 @@
         }
 
         function switchVault(vaultId) {
-            closeMobileDrawer();
             if (!vaults[vaultId]) return;
             activeVaultId = vaultId;
             vocabList = vaults[activeVaultId].words || [];
@@ -4565,7 +4571,6 @@
 
             if (!word) return [];
 
-            // Plurals & present tense
             if (word.endsWith('y') && word.length > 2 && !'aeiou'.includes(word[word.length - 2])) {
                 const stem = word.slice(0, -1);
                 set.add(stem + 'ies');
@@ -4587,7 +4592,6 @@
                 set.add(word + 'est');
             }
 
-            // Stem trimming for suffixes
             if (word.endsWith('ing') && word.length > 4) set.add(word.slice(0, -3));
             if (word.endsWith('ed') && word.length > 3) set.add(word.slice(0, -2));
             if (word.endsWith('es') && word.length > 3) set.add(word.slice(0, -2));
@@ -4601,7 +4605,6 @@
             const words = text.trim() ? text.trim().split(/\s+/) : [];
             document.getElementById('sentence-word-counter').innerText = `${words.length} ${words.length === 1 ? 'word' : 'words'}`;
 
-            // Real-time indicators
             const hasCapital = /^[A-Z]/.test(text.trim());
             const hasPunctuation = /[.!?]$/.test(text.trim());
             const hasMinLength = words.length >= 4;
@@ -4650,7 +4653,6 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Analyzing Sentence Structure...';
 
-            // 1. Target word detection & morphological rule evaluation
             const select = document.getElementById('sentence-word-select');
             let targetScore = 0;
             let targetFeedbackHtml = '';
@@ -4686,14 +4688,12 @@
                     </div>`;
             }
 
-            // 2. Syntax & Formatting evaluation (Max 20)
             let formatScore = 0;
             const startsWithCap = /^[A-Z]/.test(text);
             const endsWithPunct = /[.!?]$/.test(text);
             if (startsWithCap) formatScore += 10;
             if (endsWithPunct) formatScore += 10;
 
-            // 3. Complexity & Flow evaluation (Max 20)
             const wordsList = text.split(/\s+/).filter(Boolean);
             const wordCount = wordsList.length;
             const uniqueWordCount = new Set(wordsList.map(w => w.toLowerCase())).size;
@@ -4704,7 +4704,6 @@
             if (uniqueWordCount / (wordCount || 1) >= 0.7) richnessScore += 6;
             richnessScore = Math.min(20, richnessScore);
 
-            // 4. Rule-Based Engine (LanguageTool API integration) (Max 30)
             let grammarScore = 30;
             let ltMatches = [];
 
@@ -4727,7 +4726,6 @@
                 console.warn("LanguageTool API failed, falling back to local rule evaluation.", err);
             }
 
-            // Calculate total score out of 100
             const totalScore = Math.min(100, targetScore + formatScore + grammarScore + richnessScore);
             let grade = 'F';
             let gradeColor = 'text-red-400 bg-red-400/20';
@@ -4737,7 +4735,6 @@
             else if (totalScore >= 70) { grade = 'B (Good)'; gradeColor = 'text-blue-400 bg-blue-400/20'; }
             else if (totalScore >= 50) { grade = 'C (Fair)'; gradeColor = 'text-amber-400 bg-amber-400/20'; }
 
-            // Render Dashboard scores
             document.getElementById('overall-score-badge').innerText = `${totalScore} / 100`;
             const gradeTag = document.getElementById('overall-grade-tag');
             gradeTag.innerText = `Grade: ${grade}`;
@@ -4748,7 +4745,6 @@
             document.getElementById('score-grammar-val').innerText = `${grammarScore} / 30`;
             document.getElementById('score-richness-val').innerText = `${richnessScore} / 20`;
 
-            // Render Feedback details
             let feedbackHtml = targetFeedbackHtml;
 
             if (ltMatches.length === 0) {
