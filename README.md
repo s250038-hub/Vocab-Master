@@ -20,7 +20,6 @@
 - 🧪 **Practice**: Test your definition recall with dynamic multiple-choice quizzes that adjust to your available word count.
 - 🧪 **Quiz**: Test your definition recall with type the answer quizzes that adjust to your available word count.
 - 🎧 **Spelling Quiz**: Listen to the native audio pronunciation of a target word and practice typing out the correct spelling with instant feedback and score reporting.
-- 🧩 **Matching Game**: Match target vocabulary words with their corresponding definitions in a fun, memory-style game.
 - ✍️ **Sentence & Grammar Practice**: Practice writing sentences using target words and receive instant grammar feedback via LanguageTool.
 - 💾 **Import & Export**: Easily back up or share your word vaults with `.words` JSON/text files.
 ### 🕹️Author-recommend Gamemodes(use csw 24 dictionary)
