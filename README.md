@@ -49,10 +49,4 @@
 Simply open the live website in any web browser:  
 👉 **[https://s250038-hub.github.io/Vocab-Master/](https://s250038-hub.github.io/Vocab-Master/)**
 
-### 💻 Run Locally
-No installation or build tools (like Node.js or npm) are required!
-
-1. **Clone or Download the Repository**:
-   ```bash
-   git clone [https://github.com/s250038-hub/Vocab-Master.git](https://github.com/s250038-hub/Vocab-Master.git)
 ## Enjoy it!
