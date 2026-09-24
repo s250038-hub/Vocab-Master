@@ -40,13 +40,9 @@
   * [Wiktionary REST API](https://en.wiktionary.org/api/rest_v1/)
   * [LanguageTool API](https://languagetool.org/development/api/) (Spell & Grammar Check)
   * Web Speech API (`SpeechSynthesis`)
-
+* **files**:
+  * csw24.txt
+  * index.html
+  * README.md
 ---
-
-## 🚀 Quick Start
-
-### 🌐 Play Online
-Simply open the live website in any web browser:  
-👉 **[https://s250038-hub.github.io/Vocab-Master/](https://s250038-hub.github.io/Vocab-Master/)**
-
 ## Enjoy it!
