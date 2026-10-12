@@ -44,5 +44,7 @@
   * csw24.txt
   * index.html
   * README.md
+  * app.js
+  * style.css
 ---
 ## Enjoy it!
