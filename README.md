@@ -1,0 +1,48 @@
+# 📖 Vocab Master
+
+[![Least version](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://s250038-hub.github.io/Vocab-Master/)
+
+**Vocab Master** is an interactive, browser-based vocabulary management and learning web app. It allows users to build custom word vaults, fetch definitions automatically, practice with flashcards, test their knowledge through interactive quizzes, practice audio spelling, play matching games, and write practice sentences with real-time spell checking and AI-powered grammar feedback.
+
+🚀 **Live Application:** [https://s250038-hub.github.io/Vocab-Master/](https://s250038-hub.github.io/Vocab-Master/)
+
+---
+
+## ✨ Features
+
+- 📚 **Multiple Vault Management**: Create, rename, delete, and switch between different vocabulary vaults to organize your learning goals.
+- 🪄 **Smart Dictionary & Spell Checker**:
+  - Automatically fetches definitions from free dictionary APIs (Free Dictionary API & Wiktionary).
+  - Built-in typo and spell-checking powered by **LanguageTool API** before looking up definitions.
+  - Option to add custom definitions and notes manually.
+- 🔊 **Text-to-Speech (TTS)**: Listen to native pronunciation for saved words and definitions using the Web Speech API.
+- 🎴 **Interactive Flashcards**: Flip cards to review definitions, shuffle decks, and navigate seamlessly through your vocabulary.
+- 🧪 **Practice**: Test your definition recall with dynamic multiple-choice quizzes that adjust to your available word count.
+- 🧪 **Quiz**: Test your definition recall with type the answer quizzes that adjust to your available word count.
+- 🎧 **Spelling Quiz**: Listen to the native audio pronunciation of a target word and practice typing out the correct spelling with instant feedback and score reporting.
+- ✍️ **Sentence & Grammar Practice**: Practice writing sentences using target words and receive instant grammar feedback via LanguageTool.
+- 💾 **Import & Export**: Easily back up or share your word vaults with `.words` JSON/text files.
+### 🕹️Author-recommend Gamemodes(use csw 24 dictionary)
+- 🧩 **Vocabtetris Game**: Ultra hard,not recommended for beginners 
+- 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
+- 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
+- 🧩 **Spelling Bee**: recommend as beginers,but if you want to get all word than hard
+- 🧩 **Wordle**: sometimes easy sometimes hard,but normally easy
+---
+
+## 🛠️ Built With
+
+* **HTML5** & **Vanilla JavaScript** (ES6+)
+* **Tailwind CSS** (via CDN for styling)
+* **Font Awesome 6** (via CDN for icons)
+* **APIs Used**:
+  * [Free Dictionary API](https://dictionaryapi.dev/)
+  * [Wiktionary REST API](https://en.wiktionary.org/api/rest_v1/)
+  * [LanguageTool API](https://languagetool.org/development/api/) (Spell & Grammar Check)
+  * Web Speech API (`SpeechSynthesis`)
+* **files**:
+  * csw24.txt
+  * index.html
+  * README.md
+---
+## Enjoy it!

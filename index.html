@@ -1,0 +1,893 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocab Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="book-wrapper">
+        <div class="book">
+            <div class="spine"></div>
+            
+            <!-- Left Navigation Sidebar -->
+            <div class="page page-left">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold text-gray-800 font-serif mb-2"><i class="fa-solid fa-book-open text-blue-600"></i> Vocab Master</h1>
+                    <p class="text-gray-500 text-sm">Your Personal Vocabulary Vault</p>
+                </div>
+
+                <!-- Vault Switcher Section -->
+                <div class="bg-white/80 p-3 rounded-xl border border-gray-200/60 shadow-sm mb-6">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-vault text-blue-500 mr-1"></i> Active Vault</label>
+                    <div class="flex gap-2 mb-2">
+                        <select id="vault-select" onchange="switchVault(this.value)" class="flex-1 bg-white border border-gray-300 text-gray-800 text-sm rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-medium">
+                        </select>
+                        <button type="button" onclick="createNewVault()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center" title="Create New Vault">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center px-1">
+                        <button type="button" onclick="renameCurrentVault()" class="text-xs text-gray-500 hover:text-blue-600 transition flex items-center gap-1">
+                            <i class="fa-solid fa-pen-to-square"></i> Rename
+                        </button>
+                        <button type="button" onclick="deleteCurrentVault()" class="text-xs text-gray-400 hover:text-red-500 transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-6">
+                    <button type="button" onclick="switchView('home')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-house w-6"></i> Main Page
+                    </button>
+                    <button type="button" onclick="switchView('flashcard')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-layer-group w-6"></i> Flashcards
+                    </button>
+                    <button type="button" onclick="switchView('test')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-spell-check w-6"></i> Practice
+                    </button>
+                    <button type="button" onclick="switchView('definition-quiz')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-circle-question w-6"></i> Quiz
+                    </button>
+                    <button type="button" onclick="switchView('spelling')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-gray-700 focus:outline-none flex items-center">
+                        <i class="fa-solid fa-keyboard w-6"></i> Spelling Quiz
+                    </button>
+                    <button type="button" onclick="switchView('sentence')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-blue-700 font-bold focus:outline-none flex items-center bg-blue-50/80">
+                        <i class="fa-solid fa-pen-nib w-6"></i> Sentences & Grammar
+                    </button>
+                    <button type="button" onclick="switchView('blocky')" class="w-full text-left px-4 py-2.5 rounded-lg hover:bg-white/60 transition font-medium text-purple-700 font-bold focus:outline-none flex items-center bg-purple-50/80">
+                        <span class="w-6 text-base">🎮</span> Author-recommend Gamemodes
+                    </button>
+                </div>
+
+                <div class="bg-white/50 p-4 rounded-xl mb-6">
+                    <h3 class="text-sm font-bold text-gray-600 mb-2">Learning Stats</h3>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-500 text-sm">Words in Vault:</span>
+                        <span id="stat-total-words" class="font-bold text-lg text-blue-600">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 text-sm">Total Vaults:</span>
+                        <span id="stat-total-vaults" class="font-bold text-md text-gray-700">1</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="exportWords()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-download"></i> Export (.words)</button>
+                    <button type="button" onclick="document.getElementById('import-file').click()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-upload"></i> Import</button>
+                    <input type="file" id="import-file" accept=".words,.txt,.json" class="hidden" onchange="importWords(event)">
+                </div>
+            </div>
+
+            <div class="page page-right">
+                <div id="view-home" class="view-section active">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-200 pb-2">
+                        <h2 class="text-2xl font-bold text-gray-800">Main Page</h2>
+                        <span id="current-vault-badge" class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-1 rounded-full">Default Vault</span>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-xl shadow-sm mb-6 border border-gray-100">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Add New Word</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-word-input" placeholder="Enter an English word..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" oninput="handleWordInputChange()" onkeypress="if(event.key === 'Enter') fetchDefinitions()">
+                            <button id="fetch-btn" onclick="fetchDefinitions()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Get Suggestions
+                            </button>
+                        </div>
+                        
+                        <div id="definitions-suggestions" class="mt-4 hidden bg-gray-50 p-3 rounded-lg border border-gray-200"></div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-bold text-gray-700">Saved Words</h3>
+                            <input type="text" id="search-list" placeholder="Search..." class="text-sm border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-blue-500" oninput="renderWordList()">
+                        </div>
+                        <div id="word-list-container" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <div id="view-flashcard" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Flashcards</h2>
+                    
+                    <div id="flashcard-ui" class="hidden flex-col items-center">
+                        <div class="text-sm text-gray-500 mb-4 font-medium" id="flashcard-counter">1 / 10</div>
+                        
+                        <div class="flashcard-container mb-6" onclick="flipCard()">
+                            <div id="flashcard-element" class="flashcard">
+                                <div class="flashcard-face">
+                                    <div class="flex items-center justify-center gap-3 w-full px-2">
+                                        <h2 id="flashcard-word" class="font-bold text-gray-800 responsive-word">Word</h2>
+                                        <button onclick="event.preventDefault(); event.stopPropagation(); speakWord(document.getElementById('flashcard-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-100 text-2xl transition" title="Speak Word">
+                                            <i class="fa-solid fa-volume-high"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-gray-400 text-sm mt-4"><i class="fa-solid fa-hand-pointer"></i> Click to flip</p>
+                                </div>
+                                <div class="flashcard-face flashcard-back">
+                                    <div id="flashcard-defs" class="text-left w-full max-h-full overflow-y-auto px-4 relative z-10"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 w-full max-w-sm">
+                            <button onclick="prevCard()" class="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl transition font-medium"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+                            <button onclick="nextCard()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition font-medium">Next <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="mt-4">
+                            <button onclick="shuffleCards()" class="text-sm text-gray-500 hover:text-gray-800"><i class="fa-solid fa-shuffle"></i> Shuffle & Restart</button>
+                        </div>
+                    </div>
+                    
+                    <div id="flashcard-empty" class="text-center py-20 text-gray-500">
+                        <i class="fa-solid fa-box-open text-4xl mb-3 text-gray-300"></i>
+                        <p>Your current vault is empty! Go add some words first.</p>
+                    </div>
+                </div>
+
+                <div id="view-test" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Practice</h2>
+                    
+                    <div id="test-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <p class="text-gray-600 mb-6">Test your knowledge of definition meanings!</p>
+                        
+                        <div class="mb-6 max-w-xs mx-auto text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of options: <span id="option-count-display">4</span></label>
+                            <input type="range" id="option-count" min="2" max="6" value="4" class="w-full" oninput="document.getElementById('option-count-display').innerText = this.value">
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="test-available-words">0</span> words in this vault</p>
+                        </div>
+
+                        <button onclick="startTest()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                            <i class="fa-solid fa-play"></i> Start Practice
+                        </button>
+                        <p id="test-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    </div>
+
+                    <div id="test-active" class="hidden">
+                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                            <span id="test-progress">Question: 1 / 10</span>
+                            <span id="test-score-display" class="text-blue-600">Score: 0</span>
+                        </div>
+                        
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                            <p class="text-sm text-gray-500 mb-2 font-bold uppercase tracking-wide">Select the correct definition</p>
+                            <div class="flex items-center justify-center gap-3 mb-4 w-full">
+                                <h2 id="test-question-word" class="font-bold text-gray-800 responsive-word">Word</h2>
+                                <button onclick="speakWord(document.getElementById('test-question-word').innerText)" class="audio-btn-std text-blue-500 hover:text-blue-700 hover:bg-blue-50 text-2xl transition" title="Speak Word">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="test-options" class="grid grid-cols-1 gap-3"></div>
+                    </div>
+                    
+                    <div id="test-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Practice Completed!</h2>
+                        <p class="text-lg text-gray-600 mb-6">Your final score: <span id="final-score" class="font-bold text-blue-600 text-3xl">0</span></p>
+                        <button onclick="document.getElementById('test-setup').classList.remove('hidden'); document.getElementById('test-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <div id="view-definition-quiz" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Quiz</h2>
+
+                    <div id="def-quiz-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <i class="fa-solid fa-circle-question text-4xl text-green-500 mb-3"></i>
+                        <p class="text-gray-600 mb-6">Read the definition and type the matching vocabulary word!</p>
+                        
+                        <div class="mb-6 max-w-xs mx-auto text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="def-quiz-count-display">5</span></label>
+                            <input type="range" id="def-quiz-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('def-quiz-count-display').innerText = this.value">
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="def-quiz-available-words">0</span> words in this vault</p>
+                        </div>
+
+                        <button onclick="startDefQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                            <i class="fa-solid fa-play"></i> Start Quiz
+                        </button>
+                        <p id="def-quiz-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    </div>
+
+                    <div id="def-quiz-active" class="hidden">
+                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                            <span id="def-quiz-progress">Word: 1 / 5</span>
+                            <span id="def-quiz-score-display" class="text-green-600">Score: 0</span>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Explanation / Definition</p>
+                            
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 max-h-40 overflow-y-auto">
+                                <span id="def-quiz-pos" class="text-xs font-bold text-blue-600 uppercase bg-blue-100 px-2 py-0.5 rounded mr-1">pos</span>
+                                <p id="def-quiz-explanation" class="text-gray-800 font-medium inline text-lg">Definition text goes here...</p>
+                            </div>
+
+                            <form onsubmit="event.preventDefault(); submitDefQuizAnswer();" class="max-w-md mx-auto">
+                                <input type="text" id="def-quiz-answer-input" placeholder="Type the target word..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-green-500 transition mb-4">
+                                
+                                <button id="def-quiz-submit-btn" type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                    Submit Answer
+                                </button>
+                            </form>
+
+                            <div id="def-quiz-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
+                        </div>
+                    </div>
+
+                    <div id="def-quiz-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-trophy text-5xl text-yellow-400 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Quiz Completed!</h2>
+                        <p class="text-lg text-gray-600 mb-6">Final Score: <span id="def-quiz-final-score" class="font-bold text-green-600 text-3xl">0/0</span></p>
+                        <button onclick="document.getElementById('def-quiz-setup').classList.remove('hidden'); document.getElementById('def-quiz-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <div id="view-spelling" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b border-gray-200 pb-2">Spelling Quiz</h2>
+
+                    <div id="spelling-setup" class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <i class="fa-solid fa-headphones-simple text-4xl text-blue-500 mb-3"></i>
+                        <p class="text-gray-600 mb-6">Listen to the word and type the correct spelling!</p>
+                        
+                        <div class="mb-6 max-w-xs mx-auto text-left">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Number of words to test: <span id="spelling-count-display">5</span></label>
+                            <input type="range" id="spelling-word-count" min="1" max="10" value="5" class="w-full" oninput="document.getElementById('spelling-count-display').innerText = this.value">
+                            <p class="text-xs text-gray-400 mt-1">You currently have <span id="spelling-available-words">0</span> words in this vault</p>
+                        </div>
+
+                        <button onclick="startSpellingQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105">
+                            <i class="fa-solid fa-play"></i> Start Spelling Test
+                        </button>
+                        <p id="spelling-error-msg" class="text-red-500 text-sm mt-3 hidden"></p>
+                    </div>
+
+                    <div id="spelling-active" class="hidden">
+                        <div class="flex justify-between text-sm text-gray-500 mb-4 font-bold">
+                            <span id="spelling-progress">Word: 1 / 5</span>
+                            <span id="spelling-score-display" class="text-blue-600">Correct: 0</span>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center mb-6">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Listen & Spell</p>
+                            
+                            <button onclick="speakSpellingTarget()" class="bg-blue-50 hover:bg-blue-100 border-2 border-blue-400 text-blue-600 px-6 py-4 rounded-2xl font-bold text-xl transition flex items-center justify-center gap-3 mx-auto shadow-sm active:scale-95">
+                                <i class="fa-solid fa-volume-high text-2xl"></i> Click to Hear Word
+                            </button>
+
+                            <form onsubmit="event.preventDefault(); submitSpellingAnswer();" class="mt-8 max-w-md mx-auto">
+                                <input type="text" id="spelling-answer-input" placeholder="Type your spelling here..." autocomplete="off" spellcheck="false" class="w-full text-center text-xl font-semibold border-2 border-gray-300 rounded-xl px-4 py-3 outline-none focus:border-blue-500 transition mb-4">
+                                
+                                <button id="spelling-submit-btn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow">
+                                    Submit Answer
+                                </button>
+                            </form>
+
+                            <div id="spelling-feedback" class="mt-6 hidden p-4 rounded-xl text-left border"></div>
+                        </div>
+                    </div>
+
+                    <div id="spelling-result" class="hidden text-center bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <i class="fa-solid fa-square-check text-5xl text-blue-500 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Spelling Quiz Completed!</h2>
+                        <p class="text-lg text-gray-600 mb-6">Accuracy: <span id="spelling-final-accuracy" class="font-bold text-blue-600 text-3xl">0/0</span></p>
+                        <button onclick="document.getElementById('spelling-setup').classList.remove('hidden'); document.getElementById('spelling-result').classList.add('hidden');" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-lg transition">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <div id="view-sentence" class="view-section">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-nib text-blue-600"></i>
+                        <span>Sentence Practice & Intelligent Grammar Analyzer</span>
+                    </h2>
+                    
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-bold text-gray-700">Choose a target word to practice:</label>
+                            <button onclick="randomSentenceWord()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1">
+                                <i class="fa-solid fa-dice"></i> Pick Random
+                            </button>
+                        </div>
+                        <select id="sentence-word-select" class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 mb-3" onchange="updateSentenceHint()">
+                            <option value="">-- Select or pick random --</option>
+                        </select>
+                        <div id="sentence-hint" class="text-sm text-gray-600 bg-blue-50 p-3.5 rounded-xl hidden break-words border border-blue-200"></div>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="text-sm font-bold text-gray-700">Compose an English sentence using the target word:</label>
+                            <span id="sentence-word-counter" class="text-xs font-bold text-gray-400">0 words</span>
+                        </div>
+
+                        <textarea id="sentence-input" rows="3" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-3 font-medium text-gray-800 text-base" placeholder="Write your sentence here... (e.g., I read an interesting book yesterday.)" oninput="onSentenceInputChange()"></textarea>
+
+                        <!-- Real-time Quality Pills -->
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span id="pill-capital" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-font mr-1"></i> Capital Initial
+                            </span>
+                            <span id="pill-punctuation" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-circle-dot mr-1"></i> Terminal Mark
+                            </span>
+                            <span id="pill-length" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-arrows-left-right mr-1"></i> Min 4 Words
+                            </span>
+                            <span id="pill-target" class="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 transition">
+                                <i class="fa-solid fa-bullseye mr-1"></i> Target Word Found
+                            </span>
+                        </div>
+                        
+                        <button id="check-grammar-btn" onclick="checkGrammarIntelligent()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition shadow-md flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-check-double"></i> Run Intelligent Grammar & Quality Check
+                        </button>
+                    </div>
+
+                    <!-- Intelligent Grammar Score Dashboard -->
+                    <div id="grammar-result" class="mt-5 hidden space-y-4">
+                        <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-5 rounded-xl shadow-md border border-slate-700">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <h3 class="font-bold text-lg"><i class="fa-solid fa-award text-yellow-400 mr-2"></i> Quality Score Dashboard</h3>
+                                    <p class="text-xs text-slate-300">Intelligent Rule Analysis & Grammar Verification</p>
+                                </div>
+                                <div class="text-right">
+                                    <div id="overall-score-badge" class="text-3xl font-black text-yellow-400">0 / 100</div>
+                                    <div id="overall-grade-tag" class="text-xs font-bold bg-yellow-400/20 text-yellow-300 px-2 py-0.5 rounded-full inline-block mt-1">Grade: F</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs pt-3 border-t border-slate-700">
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Target Word Use</div>
+                                    <div id="score-target-val" class="font-bold text-sm text-green-400">0 / 30</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Format & Syntax</div>
+                                    <div id="score-format-val" class="font-bold text-sm text-blue-400">0 / 20</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Grammar Engine</div>
+                                    <div id="score-grammar-val" class="font-bold text-sm text-purple-400">0 / 30</div>
+                                </div>
+                                <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700">
+                                    <div class="text-slate-400 mb-1">Complexity & Flow</div>
+                                    <div id="score-richness-val" class="font-bold text-sm text-amber-400">0 / 20</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="grammar-feedback" class="space-y-3"></div>
+                    </div>
+                </div>
+
+                <div id="view-blocky" class="view-section">
+                    <!-- Tab Switcher Bar with Horizontal Wheel Scrolling -->
+                    <div id="gamemode-tab-bar" class="flex bg-gray-200 p-1 rounded-xl mb-4 text-xs font-bold gap-1 overflow-x-auto whitespace-nowrap scroll-smooth">
+                        <button id="tab-btn-tetris" onclick="switchWordGameMode('tetris')" class="flex-1 py-2 px-2.5 rounded-lg bg-white shadow-sm text-purple-600 transition flex items-center justify-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-shapes"></i> Vocabtetris
+                        </button>
+                        <button id="tab-btn-blocky" onclick="switchWordGameMode('blocky')" class="flex-1 py-2 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-cubes-stacked"></i> Vocablocky
+                        </button>
+                        <button id="tab-btn-scrabble" onclick="switchWordGameMode('scrabble')" class="flex-1 py-2 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-font"></i> Scrabble
+                        </button>
+                        <button id="tab-btn-bee" onclick="switchWordGameMode('bee')" class="flex-1 py-2 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-bug text-amber-500"></i> Spelling Bee
+                        </button>
+                        <button id="tab-btn-wordle" onclick="switchWordGameMode('wordle')" class="flex-1 py-2 px-2.5 rounded-lg text-gray-600 hover:text-gray-900 transition flex items-center justify-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-border-all text-green-600"></i> Wordle
+                        </button>
+                    </div>
+
+                    <!-- SUB-VIEW 0: VOCABTETRIS MODE -->
+                    <div id="subview-tetris">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-shapes text-purple-600"></i> Vocabtetris</span>
+                            <div class="flex items-center gap-2">
+                                <span id="dict-status-badge" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono"><i class="fa-solid fa-spin fa-circle-notch mr-1"></i> Dict: Loading...</span>
+                                <span class="text-xs bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="tetris-words-count-display">0</span></span>
+                                <span class="text-base font-bold text-purple-600">Score: <span id="tetris-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="tetris-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
+                                <i class="fa-solid fa-shapes"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Vocabtetris Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full inline-block border border-purple-200">
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> (★★★★★ 5/5)
+                            </div>
+
+                            <div class="mb-5 bg-purple-50/70 p-3 rounded-xl border border-purple-200 text-left max-w-md mx-auto">
+                                <label class="block text-xs font-bold text-purple-900 uppercase tracking-wider mb-2"><i class="fa-solid fa-filter text-purple-600 mr-1"></i> Clear Threshold:</label>
+                                <div class="space-y-1.5">
+                                    <label class="flex items-center text-xs font-semibold text-gray-700 cursor-pointer p-1.5 rounded hover:bg-purple-100/50 transition">
+                                        <input type="radio" name="tetris-min-len-option" value="2" checked onchange="tetrisMinWordLen = 2" class="form-radio text-purple-600 focus:ring-purple-500">
+                                        <span class="ml-2">2-letter mode (Recommended)</span>
+                                    </label>
+                                    <label class="flex items-center text-xs font-semibold text-gray-700 cursor-pointer p-1.5 rounded hover:bg-purple-100/50 transition">
+                                        <input type="radio" name="tetris-min-len-option" value="3" onchange="tetrisMinWordLen = 3" class="form-radio text-purple-600 focus:ring-purple-500">
+                                        <span class="ml-2 text-amber-600 font-bold">3-letter mode (Hard)</span>
+                                    </label>
+                                    <label class="flex items-center text-xs font-semibold text-gray-700 cursor-pointer p-1.5 rounded hover:bg-purple-100/50 transition">
+                                        <input type="radio" name="tetris-min-len-option" value="4" onchange="tetrisMinWordLen = 4" class="form-radio text-purple-600 focus:ring-purple-500">
+                                        <span class="ml-2 text-red-600 font-bold">4-letter mode (Are you really sure??)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>13x13 Tetris Grid with letters dropping from above.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Shapes: 1x1, 1x2, 1x3, 1x4, 2x2, T, L, Reverse-L (Rotate supported!).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Horizontal & vertical contiguous letters form valid words to clear.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Cascade gravity pulls remaining cells down on clear for chain matches!</span></li>
+                            </ul>
+                            <button onclick="startTetrisGame()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
+                                <i class="fa-solid fa-play"></i> Start Vocabtetris
+                            </button>
+                        </div>
+
+                        <div id="tetris-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">13x13 Grid</span>
+                                    <div class="flex items-center gap-1 text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                                        <span>Next:</span>
+                                        <div id="tetris-next-preview" class="inline-grid gap-0.5 p-1 bg-slate-800 rounded"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToTetrisSetup()" class="bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startTetrisGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="tetris-board" class="mb-3"></div>
+
+                            <div class="bg-slate-100 p-2.5 rounded-xl border border-gray-200 mb-4 shadow-sm">
+                                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1 text-center">Controls (Touch or Keyboard ← → ↑ ↓ Space)</div>
+                                <div class="grid grid-cols-5 gap-1.5 max-w-xs mx-auto">
+                                    <button onclick="moveTetrisLeft()" class="bg-white hover:bg-purple-50 text-purple-700 py-2 rounded-lg font-bold text-sm shadow-sm border border-gray-200 active:scale-95"><i class="fa-solid fa-arrow-left"></i></button>
+                                    <button onclick="rotateTetrisPiece()" class="bg-purple-600 text-white py-2 rounded-lg font-bold text-sm shadow-sm active:scale-95"><i class="fa-solid fa-rotate"></i></button>
+                                    <button onclick="moveTetrisRight()" class="bg-white hover:bg-purple-50 text-purple-700 py-2 rounded-lg font-bold text-sm shadow-sm border border-gray-200 active:scale-95"><i class="fa-solid fa-arrow-right"></i></button>
+                                    <button onclick="dropTetrisSoft()" class="bg-slate-700 text-white py-2 rounded-lg font-bold text-sm shadow-sm active:scale-95"><i class="fa-solid fa-arrow-down"></i></button>
+                                    <button onclick="dropTetrisHard()" class="bg-indigo-600 text-white py-2 rounded-lg font-bold text-xs shadow-sm active:scale-95"><i class="fa-solid fa-angles-down"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-purple-500 mr-1"></i> Discovered Words (<span id="tetris-found-count">0</span>)</h4>
+                                    <button onclick="toggleTetrisFoundList()" id="tetris-toggle-list-btn" class="text-xs text-purple-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="tetris-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words formed yet. Start dropping pieces!</p>
+                                </div>
+                            </div>
+
+                            <div id="tetris-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
+                                <i class="fa-solid fa-burst text-6xl text-purple-600 mb-3 animate-bounce"></i>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-1">Grid Overflow!</h3>
+                                <p class="text-gray-500 mb-4 text-sm">Blocks reached the top row.</p>
+                                <p class="text-lg font-bold text-purple-600 mb-1">Final Score: <span id="tetris-final-score">0</span></p>
+                                <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="tetris-final-words">0</span></p>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToTetrisSetup()" class="bg-purple-600 text-white px-6 py-2 rounded-full font-bold hover:bg-purple-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startTetrisGame()" class="bg-purple-100 text-purple-800 px-5 py-2 rounded-full font-bold hover:bg-purple-200 transition text-xs">Quick Restart</button>
+                                    <button onclick="hideTetrisOverlayAndInspect()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-full font-bold hover:bg-gray-300 transition text-xs">Inspect Words</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VIEW 1: VOCABLOCKY GRID MODE -->
+                    <div id="subview-blocky" class="hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-cubes-stacked text-blue-600"></i> Vocablocky</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="words-count-display">0</span></span>
+                                <span class="text-base font-bold text-blue-600">Score: <span id="blocky-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="blocky-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
+                                <i class="fa-solid fa-spell-check"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Vocablocky Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block border border-blue-200">
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i> (★★★★☆ 4/5)
+                            </div>
+
+                            <div class="mb-5 bg-blue-50/70 p-3 rounded-xl border border-blue-200 text-left max-w-md mx-auto">
+                                <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2"><i class="fa-solid fa-filter text-blue-600 mr-1"></i> Clear Word Threshold:</label>
+                                <div class="space-y-1.5">
+                                    <label class="flex items-center text-xs font-semibold text-gray-700 cursor-pointer p-1.5 rounded hover:bg-blue-100/50 transition">
+                                        <input type="radio" name="blocky-min-len-option" value="3" checked onchange="blockyMinWordLen = 3" class="form-radio text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2">At least 3 letters clear (Recommended)</span>
+                                    </label>
+                                    <label class="flex items-center text-xs font-semibold text-gray-700 cursor-pointer p-1.5 rounded hover:bg-blue-100/50 transition">
+                                        <input type="radio" name="blocky-min-len-option" value="4" onchange="blockyMinWordLen = 4" class="form-radio text-blue-600 focus:ring-blue-500">
+                                        <span class="ml-2 text-red-600 font-bold">At least 4 letters clear (Are you sure?)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Random letters on every single block cell (visible in preview).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Allowed shapes: <strong>1x1, 1x2, 2x1, 1x3, 3x1, 1x4, 4x1, 2x2, 3x3</strong>.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Blocks clear <strong>automatically</strong> when letters form valid dictionary words meeting threshold.</span></li>
+                            </ul>
+                            <button onclick="startBlockyGame()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
+                                <i class="fa-solid fa-play"></i> Start Vocablocky Game
+                            </button>
+                        </div>
+
+                        <div id="blocky-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Vocablocky Grid</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToBlockySetup()" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startBlockyGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="blocky-board" class="mb-4"></div>
+
+                            <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm mb-4">
+                                <div class="flex justify-between items-center mb-2 px-1">
+                                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">TAP OR DRAG PIECE TO PLACE</span>
+                                    <span class="text-xs text-blue-600 font-bold" id="placed-counter-text">Placed: 0</span>
+                                </div>
+                                <div id="blocky-pieces" class="piece-container"></div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-blue-500 mr-1"></i> Discovered Words (<span id="blocky-found-count">0</span>)</h4>
+                                    <button onclick="toggleBlockyFoundList()" id="blocky-toggle-list-btn" class="text-xs text-blue-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="blocky-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words formed yet. Start placing blocks!</p>
+                                </div>
+                            </div>
+
+                            <div id="blocky-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
+                                <i class="fa-solid fa-border-none text-6xl text-red-500 mb-3 animate-bounce"></i>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-1">No Fits Available!</h3>
+                                <p class="text-gray-500 mb-4 text-sm">No space left on the grid for remaining pieces.</p>
+                                <p class="text-lg font-bold text-blue-600 mb-1">Final Score: <span id="blocky-final-score">0</span></p>
+                                <p class="text-sm font-semibold text-gray-600 mb-6">Words Discovered: <span id="blocky-final-words">0</span></p>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToBlockySetup()" class="bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-blue-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startBlockyGame()" class="bg-blue-100 text-blue-800 px-5 py-2.5 rounded-full font-bold hover:bg-blue-200 transition text-xs">Quick Restart</button>
+                                    <button onclick="hideBlockyOverlayAndInspect()" class="bg-gray-200 text-gray-700 px-4 py-2.5 rounded-full font-bold hover:bg-gray-300 transition text-xs">Inspect Words</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VIEW 2: CLASSIC SCRABBLE ENDLESS MODE -->
+                    <div id="subview-scrabble" class="hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-font text-amber-600"></i> Endless Scrabble</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-lg">Words: <span id="scrabble-words-count">0</span></span>
+                                <span class="text-base font-bold text-amber-600">Score: <span id="scrabble-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="scrabble-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
+                                S₁
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Classic Scrabble (Unended)</h3>
+                            <div class="mb-4 text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block border border-amber-200">
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★★☆☆ 3/5)
+                            </div>
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Drag/Tap tiles from your rack onto the grid to spell valid words.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>First word must cross center star (★). Subsequent words connect to existing tiles.</span></li>
+                            </ul>
+                            <button onclick="startScrabbleGame()" class="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2 mx-auto">
+                                <i class="fa-solid fa-play"></i> Start Endless Scrabble
+                            </button>
+                        </div>
+
+                        <div id="scrabble-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Endless Scrabble Board</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToScrabbleSetup()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startScrabbleGame()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="scrabble-board" class="mb-4"></div>
+
+                            <div class="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 shadow-sm mb-4">
+                                <div class="text-xs text-amber-800 font-bold uppercase tracking-wider mb-2 text-center">Your Tile Rack (7 Tiles)</div>
+                                
+                                <div id="scrabble-rack" class="flex justify-center items-center gap-2 mb-3 min-h-[50px]"></div>
+
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="submitScrabbleTurn()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center gap-1">
+                                        <i class="fa-solid fa-check"></i> Play Word
+                                    </button>
+                                    <button onclick="recallScrabbleTiles()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-rotate-left"></i> Recall
+                                    </button>
+                                    <button onclick="swapScrabbleRack()" class="bg-amber-200 hover:bg-amber-300 text-amber-900 px-3 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Get 7 new random tiles">
+                                        <i class="fa-solid fa-arrows-rotate"></i> Swap Rack
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-amber-500 mr-1"></i> Discovered Words (<span id="scrabble-found-count">0</span>)</h4>
+                                    <button onclick="toggleScrabbleFoundList()" id="scrabble-toggle-list-btn" class="text-xs text-amber-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="scrabble-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words played yet. Start spelling on board!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VIEW 3: SPELLING BEE MODE -->
+                    <div id="subview-bee" class="hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-bug text-amber-500"></i> Spelling Bee</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-1 rounded-lg">Words: <span id="bee-progress-text">0 / 0 (0%)</span></span>
+                                <span class="text-base font-bold text-amber-600">Score: <span id="bee-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="bee-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl">
+                                <i class="fa-solid fa-bee"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Spelling Bee Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block border border-green-200">
+                                Difficulty: <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i> (★★☆☆☆ 2/5)
+                            </div>
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Form words using the honeycomb letters (find as many words as possible with no upper limit).</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every word <strong>must include the center letter</strong> (amber color).</span></li>
+                            </ul>
+                            <div class="flex flex-wrap justify-center gap-3">
+                                <button onclick="startBeeGame(7)" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2">
+                                    <i class="fa-solid fa-play"></i> Classic 7-Letter Mode
+                                </button>
+                                <button onclick="startBeeGame(10)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-bold transition shadow-lg transform hover:scale-105 flex items-center gap-2">
+                                    <i class="fa-solid fa-star"></i> Special 10-Letter Mode
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="bee-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Spelling Bee Hive</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToBeeSetup()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startBeeGame(beeLetterCount)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-4 bg-gray-100 p-2.5 rounded-xl border border-gray-200">
+                                <div class="flex justify-between items-center text-xs font-bold text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span id="bee-progress-detail">0 / 0 words found (0%)</span>
+                                </div>
+                                <div class="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
+                                    <div id="bee-progress-bar" class="bg-amber-500 h-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-4 min-h-[42px] flex items-center justify-center">
+                                <div id="bee-input-display" class="text-2xl font-black font-mono tracking-wider text-gray-800 min-h-[36px] px-4 py-1 bg-amber-50 border-2 border-amber-300 rounded-xl min-w-[200px]"></div>
+                            </div>
+
+                            <div id="bee-honeycomb" class="bee-honeycomb mb-6"></div>
+
+                            <div class="flex justify-center gap-3 mb-6">
+                                <button onclick="deleteBeeLetter()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-delete-left"></i> Delete
+                                </button>
+                                <button onclick="shuffleBeeLetters()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-arrows-rotate"></i> Shuffle
+                                </button>
+                                <button onclick="submitBeeWord()" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl text-xs font-bold transition shadow flex items-center gap-1">
+                                    <i class="fa-solid fa-check"></i> Enter
+                                </button>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-amber-500 mr-1"></i> Discovered Words (<span id="bee-found-count">0</span>)</h4>
+                                    <button onclick="toggleBeeFoundList()" id="bee-toggle-list-btn" class="text-xs text-amber-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="bee-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No words found yet. Start spelling!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VIEW 4: WORDLE MODE -->
+                    <div id="subview-wordle" class="hidden">
+                        <h2 class="text-xl font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2 flex justify-between items-center flex-wrap gap-2">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-border-all text-green-600"></i> Wordle</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-lg">Wins: <span id="wordle-wins-display">0</span></span>
+                                <span class="text-base font-bold text-green-600">Score: <span id="wordle-score-display">0</span></span>
+                            </div>
+                        </h2>
+
+                        <div id="wordle-setup" class="text-center py-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
+                                W
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-1">Wordle Rules</h3>
+                            <div class="mb-4 text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block border border-green-200">
+                                Difficulty: <i class="fa-solid fa-star text-amber-400"></i><i class="fa-regular fa-star text-gray-300"></i><i class="fa-regular fa-star text-gray-300"></i><i class="fa-regular fa-star text-gray-300"></i><i class="fa-regular fa-star text-gray-300"></i> (★☆☆☆☆ 1/5)
+                            </div>
+
+                            <div class="mb-5 bg-green-50/70 p-3 rounded-xl border border-green-200 text-left max-w-md mx-auto">
+                                <label class="block text-xs font-bold text-green-900 uppercase tracking-wider mb-2"><i class="fa-solid fa-arrow-right-to-bracket text-green-600 mr-1"></i> Select Word Length:</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="startWordleGame(4)" class="bg-white hover:bg-green-100 border border-green-300 text-green-800 font-bold py-2 rounded-xl text-xs transition">4-Letter Mode</button>
+                                    <button onclick="startWordleGame(5)" class="bg-green-600 text-white font-bold py-2 rounded-xl text-xs shadow hover:bg-green-700 transition">5-Letter Mode</button>
+                                    <button onclick="startWordleGame(6)" class="bg-white hover:bg-green-100 border border-green-300 text-green-800 font-bold py-2 rounded-xl text-xs transition">6-Letter Mode</button>
+                                </div>
+                            </div>
+
+                            <ul class="text-sm text-gray-600 max-w-md mx-auto text-left space-y-2.5 mb-6">
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Guess the secret word in 6 attempts or less.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-green-600">Green:</strong> Letter is correct and in the right position.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-yellow-600">Yellow:</strong> Letter is in the word but in a different position.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span><strong class="text-gray-500">Gray:</strong> Letter is not in the secret word at all.</span></li>
+                                <li class="flex items-start"><i class="fa-solid fa-check text-green-500 mr-2.5 mt-0.5"></i> <span>Every guess must be a valid dictionary word.</span></li>
+                            </ul>
+                        </div>
+
+                        <div id="wordle-active" class="hidden relative">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs text-gray-400 font-bold uppercase tracking-wider" id="wordle-mode-badge">5-Letter Wordle</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="returnToWordleSetup()" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                        <i class="fa-solid fa-house"></i> Rules & Setup
+                                    </button>
+                                    <button onclick="startWordleGame(wordleWordLength)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1" title="Quick Restart">
+                                        <i class="fa-solid fa-rotate-right"></i> Quick Restart
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="wordle-grid" class="wordle-grid"></div>
+
+                            <div id="wordle-keyboard" class="wordle-keyboard mb-6"></div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-2 border-b border-gray-100 pb-2">
+                                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-list-check text-green-500 mr-1"></i> Discovered Words (<span id="wordle-found-count">0</span>)</h4>
+                                    <button onclick="toggleWordleFoundList()" id="wordle-toggle-list-btn" class="text-xs text-green-600 font-bold hover:underline">Show List</button>
+                                </div>
+                                <div id="wordle-found-list" class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto pt-1 hidden">
+                                    <p class="text-xs text-gray-400 italic">No secret words guessed yet. Start playing!</p>
+                                </div>
+                            </div>
+
+                            <div id="wordle-gameover-overlay" class="absolute inset-0 bg-white/95 rounded-xl flex-col items-center justify-center hidden z-30 p-6 text-center">
+                                <div id="wordle-gameover-icon" class="text-6xl mb-3"></div>
+                                <h3 id="wordle-gameover-title" class="text-2xl font-bold text-gray-800 mb-1"></h3>
+                                <p id="wordle-gameover-msg" class="text-gray-500 mb-4 text-sm"></p>
+                                <div class="flex gap-2 justify-center mb-4">
+                                    <button onclick="showWordDetailModal(wordleTargetWord)" class="bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 px-4 py-2 rounded-full font-bold transition text-xs flex items-center gap-1">
+                                        <i class="fa-solid fa-book-open"></i> Inspect Word Definition
+                                    </button>
+                                </div>
+                                <div class="flex gap-2 justify-center flex-wrap">
+                                    <button onclick="returnToWordleSetup()" class="bg-green-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-green-700 transition shadow">Return to Rules</button>
+                                    <button onclick="startWordleGame(wordleWordLength)" class="bg-green-100 text-green-800 px-5 py-2.5 rounded-full font-bold hover:bg-green-200 transition text-xs">Quick Restart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+    <div id="word-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md overflow-hidden transform transition-all animate-fadeIn">
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <h3 id="modal-word-title" class="text-2xl font-bold font-serif">Word</h3>
+                    <button id="modal-speak-btn" onclick="" class="audio-btn-std bg-slate-700 text-blue-300 hover:bg-slate-600 transition" title="Pronounce">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+                <button onclick="closeWordModal()" class="text-gray-400 hover:text-white p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-5 max-h-[60vh] overflow-y-auto" id="modal-word-content">
+                <p class="text-center text-gray-500 py-6"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Fetching definition...</p>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-t border-gray-100 flex gap-2 justify-end">
+                <button onclick="closeWordModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded-xl transition">
+                    Close
+                </button>
+                <button id="modal-add-vault-btn" onclick="" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add to Current Vault
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Message</div>
+
+    
+    <script src="app.js"></script>
+</body>
+</html>
