@@ -23,7 +23,7 @@
 - ✍️ **Sentence & Grammar Practice**: Practice writing sentences using target words and receive instant grammar feedback via LanguageTool.
 - 💾 **Import & Export**: Easily back up or share your word vaults with `.words` JSON/text files.
 ### 🕹️Author-recommend Gamemodes(use csw 24 dictionary)
-- 🧩 **Vocabtetris Game**: Ultra hard,not recommended for beginners 
+- 🧩 **Vocabtetris Game**: Ultra hard,not recommended for beginners (hahaha)
 - 🧩 **Vocablocky Game**: very recommend,it took me an hour to finish it...
 - 🧩 **Scabble Game**: recommend,not that hard as Vocablocky lol
 - 🧩 **Spelling Bee**: recommend as beginers,but if you want to get all word than hard
@@ -44,7 +44,5 @@
   * csw24.txt
   * index.html
   * README.md
-  * app.js
-  * style.css
 ---
 ## Enjoy it!
