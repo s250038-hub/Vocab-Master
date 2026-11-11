@@ -1,3 +1,5 @@
+# THIS IS AN OUTDATED VERSION, NO MORE UPDATE WILL ON THIS PAGE, NEW VERSION : https://s250038-hub.github.io/Vocab-Master-II/
+
 # 📖 Vocab Master
 
 [![Least version](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://s250038-hub.github.io/Vocab-Master/)
